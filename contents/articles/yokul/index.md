@@ -6,48 +6,10 @@ template: article.jade
 ---
 [Yokul](https://github.com/city41/yokul) is a little JavaScript experiment I've been playing with in my free time. Using the same query string you'd normally send to the [Google Image Chart API](http://code.google.com/apis/chart/image/) a local chart is created on the client using an HTML5 canvas.
 
+<link rel="stylesheet" href="yokul.css"></link>
 <span class="more"></span>
 
 <style>
-  .charts {
-    margin: 1em 0 2em 0;
-  }
-  
-  .charts img {
-    margin-bottom: 0.5em;
-  }
-
-  #debugOutputDiv {
-    margin-top: 20px;
-  }
-
-  .debug-msg {
-    margin-top: 4px;
-    margin-bottom: 4px;
-    background-color: #dedede;
-  }
-
-  .debug-header {
-    padding: 3px;
-    text-align: right;
-    width: 80px;
-    display: inline-block;
-    margin-right: 10px;
-  }
-
-  .info {
-    background-color: gray;
-  }
-
-  .error {
-    background-color: red;
-    color: white;
-    font-weight: bold;
-  }
-  .warning {
-    background-color: #FFCC00;
-    font-weight: bold;
-  }
 </style>
 <script type="text/javascript" src="/js/yokul/yokul.min.js"></script>
 
