@@ -7,6 +7,9 @@ template: article.jade
 I'm currently experimenting with waking up at 5am to work on personal projects before heading to work.
 
 Someone on Hacker News once mentioned they do this, and it stuck in the back of my head ever since. I've been at this for two weeks thus far.
+
+<span class="more"></span>
+
 ##The basic idea
 At 5am I jump out of bed and code for two hours, then get ready for work. I do this every day, including weekends. I maintain an online Kanban board which I groom/prep in the evenings while watching TV, to ensure I am ready to be productive the next morning.
 

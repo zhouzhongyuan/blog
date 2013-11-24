@@ -6,6 +6,8 @@ template: article.jade
 ---
 Back in January I posted an article about [waking up at 5am to code](/articles/waking-up-at-5am-to-code/). It seemed to really strike a chord with a lot of people. Lately I've been getting a handful of emails asking me if I still do this and where I'm at with it now. So I thought I'd post a quick follow up.
 
+<span class="more"></span>
+
 ##Kept it solidly up for about 6 weeks
 Waking up early to tackle personal projects is a good strategy. But it's not without its cost. I managed to maintain it quite solidly for about 6 weeks. From there I found myself not waking up early on most weekend days for another few weeks. The early hours and extra load do take their toll, nothing is free unfortunately. I could feel my stress levels rising and overall just an extra level of feeling worn out. But how my day job is going is a factor there too.
 
