@@ -9,10 +9,11 @@ block prepend title
 
 block header
   include author
+  include date
   h1= page.title
-  p.author
-    | #{ "Written by " }
-    mixin author(page.metadata.author)
+  p.date
+    | #{ "Written on " }
+    mixin date(page.date)
 
 block content
   article.article

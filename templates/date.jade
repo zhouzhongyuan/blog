@@ -1,0 +1,10 @@
+
+mixin date(date)
+  -var d = date.getDate()
+  -var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
+  -var m = monthNames[date.getMonth()]
+  -var y = date.getFullYear()
+  -var together = [m, d, y]
+  span.date
+    | #{ together.join(' ') }
+
