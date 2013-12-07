@@ -7,17 +7,13 @@ block append vars
 block prepend title
   | #{ page.title + " - "}
 
-block header
-  include author
+block content
   include date
   h1= page.title
-  p.date
-    | #{ "last updated " }
+  div.date
     mixin date(page.date)
-
-block content
   article.article
-    section.content!= typogr(page.html).typogrify()
+    section.content!= page.html
 
 block prepend footer
   div.nav

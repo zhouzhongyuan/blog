@@ -19,8 +19,9 @@ html(lang='en')
   body(class=bodyclass)
     header.header
       div.title.clearfix
-        h1.pull-left= locals.name
-        div.links.pull-right
+        a(href='/')
+          h1.pull-left= locals.name
+        div.links.pull-right.hidden-xs
           block header-links
             a(href='stuff.html') stuff I've made
 
