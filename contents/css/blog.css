@@ -1,0 +1,53 @@
+
+/* line 1 : /Users/matt/blog/node_modules/grunt-contrib-stylus/node_modules/stylus/lib/functions/index.styl */
+
+/* line 3 : /Users/matt/blog/stylus/variables.styl */
+
+/* line 69 : /Users/matt/blog/stylus/common.styl */
+
+/* line 1 : /Users/matt/blog/stylus/common.styl */
+body,
+html {
+  margin: 0;
+  padding: 0;
+}
+
+/* line 5 : /Users/matt/blog/stylus/header.styl */
+
+/* line 1 : /Users/matt/blog/stylus/header.styl */
+header {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* line 6 : /Users/matt/blog/stylus/header.styl */
+header h1 {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  font-size: 48px;
+  margin: 0;
+  padding: 0;
+  color: #204c57;
+}
+
+/* line 12 : /Users/matt/blog/stylus/header.styl */
+header .banner-bg {
+  background-color: #f0efec;
+  border-top: 1px solid #204c57;
+  border-bottom: 1px solid #204c57;
+  height: 96px;
+}
+
+/* line 18 : /Users/matt/blog/stylus/header.styl */
+header .banner {
+  font-size: 12em;
+  background-image: url("../media/img/dancers.png");
+  width: 100%;
+  height: 89px;
+  background-repeat: repeat-x;
+  background-position: left center;
+  image-rendering: -webkit-optimize-contrast;
+  ms-interpolation-mode: nearest-neighbor;
+  image-rendering: -moz-crisp-edges;
+}
