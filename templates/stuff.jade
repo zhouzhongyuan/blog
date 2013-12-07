@@ -1,0 +1,18 @@
+extends layout 
+
+block header-links
+  a(href='/') my blog
+
+block content
+  h2.things Some things I've Made
+  each thing in page.metadata.stuff
+    div.thing.clearfix
+      div.thumbnail
+        img(src=thing.thumbnail)
+      h3
+        a(href=thing.url)= thing.name
+      if thing.github
+        div.github
+          a(href=thing.github) github
+      p!= thing.description
+      
