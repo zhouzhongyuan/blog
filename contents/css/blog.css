@@ -3,7 +3,7 @@
 
 /* line 3 : /Users/matt/blog/stylus/variables.styl */
 
-/* line 69 : /Users/matt/blog/stylus/common.styl */
+/* line 62 : /Users/matt/blog/stylus/common.styl */
 
 /* line 1 : /Users/matt/blog/stylus/common.styl */
 body,
@@ -18,10 +18,11 @@ html {
 /* line 8 : /Users/matt/blog/stylus/common.styl */
 #content {
   background-color: #fff;
-  padding-bottom: 80px;
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 
-/* line 11 : /Users/matt/blog/stylus/header.styl */
+/* line 12 : /Users/matt/blog/stylus/header.styl */
 
 /* line 1 : /Users/matt/blog/stylus/header.styl */
 header {
@@ -57,7 +58,12 @@ header .title .links {
   line-height: auto;
 }
 
-/* line 23 : /Users/matt/blog/stylus/header.styl */
+/* line 21 : /Users/matt/blog/stylus/header.styl */
+header .title .links a {
+  color: #204c57;
+}
+
+/* line 25 : /Users/matt/blog/stylus/header.styl */
 header .banner-bg {
   background-color: #f0efec;
   border-top: 1px solid #204c57;
@@ -65,7 +71,7 @@ header .banner-bg {
   height: 96px;
 }
 
-/* line 29 : /Users/matt/blog/stylus/header.styl */
+/* line 31 : /Users/matt/blog/stylus/header.styl */
 header .banner {
   font-size: 12em;
   background-image: url("../media/img/dancers.png");
@@ -78,7 +84,7 @@ header .banner {
   image-rendering: -moz-crisp-edges;
 }
 
-/* line 39 : /Users/matt/blog/stylus/footer.styl */
+/* line 41 : /Users/matt/blog/stylus/footer.styl */
 
 /* line 1 : /Users/matt/blog/stylus/footer.styl */
 footer {
@@ -112,4 +118,77 @@ footer li {
 footer a {
   color: #204c57;
   margin-left: 10px;
+}
+
+/* line 2 : /Users/matt/blog/stylus/pages/pages.styl */
+
+/* line 2 : /Users/matt/blog/stylus/pages/index.styl */
+
+/* line 7 : /Users/matt/blog/stylus/pages/index.styl */
+
+/* line 8 : /Users/matt/blog/stylus/pages/index.styl */
+article.intro h2 {
+  margin: 50px 0 0 0;
+  padding: 0;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  color: #204c57;
+}
+
+/* line 13 : /Users/matt/blog/stylus/pages/index.styl */
+article.intro h2 a {
+  color: #204c57;
+}
+
+/* line 15 : /Users/matt/blog/stylus/pages/index.styl */
+article.intro .date {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: 10px;
+  color: #204c57;
+  margin-bottom: 10px;
+}
+
+/* line 19 : /Users/matt/blog/stylus/pages/index.styl */
+article.intro .more {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: auto;
+  color: #204c57;
+}
+
+/* line 22 : /Users/matt/blog/stylus/pages/index.styl */
+article.intro .more a {
+  color: #204c57;
+}
+
+/* line 24 : /Users/matt/blog/stylus/pages/index.styl */
+article.intro .more:after {
+  margin-left: 5px;
+  content: "\f0a9";
+  font-family: FontAwesome;
+}
+
+/* line 28 : /Users/matt/blog/stylus/pages/index.styl */
+.archives {
+  margin-top: 40px;
+  width: 100%;
+  text-align: center;
+  color: #204c57;
+}
+
+/* line 33 : /Users/matt/blog/stylus/pages/index.styl */
+.archives a {
+  width: 100%;
+  color: #204c57;
+}
+
+/* line 36 : /Users/matt/blog/stylus/pages/index.styl */
+.archives a:before {
+  margin-right: 5px;
+  content: "\f02d";
+  font-family: FontAwesome;
 }

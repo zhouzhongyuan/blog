@@ -2,4 +2,4 @@
 * <i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a>
 * <i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a>
 * <i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a>
-* <i class="fa fa-rss"></i> <a href="#">rss</a>
+* <i class="fa fa-rss"></i> <a href="/feed.xml">rss</a>
