@@ -10,19 +10,34 @@ body,
 html {
   margin: 0;
   padding: 0;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  background-color: #f0efec;
 }
 
-/* line 5 : /Users/matt/blog/stylus/header.styl */
+/* line 8 : /Users/matt/blog/stylus/common.styl */
+#content {
+  background-color: #fff;
+  padding-bottom: 80px;
+}
+
+/* line 11 : /Users/matt/blog/stylus/header.styl */
 
 /* line 1 : /Users/matt/blog/stylus/header.styl */
 header {
   margin: 0;
   padding: 0;
   width: 100%;
+  background-color: #fff;
 }
 
-/* line 6 : /Users/matt/blog/stylus/header.styl */
-header h1 {
+/* line 7 : /Users/matt/blog/stylus/header.styl */
+header .title {
+  margin: 4px 0 4px 40px;
+}
+
+/* line 10 : /Users/matt/blog/stylus/header.styl */
+header .title h1 {
   font-family: 'Lato', sans-serif;
   font-weight: 300;
   font-size: 48px;
@@ -31,7 +46,18 @@ header h1 {
   color: #204c57;
 }
 
-/* line 12 : /Users/matt/blog/stylus/header.styl */
+/* line 16 : /Users/matt/blog/stylus/header.styl */
+header .title .links {
+  height: 50px;
+  line-height: 50px;
+  margin-right: 40px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: auto;
+}
+
+/* line 23 : /Users/matt/blog/stylus/header.styl */
 header .banner-bg {
   background-color: #f0efec;
   border-top: 1px solid #204c57;
@@ -39,7 +65,7 @@ header .banner-bg {
   height: 96px;
 }
 
-/* line 18 : /Users/matt/blog/stylus/header.styl */
+/* line 29 : /Users/matt/blog/stylus/header.styl */
 header .banner {
   font-size: 12em;
   background-image: url("../media/img/dancers.png");
@@ -50,4 +76,40 @@ header .banner {
   image-rendering: -webkit-optimize-contrast;
   ms-interpolation-mode: nearest-neighbor;
   image-rendering: -moz-crisp-edges;
+}
+
+/* line 39 : /Users/matt/blog/stylus/footer.styl */
+
+/* line 1 : /Users/matt/blog/stylus/footer.styl */
+footer {
+  margin: 0;
+  padding: 20px 0 0 0;
+  height: 200px;
+  background-color: #f0efec;
+  border-top: 1px solid #204c57;
+}
+
+/* line 8 : /Users/matt/blog/stylus/footer.styl */
+footer .wave {
+  margin-right: 10px;
+  display: inline-block;
+  float: left;
+  background-image: url("../media/img/wave.png");
+  width: 42px;
+  height: 89px;
+  image-rendering: -webkit-optimize-contrast;
+  ms-interpolation-mode: nearest-neighbor;
+  image-rendering: -moz-crisp-edges;
+}
+
+/* line 19 : /Users/matt/blog/stylus/footer.styl */
+footer li {
+  list-style-type: none;
+  margin-bottom: 4px;
+}
+
+/* line 23 : /Users/matt/blog/stylus/footer.styl */
+footer a {
+  color: #204c57;
+  margin-left: 10px;
 }

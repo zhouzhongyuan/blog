@@ -12,24 +12,29 @@ html(lang='en')
           = locals.name
       link(rel='alternate', href=locals.url+'/feed.xml', type='application/rss+xml', title=locals.description)
       link(rel='stylesheet', href='http://fonts.googleapis.com/css?family=Lato:300,400,700|')
+      link(rel='stylesheet', href='/css/font-awesome.min.css')
+      link(rel='stylesheet', href='/css/bootstrap.min.css')
       link(rel='stylesheet', href='/css/blog.css')
 
   body(class=bodyclass)
     header.header
-      h1= locals.name
+      div.title.clearfix
+        h1.pull-left= locals.name
+        div.links.pull-right
+          block header-links
+            a(href='stuff.html') stuff I've made
+
       div.banner-bg
         div.banner
 
     div#content
-      div.content-wrap
-        block content
-          h2 Welcome to zombocom!
+      block content
     footer
-      div.content-wrap
-        block footer
-          section.about
-            !=contents['about.md'].html
-          section.copy
-            p &copy; #{ new Date().getFullYear() } #{ locals.owner } &mdash; powered by&nbsp;
-              a(href='https://github.com/jnordberg/wintersmith') Wintersmith
-              //- please leave the "powered by" if you use the design
+      div.container
+        div.row
+          div.col-md-offset-1.col-md-6
+            div.wave
+            div 
+              !=contents['about.md'].html
+          div.col-md-4 
+            !=contents['contacts.md'].html

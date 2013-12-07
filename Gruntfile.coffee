@@ -11,7 +11,7 @@ module.exports = (grunt) ->
 
     clean:
       build: ['build']
-      css: ['contents/css']
+      css: ['contents/css/blog.css']
   
     watch:
       stylus:

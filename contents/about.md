@@ -2,5 +2,7 @@
 view: none
 ---
 
-This blog is by Matt Greer. You can find me on [github](http://github.com/city41), [twitter](http://twitter.com/cityfortyone), [stackoverflow](http://stackoverflow.com/users/194940/matt-greer), [Hacker News](https://news.ycombinator.com/user?id=city41) and [by email](mailto:matt.e.greer@gmail.com)
+Hi, I’m Matt Greer, thanks for stopping by. I’m a developer based out of Denver, CO. I am mostly interested in web related technology, 
+but also dabble in games, 
+
 
