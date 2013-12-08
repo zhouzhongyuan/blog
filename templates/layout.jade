@@ -15,6 +15,11 @@ html(lang='en')
       link(rel='stylesheet', href='/css/font-awesome.min.css')
       link(rel='stylesheet', href='/css/bootstrap.min.css')
       link(rel='stylesheet', href='/css/blog.css')
+      link(rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png")
+      link(rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png")
+      link(rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png")
+      link(rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png")
+      link(rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png")
 
   body(class=bodyclass)
     header.header
@@ -37,8 +42,12 @@ html(lang='en')
       div.container
         div.row
           div.col-md-offset-1.col-md-6
-            div.wave
-            div 
-              !=contents['about.md'].html
+            div.container
+              div.row
+                div.col-md-1
+                  div.wave.hidden-xs.hidden-sm
+                div.col-md-5
+                  div.about 
+                    !=contents['about.md'].html
           div.col-md-4 
             !=contents['contacts.md'].html

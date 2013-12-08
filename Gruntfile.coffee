@@ -38,7 +38,7 @@ module.exports = (grunt) ->
         files: 'contents/css/blog.css': 'stylus/main.styl'
 
     exec:
-      winter_build:
+      wintersmith_build:
         command: 'wintersmith build'
 
   grunt.loadNpmTasks "grunt-contrib-copy"
@@ -47,5 +47,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks "grunt-contrib-stylus"
   grunt.loadNpmTasks "grunt-open"
   grunt.loadNpmTasks "grunt-exec"
+
+  grunt.registerTask "build", ["clean", "stylus:prod", "exec:wintersmith_build"]
 
 
