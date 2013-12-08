@@ -5,14 +5,17 @@ block header-links
 
 block content
   h2.things Some things I've Made
-  each thing in page.metadata.stuff
-    div.thing.clearfix
-      div.thumbnail
-        img(src=thing.thumbnail)
-      h3
-        a(href=thing.url)= thing.name
-      if thing.github
-        div.github
-          a(href=thing.github) github
-      p!= thing.description
-      
+  div.container
+    each thing in page.metadata.stuff
+      div.thing.row
+        div.col-md-offset-1.col-md-1
+          div.thumbnail
+            img(src=thing.thumbnail)
+        div.col-md-9
+          h3
+            a(href=thing.url)= thing.name
+          if thing.github
+            div.github
+              a(href=thing.github) github
+          p!= thing.description
+          
