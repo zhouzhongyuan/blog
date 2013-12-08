@@ -12,16 +12,16 @@ html(lang='en')
           = locals.name
       link(rel='alternate', href=locals.url+'/feed.xml', type='application/rss+xml', title=locals.description)
       link(rel='stylesheet', href='http://fonts.googleapis.com/css?family=Lato:300,400,700|')
-      link(rel='stylesheet', href='css/font-awesome.min.css')
-      link(rel='stylesheet', href='css/bootstrap.min.css')
-      link(rel='stylesheet', href='css/blog.css')
+      link(rel='stylesheet', href='/css/font-awesome.min.css')
+      link(rel='stylesheet', href='/css/bootstrap.min.css')
+      link(rel='stylesheet', href='/css/blog.css')
 
   body(class=bodyclass)
     header.header
       div.title.clearfix
         a(href='/')
           h1.pull-left= locals.name
-        div.links.pull-right.hidden-xs
+        div.links.pull-right
           block header-links
             a(href='stuff.html') stuff I've made
 
