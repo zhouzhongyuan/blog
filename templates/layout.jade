@@ -41,13 +41,10 @@ html(lang='en')
     footer
       div.container
         div.row
-          div.col-md-offset-1.col-md-6
-            div.container
-              div.row
-                div.col-md-1
-                  div.wave.hidden-xs.hidden-sm
-                div.col-md-5
-                  div.about 
-                    !=contents['about.md'].html
+          div.col-md-offset-1.col-md-1
+            div.wave.hidden-xs.hidden-sm
+          div.col-md-5
+            div.about 
+              !=contents['about.md'].html
           div.col-md-4 
             !=contents['contacts.md'].html
