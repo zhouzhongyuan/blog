@@ -26,6 +26,7 @@ article.intro .more:after{margin-left:5px;content:"\f0a9";font-family:FontAwesom
 .archives a:before{margin-right:5px;content:"\f02d";font-family:FontAwesome}
 .article-detail h1{font-family:'Lato',sans-serif;font-weight:700;font-size:30px;color:#204c57}
 .article-detail h2{font-family:'Lato',sans-serif;font-weight:700;font-size:22px;color:#204c57}
+.article-detail h3{font-family:'Lato',sans-serif;font-weight:700;font-size:18px;color:#ef7700}
 .archive h2{font-family:'Lato',sans-serif;font-weight:700;font-size:30px;margin:0;padding:0 0 20px 0}
 .archive li{list-style-type:none}
 .archive .year-label{font-family:'Lato',sans-serif;font-weight:700;font-size:22px;margin:0;padding:0}
