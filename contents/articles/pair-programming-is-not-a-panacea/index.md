@@ -1,15 +1,14 @@
 ---
-title: Pair Programming Should Not Be the Default
+title: Pair Programming Is Not a Panacea
 author: Matt
-date: 2014-01-12
+date: 2014-01-29
 template: article.jade
 ---
 For about the past 3 years, I have almost exclusively pair programmed at my job.
 I have paired with many people in many situations and learned a lot about this
 practice. I have found pairing can be effective, but it can also be highly
-ineffective and costly.  When adding pairing to your organization, I definitely
-believe it should not be the "default". It's important to see pairing as another
-tool, and only employ it when beneficial.
+ineffective and costly.  When adding pairing to your organization, it should not be the 
+default mode. It's important to see pairing as another tool, and only employ it when beneficial.
 
 <span class="more"></span>
 
@@ -20,11 +19,10 @@ pairing environment. Sticking two people at one desk with a laptop won't cut it.
 Start with two desks, arranged at 90 degrees. One computer feeds two monitors
 (or four), two keyboards and two mice. 
 
-[[[[pairing illustration]]]]
+![pairing station](./pairingStation.png)
 
 This gives each participant their own notion of space, sets them up as equals
-(as far as the environment is concerned), and removes all environmental
-roadblocks to the developers participating. If you only have one keyboard,
+as far as the environment is concerned. If you only have one keyboard,
 you'll probably find one person not contributing as much, as they may see that
 getting the keyboard may require more energy than what they want to contribute
 at that moment, so that small (but likely valuable) contribution might never
@@ -86,7 +84,7 @@ Tough problems are also where companies might gravitate towards pairing. Surely
 if one smart person can solve a difficult problem, two can solve it faster and
 better? No. Really, strongly, *no*. This is such a fallacy.
 
-My own experiences support this strongly. I can't think of a single time I've
+I can't think of a single time I've
 made a great breakthrough while pairing. Yet I can point to numerous times when
 the breakthroughs happen once the pair disperses. One person has to go to the
 dentist, or the other had to work from home that day. These are the moments when
@@ -97,10 +95,13 @@ digging into hard problems. It slows me down and prevents me from getting into
 the zone. The zone is where deep thought really comes from and where
 breakthroughs happen. I want to feel free to try something silly or even stupid
 if I think it might increase my knowledge about the problem, without first
-having to justify why I'm doing it. And vice versa with the person I'm working
+having to justify why I'm doing it. I don't want to worry I'm boring the other person
+because I'm lost in thought. And vice versa with the person I'm working
 with, I want them to get into the zone too.
 
-I'm not at all saying collaboration is bad. Collaboration is great! But *pairing
+*Pairing actively prevents people from getting into the zone*
+
+I'm not saying collaboration is bad. Collaboration is great! But *pairing
 is not necessarily collaboration*. Led Zeppelin collaborated together, yet Jimmy
 Page didn't have a second guitarist weighing in on every single chord being
 chosen. This is extremely important. There are no silver bullets out there. No
@@ -117,16 +118,16 @@ bring this to light.
 
 ##But ... You're Obviously an Introvert
 Yup, I'm totally an introvert. For sure, my disposition makes me more critical
-of pairing. My obvious love of Susan Cain's work should be pretty palpable too.
+of pairing.
 
 Roughly a third of the population is introverted, and there is no correlation between
 introversion/extroversion and intelligence. These facts are concerning when it
 comes to pairing regardless of where you personally lie on the spectrum.
 
 Pairing lets the loud idea win. Which might be the correct idea, or ... it might
-not be. Why leave it to chance? In a pairing situation a quieter, more
+not. Why leave it to chance? In a pairing situation a quieter, more
 introverted or anxious person is far less likely to push their idea forward.
-Pairing usually ensures that the more extroverted -- or even just more engaged
+Pairing usually ensures that the more extroverted -- or more engaged
 -- person's idea to be the one that gets implemented. 
 
 You can solve this particular problem by only hiring extroverted people. It's a
@@ -140,7 +141,7 @@ with pairing that affect everyone.
 
 Much like group work back in high school, pairing can lead to a situation where
 the engagement of the two people are at different levels. One person may
-contribute more simply because they are more interested or having a particularly
+contribute more simply because they are more interested or are having a particularly
 good day, are more disciplined, whatever it may be. The other person may
 contribute less due to being uncomfortable, bored or even internally not
 agreeing with the chosen approach. If nothing else, this is costly. A perfectly
@@ -152,8 +153,9 @@ professional, but distant, respect drives the relationship. Sometimes pairing
 can mean working extremely closely -- often for days at a time -- with someone
 you are not very comfortable with, or even just don't like. This can lead to
 frustration, lower morale and likely lower productivity. Pairing can force
-boundaries to be trampled. Can you imagine if Doctors, Lawyers, guitarists were
-forced to collaborate on every single decision? They'd rightly complain.
+boundaries to be trampled. Can you imagine if Doctors, Lawyers or guitarists were
+forced to collaborate on every single decision? They'd rightly complain. Why
+did this become so prevalent in the software world?
 
 ##Pairing is Expensive
 
@@ -168,10 +170,17 @@ Using pairing to promote collaboration is very inefficient too. Code reviews,
 pull requests, and simple ad hoc conversations between employees can yield much
 more efficient and higher quality collaboration. Not to mention that being in
 the zone and really digging deep into a problem space requires quiet and focus.
-Something pairing actively takes away from you. The recent backlash against open
-offices 
+Something pairing actively takes away from you. The recent backlash against open offices
+(such as [here](http://www.theguardian.com/news/2013/nov/18/open-plan-offices-bad-harvard-business-review), [here](http://www.newyorker.com/online/blogs/currency/2014/01/the-open-office-trap.html) and
+[here](http://www.fastcompany.com/3022456/dialed/the-10-worst-things-about-working-in-an-open-office-in-your-words)) largely applies to pairing too.
 
-[[[[ get open office backlash links ]]] largely applies to pairing too.
+###Office Space
+Proper pairing requires proper pairing stations. For many companies the extra space
+and hardware demands are a lot. Even worse, it can be tempting to remove employees's
+personal desks in favor of more pairing stations. This is exactly what my company
+has done, and there's simply no place anyone can escape to. What usually happens
+is people prop up their laptops at the pairing station and escape that way, possibly
+to the chagrin of their pairing partner.
 
 ##Pairing is a Tool
 
