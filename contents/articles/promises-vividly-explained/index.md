@@ -5,6 +5,8 @@ date: 2014-02-10
 template: article.jade
 ---
 <style>
+  iframe { max-width: 600px }
+
   .callout {
     padding: 10px;
     margin: 20px 0;
@@ -16,6 +18,20 @@ template: article.jade
   }
   .pitfall {
     background-color: #EEC2C4;
+  }
+
+  .fiddle {
+    display: inline-block;
+    background-color: orange;
+    color: white;
+    margin: 10px 0;
+    padding: 5px;
+  }
+
+  .fiddle::after {
+    margin-left: 5px;
+    content: "\f045";
+    font-family: FontAwesome;
   }
 </style>
 
@@ -64,6 +80,8 @@ function doSomething() {
   };
 }
 ```
+
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/zdgrC/">fiddle</a>
 
 This is just a little sugar for the callback pattern. It's pretty pointless sugar so far. But it's a start and yet we've already hit upon a core tenet of Promises
 
@@ -125,6 +143,8 @@ function Promise(fn) {
 }
 ```
 
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/uQrza/">fiddle</a>
+
 With the hack in place, this code now works ... sort of.
 
 ### This Code is Brittle and Bad
@@ -177,6 +197,8 @@ function Promise(fn) {
   fn(resolve);
 }
 ```
+
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/QX85J/">fiddle</a>
 
 It's getting more complicated, but the caller can invoke `then()` whenever they want, and the callee can invoke `resolve()` whenever they want. It fully works with synchronous or asynchronous code.
 
@@ -268,6 +290,8 @@ function Promise(fn) {
   fn(resolve);
 }
 ```
+
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/HdzLv/">fiddle</a>
 
 Hoo, it's getting a little squirrelly. Aren't you glad we're building this up slowly? The real key here is that `then()` is returning a new Promise. 
 
@@ -402,6 +426,8 @@ function resolve(newValue) {
   }
 }
 ```
+
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/38CCb/">fiddle</a>
 
 We'll keep calling `resolve()` recursively as long as we get a Promise back. Once it's no longer a Promise, then proceed as before.
 
