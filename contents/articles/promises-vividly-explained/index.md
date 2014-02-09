@@ -1,5 +1,5 @@
 ---
-title: Promises ... In Wicked Detail
+title: JavaScript Promises ... In Wicked Detail
 author: Matt
 date: 2014-02-10
 template: article.jade
@@ -104,7 +104,7 @@ function Promise(fn) {
   function resolve(value) {
     setTimeout(function() {
       callback(value);
-    }, 10);
+    }, 1);
   }
 
   fn(resolve);
@@ -121,7 +121,7 @@ Our naive, poor Promise implementation must use asynchronicity to work. It's eas
 
 Our brittle code above revealed something unexpectedly. Promises have state. We need to know what state they are in before proceeding, and make sure we move through the states correctly. Doing so gets rid of the brittleness. 
 
-* A Promise can either be **pending** or **resolved** with a *value*. 
+* A Promise can be **pending** waiting for a value or **resolved** with a value. 
 * Once a Promise resolves to a value, it will always remain at that value and never resolve again.
 * A Promise can also be **rejected** with a *reason*, but we'll get to error handling later.
 
@@ -142,17 +142,17 @@ function Promise(fn) {
     }
   }
 
-  function handle(onFulfilled) {
+  function handle(onResolved) {
     if(state === 'pending') {
-      deferred = onFulfilled;
+      deferred = onResolved;
       return;
     }
 
-    onFulfilled(value);
+    onResolved(value);
   }
 
-  this.then = function(onFulfilled) {
-    handle(onFulfilled);
+  this.then = function(onResolved) {
+    handle(onResolved);
   };
 
   fn(resolve);
@@ -220,19 +220,19 @@ function Promise(fn) {
       return;
     }
 
-    if(handler.onFulfilled === null) {
+    if(handler.onResolved === null) {
       handler.resolve(value);
       return;
     }
 
-    var ret = handler.onFulfilled(value);
+    var ret = handler.onResolved(value);
     handler.resolve(ret);
   }
 
-  this.then = function(onFulfilled) {
+  this.then = function(onResolved) {
     return new Promise(function(resolve) {
       handle({
-        onFulfilled: onFulfilled,
+        onResolved: onResolved,
         resolve: resolve
       });
     });
@@ -250,13 +250,13 @@ Hoo, it's getting a little squirrelly. Aren't you glad we're building this up sl
 
 The callback approach does not have this problem. Yet another ding against Promises. You can start to appreciate why much of the NodeJS community has shunned them.
 
-When the second Promise is used, what resolved value does it receive? *It receives the return value of the first promise.* This is happening at the bottom of `handle()`, The `handler` object carries around both an `onFulfilled` callback as well as a reference to `resolve`. This is the bridge from the first Promise to the second. We are concluding the first Promise at this line:
+When the second Promise is used, what resolved value does it receive? *It receives the return value of the first promise.* This is happening at the bottom of `handle()`, The `handler` object carries around both an `onResolved` callback as well as a reference to `resolve`. This is the bridge from the first Promise to the second. We are concluding the first Promise at this line:
 
 ```javascript
-var ret = handler.onFulfilled(value);
+var ret = handler.onResolved(value);
 ```
 
-In the examples I've been using here, `handler.onFulfilled` is
+In the examples I've been using here, `handler.onResolved` is
 
 ```javascript
 function(value) {
@@ -264,7 +264,31 @@ function(value) {
 }
 ```
 
-in other words, it's what was passed into the first call to `then()`. The return value of that first handler is used to resolve the second Promise. Thus chaining is accomplished.
+in other words, it's what was passed into the first call to `then()`. The return value of that first handler is used to resolve the second Promise. Thus chaining is accomplished
+
+```javascript
+doSomething().then(function(result) {
+  console.log('first result', result);
+  return 88;
+}).then(function(secondResult) {
+  console.log('second result', secondResult);
+});
+
+// the output is
+// first result 42
+// second result 88
+
+
+doSomething().then(function(result) {
+  console.log('first result', result);
+}).then(function(secondResult) {
+  console.log('second result', secondResult);
+});
+
+// now the output is
+// first result 42
+// second result undefined
+```
 
 Since `then()` always returns a new Promise, this chaining can go as deep as we like. With this implementation, the above example is now possible
 
@@ -276,7 +300,7 @@ getSomeData()
 ```
 
 ### Returing Promises inside the Chain
-Our chaining implementation is a bit naive so far. It's blindly passing the resolved values down the line. What if one of the resolved values is a Promise? For example
+Our chaining implementation is a bit naive. It's blindly passing the resolved values down the line. What if one of the resolved values is a Promise? For example
 
 ```javascript
 doSomething().then(result) {
@@ -287,7 +311,7 @@ doSomething().then(result) {
 });
 ```
 
-As it stands now, the above won't work. `finalResult` won't actually be a fully resolved value, it'll instead be a Promise. We'd have to instead do this
+As it stands now, the above won't do what we want. `finalResult` won't actually be a fully resolved value, it'd instead be a Promise. To get the intended result, we'd need to do
 
 ```javascript
 doSomething().then(result) {
@@ -317,11 +341,11 @@ function resolve(newValue) {
 }
 ```
 
-We'll keep going through `resolve()` as long as we get a Promise back. Once it's no longer a Promise, then proceed as before. It *is* possible for this to be an infinite loop. The Promise/A+ spec recommends implementations detect this and break, but it's not required.
+We'll keep calling `resolve()` recursively as long as we get a Promise back. Once it's no longer a Promise, then proceed as before. It *is* possible for this to be an infinite loop. The Promise/A+ spec recommends implementations detect infinite loops, but it's not required.
 
-Notice how loose the check is to see if `newValue` is a Promise? We are only looking for a `then()` method. This is intentional, it allows different Promise implementations to interopt with each other. It's actually quite common for Promise libraries to intermingle, as different third party libraries you use can each use different Promise implementations.
+Notice how loose the check is to see if `newValue` is a Promise? We are only looking for a `then()` method. This duck typing is intentional, it allows different Promise implementations to interopt with each other. It's actually quite common for Promise libraries to intermingle, as different third party libraries you use can each use different Promise implementations.
 
-This also means if you return something that *isn't* a Promise, but happens to have a function named `then` on it, then bad things can happen. In general, it's best to avoid having function properties named "then" unless the object in question is a Promise.
+This also means if you return something that *isn't* a Promise, but happens to have a function named `then` on it, bad things can happen. In general, it's best to avoid having function properties named "then" when the object in question is not a Promise.
 
 With chaining in place, our implementation is pretty complete. But we've completely ignored error handling.
 
@@ -341,12 +365,12 @@ doSomething().then(function(value) {
 
 As mentioned above, the Promise will transition from **pending** to either **resolved** or **rejected**, never both. In other words, only one of the above callbacks ever gets called.
 
-Promises enable rejection by means of `reject()`, here is `doSomething()` with error handling support added
+Promises enable rejection by means of `reject()`, the evil twin of `resolve()`. Here is `doSomething()` with error handling support added
 
 ```javascript
 function doSomething() {
   return new Promise(function(resolve, reject) {
-    var result = getValue(); 
+    var result = somehowGetTheValue(); 
     if(result.error) {
       reject(result.error);
     } else {
@@ -358,7 +382,7 @@ function doSomething() {
 
 Inside the Promise implementation, we need to account for rejection. As soon as a Promise is rejected, all downstream Promises from it also need to be rejected.
 
-Let's see the full Promise implementation again, this time with rejection support
+Let's see the full Promise implementation again, this time with rejection support added
 
 ```javascript
 function Promise(fn) {
@@ -397,7 +421,7 @@ function Promise(fn) {
     var handlerCallback;
     
     if(state === 'resolved') {
-      handlerCallback = handler.onFulfilled;
+      handlerCallback = handler.onResolved;
     } else {
       handlerCallback = handler.onRejected;
     }
@@ -416,10 +440,10 @@ function Promise(fn) {
     handler.resolve(ret);
   }
 
-  this.then = function(onFulfilled, onRejected) {
+  this.then = function(onResolved, onRejected) {
     return new Promise(function(resolve) {
       handle({
-        onFulfilled: onFulfilled,
+        onResolved: onResolved,
         onRejected: onRejected,
         resolve: resolve,
         reject: reject
@@ -431,7 +455,7 @@ function Promise(fn) {
 }
 ```
 
-Other than the addition of `reject()`, `handle()` also has to be aware of rejection. Within `handle()`, either the rejection path or resolve path will be taken depending on the value of `state`. This value of `state` gets pushed into the next Promise, because calling the next Promises' `resolve()` or `reject()` sets its `state` value accordingly.
+Other than the addition of `reject()` itself, `handle()` also has to be aware of rejection. Within `handle()`, either the rejection path or resolve path will be taken depending on the value of `state`. This value of `state` gets pushed into the next Promise, because calling the next Promises' `resolve()` or `reject()` sets its `state` value accordingly.
 
 When using Promises, it's very easy to omit the error callback. But if you do, you'll never get *any* indication something went wrong. At the very least, the final Promise in your chain should have an error callback.
 
@@ -442,7 +466,7 @@ So far our error handling only accounts for known errors. It's possible an unhan
 This means that `resolve()` should get wrapped in a try/catch block
 
 ```javascript
-function resolve() {
+function resolve(newValue) {
   try {
     // as before
   } catch(e) {
