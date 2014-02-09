@@ -1,5 +1,5 @@
 ---
-title: Promises ... Vividly Explained
+title: Promises ... In Wicked Detail
 author: Matt
 date: 2014-02-10
 template: article.jade
@@ -412,7 +412,7 @@ function Promise(fn) {
       return;
     }
 
-    var ret = handler.onFulfilled(value);
+    var ret = handlerCallback(value);
     handler.resolve(ret);
   }
 
@@ -420,9 +420,9 @@ function Promise(fn) {
     return new Promise(function(resolve) {
       handle({
         onFulfilled: onFulfilled,
-	onRejected: onRejected,
+        onRejected: onRejected,
         resolve: resolve,
-	reject: reject
+        reject: reject
       });
     });
   };
@@ -438,5 +438,66 @@ When using Promises, it's very easy to omit the error callback. But if you do, y
 ### Unexpected Errors Should Also Lead to Rejection
 
 So far our error handling only accounts for known errors. It's possible an unhandled exception will happen, completely ruining everything. It's essential that the Promise implementation catches those exceptions and rejects accordingly.
+
+This means that `resolve()` should get wrapped in a try/catch block
+
+```javascript
+function resolve() {
+  try {
+    // as before
+  } catch(e) {
+    reject(e);
+  }
+}
+```
+
+It's also important to make sure the callbacks given to us by the caller don't throw unhandled exceptions. These callbacks are called in `handle()`, so we end up with
+
+```javascript
+function handle(deferred) {
+  // as before
+
+  var ret;
+  try {
+    ret = handlerCallback(value);
+  } catch(e) {
+    handler.reject(e);
+  }
+
+  handler.resolve(ret);
+}
+```
+
+### Promises can Swallow Errors
+[[[[ TODO ]]]]
+
+## Promise Resolution Needs to be Async
+Early in the article we cheated a bit by using `setTimeout`. Once we fixed that hack, we've not used setTimeout since. But the truth is the Promise/A+ spec requires that Promise resolution happen asynchronously. Meeting this requirement is simple, we simply need to wrap most of `handle()`'s implementation inside of a `setTimeout` call
+
+```javascript
+function handle(handler) {
+  if(state === 'pending') {
+    deferred = handler;
+    return;
+  }
+  setTimeout(function() {
+    // as before
+  }, 1);
+}
+```
+
+This is all that is needed. In truth, real Promise libraries don't tend to use `setTimeout`. If the library is NodeJS oriented it will possibly use `process.nextTick`, for browsers it might use the new `setImmediate` or a setImmediate shim (so far only IE supports setImmediate), or perhaps an asynchronous library such as Kriskowal's [asap](https://github.com/kriskowal/asap). Kriskowal also wrote [Q](https://github.com/kriskowal/q), a popular Promise library.
+
+[[[[TODO why does it need to be async?]]]]
+
+## then/promise
+
+There are many, full featured, Promise libraries out there. The [then](https://github.com/then) organization's [promise](https://github.com/then/promise) library takes a simpler approach. If you take a look at [their implementation](https://github.com/then/promise/blob/master/core.js), you should see it looks quite familiar. then/promise was the basis of the code for this article. Thanks to Nathan Zadoks and Forbes Lindsay for their great library and work on JavaScript Promises. Forbes Lindsay is also the guy behind the [promisejs.org](http://promisejs.org) site mentioned at the start.
+
+There are some differences in the real implementation and what is here in this article. That is because there are more details in the Promise/A+ spec that I have not addressed. I recommend [reading the spec](http://promises-aplus.github.io/promises-spec/), it is short and straightforward. 
+
+## Conclusion
+
+If you made it this far, then thanks for reading! We've covered the core of Promises, what is described in the spec. Most implementations offer much more functionality, such as `all()`, `denodeify()` and much more. I recommend browsing the [API docs for Bluebird](https://github.com/petkaantonov/bluebird/blob/master/API.md) to see what all is possible with Promises. This article really is just the beginning!
 
 
