@@ -268,7 +268,7 @@ The `promise` object stands as a representation of the result. We can pass it ar
 
 ## Chaining Promises
 
-Since Promises capture the notion of asynchronicity in an object, we can, chain them, map them, have them run in parallel or sequential, all kinds of useful things. Code like this is very common with Promises:
+Since Promises capture the notion of asynchronicity in an object, we can chain them, map them, have them run in parallel or sequential, all kinds of useful things. Code like the following is very common with Promises
 
 ```javascript
 getSomeData()
@@ -599,7 +599,7 @@ When using Promises, it's very easy to omit the error callback. But if you do, y
 
 ### Unexpected Errors Should Also Lead to Rejection
 
-So far our error handling only accounts for known errors. It's possible an unhandled exception will happen, completely ruining everything. It's essential that the Promise implementation catches those exceptions and reject accordingly.
+So far our error handling only accounts for known errors. It's possible an unhandled exception will happen, completely ruining everything. It's essential that the Promise implementation catch these exceptions and reject accordingly.
 
 This means that `resolve()` should get wrapped in a try/catch block
 
