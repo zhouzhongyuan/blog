@@ -41,6 +41,39 @@ We will be incrementaly creating a Promise implementation that by the end will *
 
 <span class="more"></span>
 
+## Table of Contents
+
+<ol>
+  <li><a href="#the-simplest-use-case">The Simplest Use Case</a>
+    <ul>
+      <li><a href="#defining-the-promise-type">Defining the Promise type</a></li>
+      <li><a href="#this-code-is-brittle-and-bad">This Code is Brittle and bad</a></li>
+      </ul>
+   </li>
+   <li><a href="#promises-have-state">Promises have State</a></li>
+   <li><a href="#chaining-promises">Chaining Promises</a>
+     <ul>
+       <li><a href="#returning-promises-inside-the-chain">Returning Promises Inside the Chain</a></li>
+    </li>
+    </ul>
+    </li>
+   <li><a href="#rejecting-promises">Rejecting Promises</a>
+   <ul>
+     <li><a href="#unexpected-errors-should-also-lead-to-rejection">Unexpected Errors Should Also Lead to Rejection</a></li>
+     <li><a href="#promises-can-swallow-errors-">Promises can Swallow Errors!</a></li>
+   </ul>
+   </li>
+   <li><a href="#promise-resolution-needs-to-be-async">Promise Resolution Needs to be Async</a>
+   <ul>
+     <li><a href="#why-is-this-async-requirement-in-the-spec-">Why is this Async Requirement in the Spec?</a>
+     </li>
+   </ul>
+   </li>
+   <li><a href="#before-we-wrap-up-then-promise">Before We Wrap Up ... then/promise</a></li>
+   <li><a href="#conclusion">Conclusion</a></li>
+
+</ol>
+
 ## The Simplest Use Case
 
 Let's begin our Promise implementation as simple as can be. We want to go from this
@@ -385,7 +418,7 @@ doSomething().then(function(result) {
 
 A potentially better way is to use a Promise library's `all()` method or any number of other utility methods that increase the usefulness of Promises, which I'll leave to you to go and discover. (Maybe that will be a future guide?)
 
-### Returing Promises inside the Chain
+### Returning Promises inside the Chain
 Our chaining implementation is a bit naive. It's blindly passing the resolved values down the line. What if one of the resolved values is a Promise? For example
 
 ```javascript
