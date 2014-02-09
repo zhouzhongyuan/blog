@@ -731,6 +731,6 @@ There are some differences in the real implementation and what is here in this a
 
 If you made it this far, then thanks for reading! We've covered the core of Promises, which is the only thing the spec addresses. Most implementations offer much more functionality, such as `all()`, `race()`, `denodeify()` and much more. I recommend browsing the [API docs for Bluebird](https://github.com/petkaantonov/bluebird/blob/master/API.md) to see what all is possible with Promises. 
 
-Once I came to understand how Promises worked and their caveats, I came to really like them. They have lead to very clean and elegant code in my projects. There's so much more to talk about too, this article is just the beginning!
+Once I came to understand how Promises worked and their caveats, I came to really like them. They have led to very clean and elegant code in my projects. There's so much more to talk about too, this article is just the beginning!
 
 If you enjoyed this, you should [follow me on Twitter](http://twitter.com/cityfortyone) to find out when I write another guide like this.
