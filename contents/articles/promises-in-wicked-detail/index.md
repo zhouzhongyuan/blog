@@ -713,7 +713,7 @@ promise.then(wrapItAllUp);
 invokeSomethingElse();
 ```
 
-What is the call flow here? Based on the naming you'd probably guess it is `invokeSomething -> invokeSomethingElse -> wrapItAllUp`. But this all depends on if the promise resolves synchronously or asynchronously in our current implementation. If `doAnOperation()` works asynchronously, then that is the call flow. But if it works synchronously, then the call flow is actually `invokeSomething -> wrapItAllUp -> invokeSomethingElse`, which is probably bad.
+What is the call flow here? Based on the naming you'd probably guess it is `invokeSomething()` -> `invokeSomethingElse()` -> `wrapItAllUp()`. But this all depends on if the promise resolves synchronously or asynchronously in our current implementation. If `doAnOperation()` works asynchronously, then that is the call flow. But if it works synchronously, then the call flow is actually `invokeSomething()` -> `wrapItAllUp()` -> `invokeSomethingElse()`, which is probably bad.
 
 To get around this, Promises **always** resolve asynchronously, even if they don't have to. It reduces surprise and allows people to use Promises without having to take into consideration asynchronicity when reasoning about their code.
 
