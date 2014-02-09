@@ -1,86 +1,96 @@
+var id = 1;
 function Promise(fn) {
-  var state = 'pending';
-  var value;
-  var deferred = null;
+  var pid = id++;
+    var state = 'pending';
+    var value;
+    var deferred = null;
 
-  function resolve(newValue) {
-    value = newValue;
-    state = 'resolved';
+    function resolve(newValue) {
+        try {
+            if (newValue && typeof newValue.then === 'function') {
+                newValue.then(resolve, reject);
+                return;
+            }
+            state = 'resolved';
+            value = newValue;
 
-    if(deferred) {
-      handle(deferred);
-    }
-  }
-
-  function reject(reason) {
-    state = 'rejected';
-    value = reason;
-
-    if(deferred) {
-      handle(deferred);
-    }
-  }
-
-  function handle(handler) {
-    if(state === 'pending') {
-      deferred = handler;
-      return;
+            if (deferred) {
+                handle(deferred);
+            }
+        } catch (e) {
+            reject(e);
+        }
     }
 
-    var handlerCallback = state === 'resolved' ? handler.onFulfilled : handler.onRejected;
+    function reject(reason) {
+      console.log("rejecting", pid);
+        state = 'rejected';
+        value = reason;
 
-    if(handlerCallback === null) {
-      if(state === 'resolved') {
-        handler.resolve(value);
-      } else {
-        handler.reject(value);
-      }
-
-      return;
+        if (deferred) {
+            handle(deferred);
+        }
     }
 
-    var ret = handler.onFulfilled(value);
-    handler.resolve(ret);
-  }
+    function handle(handler) {
+        if (state === 'pending') {
+            deferred = handler;
+            return;
+        }
+            var handlerCallback;
 
-  this.then = function(onFulfilled) {
-    return new Promise(function(resolve) {
-      handle({
-        onFulfilled: onFulfilled,
-        resolve: resolve
-      });
-    });
-  };
+            if (state === 'resolved') {
+                handlerCallback = handler.onResolved;
+            } else {
+                handlerCallback = handler.onRejected;
+            }
 
-  fn(resolve);
+            if (handlerCallback === null) {
+                if (state === 'resolved') {
+                    handler.resolve(value);
+                } else {
+                    handler.reject(value);
+                }
+
+                return;
+            }
+
+            var ret;
+            try {
+                ret = handlerCallback(value);
+                handler.resolve(ret);
+            } catch (e) {
+                console.log("caught with pid", pid);
+                handler.reject(e);
+            }
+    }
+
+    this.then = function (onResolved, onRejected) {
+        return new Promise(function (resolve, reject) {
+            handle({
+                onResolved: onResolved,
+                onRejected: onRejected,
+                resolve: resolve,
+                reject: reject
+            });
+        });
+    };
+
+    fn(resolve, reject);
 }
 
-function doSomething() {
-  return new Promise(function(resolve) {
-    process.nextTick(function() {
-      var result = 42;
-      resolve(result);
+function getSomeJson() {
+    return new Promise(function (resolve, reject) {
+        var badJson = "<div>uh oh, this is not JSON at all!</div>";
+        resolve(badJson);
     });
-  });
 }
 
-var p = doSomething();
-  
-// setTimeout(function() {
-//   p.then(function(result) {
-//     console.log("Got a result:", result);
-//   });
-// }, 200);
-
-
-p.then(function(result) {
-  console.log('got a result again:', result);
-  return 55;
-}).then(function(nextResult) {
-  console.log('next result: ' + nextResult);
-  return 88;
-}).then(function(thirdResult) {
-  console.log('third: ', thirdResult);
+getSomeJson().then(function (json) {
+    var obj = JSON.parse(json);
+    console.log(obj);
+}, function (error) {
+    console.log('uh oh', error);
+}).then(null, function (error) {
+    console.log("got it");
 });
-
-

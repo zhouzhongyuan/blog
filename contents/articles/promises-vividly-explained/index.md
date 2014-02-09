@@ -81,7 +81,7 @@ function doSomething() {
 }
 ```
 
-<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/zdgrC/">fiddle</a>
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/zdgrC/1/">fiddle</a>
 
 This is just a little sugar for the callback pattern. It's pretty pointless sugar so far. But it's a start and yet we've already hit upon a core tenet of Promises
 
@@ -143,7 +143,7 @@ function Promise(fn) {
 }
 ```
 
-<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/uQrza/">fiddle</a>
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/uQrza/1/">fiddle</a>
 
 With the hack in place, this code now works ... sort of.
 
@@ -198,7 +198,7 @@ function Promise(fn) {
 }
 ```
 
-<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/QX85J/">fiddle</a>
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/QX85J/1/">fiddle</a>
 
 It's getting more complicated, but the caller can invoke `then()` whenever they want, and the callee can invoke `resolve()` whenever they want. It fully works with synchronous or asynchronous code.
 
@@ -291,7 +291,7 @@ function Promise(fn) {
 }
 ```
 
-<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/HdzLv/">fiddle</a>
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/HdzLv/1/">fiddle</a>
 
 Hoo, it's getting a little squirrelly. Aren't you glad we're building this up slowly? The real key here is that `then()` is returning a new Promise. 
 
@@ -427,7 +427,7 @@ function resolve(newValue) {
 }
 ```
 
-<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/38CCb/">fiddle</a>
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/38CCb/1/">fiddle</a>
 
 We'll keep calling `resolve()` recursively as long as we get a Promise back. Once it's no longer a Promise, then proceed as before.
 
@@ -448,9 +448,6 @@ Different Promise implementations can interopt with each other, as long as they 
 With chaining in place, our implementation is pretty complete. But we've completely ignored error handling.
 
 ## Rejecting Promises
-
-*We're about to switch gears a bit. Great time to take a break. I'll wait.*
-
 When something goes wrong during the course of a Promise, it needs to be **rejected** with a *reason*. How does the caller know when this happens? They can find out by passing in a second callback to `then()`
 
 ```javascript
@@ -461,7 +458,9 @@ doSomething().then(function(value) {
 });
 ```
 
-As mentioned above, the Promise will transition from **pending** to either **resolved** or **rejected**, never both. In other words, only one of the above callbacks ever gets called.
+<div class="callout wisdom">
+As mentioned earlier, the Promise will transition from **pending** to either **resolved** or **rejected**, never both. In other words, only one of the above callbacks ever gets called.
+</div>
 
 Promises enable rejection by means of `reject()`, the evil twin of `resolve()`. Here is `doSomething()` with error handling support added
 
@@ -553,6 +552,8 @@ function Promise(fn) {
 }
 ```
 
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/rLXsL/1/">fiddle</a>
+
 Other than the addition of `reject()` itself, `handle()` also has to be aware of rejection. Within `handle()`, either the rejection path or resolve path will be taken depending on the value of `state`. This value of `state` gets pushed into the next Promise, because calling the next Promises' `resolve()` or `reject()` sets its `state` value accordingly.
 
 <div class="callout pitfall">
@@ -614,6 +615,8 @@ getSomeJson().then(function(json) {
   console.log('uh oh', error);
 });
 ```
+
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/M7SRM/1/">fiddle</a>
 
 What is going to happen here? Our callback inside `then()` is expecting some valid JSON. So it naively tries to parse it, which leads to an exception. But we have an error callback, so we're good, right?
 
