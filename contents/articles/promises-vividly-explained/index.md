@@ -4,63 +4,63 @@ author: Matt
 date: 2014-02-10
 template: article.jade
 ---
-I've been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them effectively, but when it comes down to it, I don't fully understanding how they work. This article is my resolution to that. If you stick around until the end, you'll understand promises very well too. 
+I've been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them effectively, but when it comes down to it, I don't fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises very well too. 
 
-We will be incrementaly creating a promise implementation that meets the Promise/A+ spec, and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have a working knowledge of promises. If you don't, [promisejs.org](http://promisejs.org) is a good site to checkout.
+We will be incrementaly creating a Promise implementation that by the end will meet the Promise/A+ spec, and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have a working knowledge of promises. If you don't, [promisejs.org](http://promisejs.org) is a good site to checkout.
 
 <span class="more"></span>
 
 ## Replacing Callbacks
 
-Let's begin our promise implementation with the simplest use case. We want to go from this:
+Let's begin our promise implementation with the simplest use case. We want to go from this
 
 ```javascript
-doSomething(function(result) {
-  // do something with result
+doSomething(function(value) {
+  // do something with value
 });
 ```
 
-to this:
+to this
 
 ```javascript
-doSomething().then(function(result) {
-  // do something with result
+doSomething().then(function(value) {
+  // do something with value
 });
 ```
 
-Which means the implementation of `doSomething` will go from this:
+To do this, we just need to change `doSomething()` from this
 
 ```javascript
 function doSomething(callback) {
-  var result = // ... get result somehow
-  callback(result);
+  var value = 42;
+  callback(value);
 }
 ```
 
-to this "promise" based solution:
+to this "Promise" based solution
 
 ```javascript
 function doSomething() {
   return {
     then: function(callback) {
-      var result = // ... get result somehow
-      callback(result);
+      var value = 42;
+      callback(value);
     }
   };
 }
 ```
 
-This is just a little sugar for the callback pattern. It's pretty pointless sugar so far, this implementation is far from being a real Promise! But it's a start and already we've hit upon a core tenet of Promises:
+This is just a little sugar for the callback pattern. It's pretty pointless sugar so far. But it's a start and already we've hit upon a core tenet of Promises:
 
-> Promises capture the notion of an eventual result into an object
+> Promises capture the notion of an eventual value into an object
 
 [[[[get koenig quote]]]]
 
-This is the main reason Promises are so interesting. Once the concept of eventuality is captured like this, one can begin to do some very powerful things.
+This is the main reason Promises are so interesting. Once the concept of eventuality is captured like this, we can begin to do some very powerful things. We'll explore this a lot more later on.
 
 ### Defining the Promise type
 
-This simple object literal isn't going to hold up. Let's define an actual `Promise` type:
+This simple object literal isn't going to hold up. Let's define an actual `Promise` type that we'll be able to expand on
 
 ```javascript
 function Promise(fn) {
@@ -77,23 +77,202 @@ function Promise(fn) {
 }
 ```
 
-and reimplement `doSomething()` to use it:
+and reimplement `doSomething()` to use it
 
 ```javascript
 function doSomething() {
   return new Promise(function(resolve) {
-    setTimeout(function() {
-      var result = 42;
-      resolve(result);
-    }, 10);
+    var value = 42;
+    resolve(value);
   });
 }
 
-doSomething().then(function(result) {
-  console.log("Got a result", result);
+doSomething().then(function(value) {
+  console.log("Got a value:", value);
 });
 ```
 
-Woah, what's setTimout doing in there? If you trace through this implementation, you'll notice that `resolve()` would normally get called before `then()`. We wouldn't have a callback to invoke to hand the result back. setTimout prevents this and ensures the call order is what we want. The callback implementation we are replacing did *not* have this limitation. Nor do true promises, but we will see later that order of execution and the state of the callstack are important considerations in Promises.
+There is a problem here. If you trace through the execution, you'll see that `resolve()` gets called before `then()` does, which means `callback` will be `null`. Let's hide this problem in a little hack involving `setTimeout`
+
+```javascript
+function Promise(fn) {
+  var callback = null;
+  this.then = function(cb) {
+    callback = cb;
+  };
+
+  function resolve(value) {
+    setTimeout(function() {
+      callback(value);
+    }, 10);
+  }
+
+  fn(resolve);
+}
+```
+
+With the hack in place, this code now works.
+
+### This Code is Brittle and Bad
+
+Our naive, poor Promise implementation must use asynchronicity to work. It's easy to make it fail again, just call `then()` asynchronously and we are right back to the callback being `null` again. Why am I setting you up for failure so soon? Because the above implementation has the advantage of being pretty easy to wrap your head around. `then()` and `resolve()` won't go away. They are key concepts in Promises.
+
+## Promises have State
+
+Our brittle code above revealed something unexpectedly. Promises have state. We need to know what state they are in before proceeding, and make sure we move through the states correctly. Doing so gets rid of the brittleness. 
+
+* A Promise can either be **pending** or **resolved** with a *value*. 
+* Once a Promise resolves to a value, it will always remain at that value and never resolve again.
+* A Promise can also be **rejected** with a *reason*, but we'll get to error handling later.
+
+Let's address the state head on and come up with a much better implementation
+
+```javascript
+function Promise(fn) {
+  var state = 'pending';
+  var value;
+  var deferred;
+
+  function resolve(newValue) {
+    value = newValue;
+    state = 'resolved';
+
+    if(deferred) {
+      handle(deferred);
+    }
+  }
+
+  function handle(onFulfilled) {
+    if(state === 'pending') {
+      deferred = onFulfilled;
+      return;
+    }
+
+    onFulfilled(value);
+  }
+
+  this.then = function(onFulfilled) {
+    handle(onFulfilled);
+  };
+
+  fn(resolve);
+}
+```
+
+It's getting more complicated, but the caller can invoke `then()` whenever they want, and the callee can invoke `resolve()` whenever they want. It fully works with synchronous or asynchronous code.
+
+This is because of the `state` flag. Both `then()` and `resolve()` hand off to the new method `handle()`, which will do one of two things depending on the situation:
+
+* The caller has called `then()` before the callee calls `resolve()`, that means there is no value ready to hand back. In this case the state will be pending, and so we hold onto the caller's callback to use later. Later when `resolve()` gets called, we can then invoke the callback and send the value on its way.
+* The callee calls `resolve()` before the caller calls `then()`: In this case we hold onto the resulting value. Once `then()` gets called, we are ready to hand back the value.
+
+Notice `setTimeout` went away? That's temporary, it will be coming back. But one thing at a time.
+
+We still have a ways to go before our Promises fully meet the spec, but they are already pretty powerful. One thing this system allows is for us to call `then()` as many times as we want, we will always get the same value back
+
+```javascript
+var promise = doSomething();
+
+promise.then(function(value) {
+  console.log('Got a value:', value);
+});
+
+promise.then(function(value) {
+  console.log('Got the same value again:', value);
+});
+```
+
+The `promise` object stands as a representation of the result. We can pass it around, store it, use it as many times as we need, etc. Finally, our Promise is starting to give us benefits over the original callback approach we replaced!
+
+## Chaining Promises
+
+Since Promises capture the notion of asynchronicity in an object, we can compose them, chain them, map them, all kinds of neat things. Stuff like this is very common with Promises:
+
+```javascript
+getSomeData()
+.then(filterTheData)
+.then(processTheData)
+.then(displayTheData);
+```
+
+`getSomeData` is returning a Promise, as evidenced by the call to `then()`, but the result of that first then must also be a Promise, as we call `then()` again (and again!) That's exactly what happens, if we can convince `then()` to return a Promise, things start to get interesting.
+
+Here is our Promise type with chaining added in
+
+```javascript
+function Promise(fn) {
+  var state = 'pending';
+  var value;
+  var deferred = null;
+
+  function resolve(newValue) {
+    value = newValue;
+    state = 'resolved';
+
+    if(deferred) {
+      handle(deferred);
+    }
+  }
+
+  function handle(handler) {
+    if(state === 'pending') {
+      deferred = handler;
+      return;
+    }
+
+    if(handler.onFulfilled === null) {
+      handler.resolve(value);
+      return;
+    }
+
+    var ret = handler.onFulfilled(value);
+    handler.resolve(ret);
+  }
+
+  this.then = function(onFulfilled) {
+    return new Promise(function(resolve) {
+      handle({
+        onFulfilled: onFulfilled,
+        resolve: resolve
+      });
+    });
+  };
+
+  fn(resolve);
+}
+```
+
+Hoo, it's getting a little squirrelly. Aren't you glad we're building this up slowly? The real key here is that `then()` is returning a new Promise. It's entirely possible this new Promise will go completely ignored, such as in the simple case
+
+```javascript
+  doSomething().then(showTheResult);
+```
+
+The callback approach does not have this problem. Yet another ding against Promises. You can start to appreciate why much of the Node community has shunned them.
+
+When the second Promise is used, what resolved value does it receive? *It receives the return value of the first promise.* This is happening at the bottom of `handle()`, The `handler` object carries around both an `onFulfilled` callback as well as a reference to `resolve`. This is the bridge from the first Promise to the second. We are concluding the first Promise at this line:
+
+```javascript
+var ret = handler.onFulfilled(value);
+```
+
+In the examples I've been using here, `handler.onFulfilled` is
+
+```javascript
+function(value) {
+  console.log("Got a value:", value);
+}
+```
+
+in other words, it's what was passed into the first call to `then()`. The return value of that first handler is used to resolve the second Promise. Thus chaining is accomplished.
+
+Since `then()` always returns a new Promise, this chaining can go as deep as we like. With this implementation, the above example is now possible
+
+```javascript
+getSomeData()
+.then(filterTheData)
+.then(processTheData)
+.then(displayTheData);
+```
 
 
