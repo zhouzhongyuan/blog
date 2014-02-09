@@ -248,7 +248,7 @@ Hoo, it's getting a little squirrelly. Aren't you glad we're building this up sl
   doSomething().then(showTheResult);
 ```
 
-The callback approach does not have this problem. Yet another ding against Promises. You can start to appreciate why much of the Node community has shunned them.
+The callback approach does not have this problem. Yet another ding against Promises. You can start to appreciate why much of the NodeJS community has shunned them.
 
 When the second Promise is used, what resolved value does it receive? *It receives the return value of the first promise.* This is happening at the bottom of `handle()`, The `handler` object carries around both an `onFulfilled` callback as well as a reference to `resolve`. This is the bridge from the first Promise to the second. We are concluding the first Promise at this line:
 
@@ -274,5 +274,169 @@ getSomeData()
 .then(processTheData)
 .then(displayTheData);
 ```
+
+### Returing Promises inside the Chain
+Our chaining implementation is a bit naive so far. It's blindly passing the resolved values down the line. What if one of the resolved values is a Promise? For example
+
+```javascript
+doSomething().then(result) {
+  // doSomethingElse returns a Promise
+  return doSomethingElse(result)
+}.then(function(finalResult) {
+  console.log("the final result is", finalResult);
+});
+```
+
+As it stands now, the above won't work. `finalResult` won't actually be a fully resolved value, it'll instead be a Promise. We'd have to instead do this
+
+```javascript
+doSomething().then(result) {
+  // doSomethingElse returns a Promise
+  return doSomethingElse(result)
+}.then(function(anotherPromise) {
+  anotherPromise.then(function(finalResult) {
+    console.log("the final result is", finalResult);
+  });
+});
+```
+
+Who wants that crud in their code? Let's have the Promise implementation seemlessly handle this for us. This is simple to do, inside of `resolve()`, just add a special case if the resolved value is a Promise
+
+```javascript
+function resolve(newValue) {
+  if(newValue && typeof newValue.then === 'function') {
+    newValue.then(resolve);
+    return;
+  }
+  state = 'resolved';
+  value = newValue;
+
+  if(deferred) {
+    handle(deferred);
+  }
+}
+```
+
+We'll keep going through `resolve()` as long as we get a Promise back. Once it's no longer a Promise, then proceed as before. It *is* possible for this to be an infinite loop. The Promise/A+ spec recommends implementations detect this and break, but it's not required.
+
+Notice how loose the check is to see if `newValue` is a Promise? We are only looking for a `then()` method. This is intentional, it allows different Promise implementations to interopt with each other. It's actually quite common for Promise libraries to intermingle, as different third party libraries you use can each use different Promise implementations.
+
+This also means if you return something that *isn't* a Promise, but happens to have a function named `then` on it, then bad things can happen. In general, it's best to avoid having function properties named "then" unless the object in question is a Promise.
+
+With chaining in place, our implementation is pretty complete. But we've completely ignored error handling.
+
+## Rejecting Promises
+
+*We're about to switch gears a bit. Great time to take a break. I'll wait.*
+
+When something goes wrong during the course of a Promise, it needs to be **rejected** with a *reason*. How does the caller know when this happens? They can find out by passing in a second callback to `then()`
+
+```javascript
+doSomething().then(function(value) {
+  console.log('Success!', value);
+}, function(error) {
+  console.log('Uh oh', error);
+});
+```
+
+As mentioned above, the Promise will transition from **pending** to either **resolved** or **rejected**, never both. In other words, only one of the above callbacks ever gets called.
+
+Promises enable rejection by means of `reject()`, here is `doSomething()` with error handling support added
+
+```javascript
+function doSomething() {
+  return new Promise(function(resolve, reject) {
+    var result = getValue(); 
+    if(result.error) {
+      reject(result.error);
+    } else {
+      resolve(result.value);
+    }
+  });
+}
+```
+
+Inside the Promise implementation, we need to account for rejection. As soon as a Promise is rejected, all downstream Promises from it also need to be rejected.
+
+Let's see the full Promise implementation again, this time with rejection support
+
+```javascript
+function Promise(fn) {
+  var state = 'pending';
+  var value;
+  var deferred = null;
+
+  function resolve(newValue) {
+    if(newValue && typeof newValue.then === 'function') {
+      newValue.then(resolve, reject);
+      return;
+    }
+    state = 'resolved';
+    value = newValue;
+  
+    if(deferred) {
+      handle(deferred);
+    }
+  }
+
+  function reject(reason) {
+    state = 'rejected';
+    value = reason;
+
+    if(deferred) {
+      handle(deferred);
+    }
+  }
+
+  function handle(handler) {
+    if(state === 'pending') {
+      deferred = handler;
+      return;
+    }
+
+    var handlerCallback;
+    
+    if(state === 'resolved') {
+      handlerCallback = handler.onFulfilled;
+    } else {
+      handlerCallback = handler.onRejected;
+    }
+
+    if(handlerCallback === null) {
+      if(state === 'resolved') {
+        handler.resolve(value);
+      } else {
+        handler.reject(value);
+      }
+
+      return;
+    }
+
+    var ret = handler.onFulfilled(value);
+    handler.resolve(ret);
+  }
+
+  this.then = function(onFulfilled, onRejected) {
+    return new Promise(function(resolve) {
+      handle({
+        onFulfilled: onFulfilled,
+	onRejected: onRejected,
+        resolve: resolve,
+	reject: reject
+      });
+    });
+  };
+
+  fn(resolve, reject);
+}
+```
+
+Other than the addition of `reject()`, `handle()` also has to be aware of rejection. Within `handle()`, either the rejection path or resolve path will be taken depending on the value of `state`. This value of `state` gets pushed into the next Promise, because calling the next Promises' `resolve()` or `reject()` sets its `state` value accordingly.
+
+When using Promises, it's very easy to omit the error callback. But if you do, you'll never get *any* indication something went wrong. At the very least, the final Promise in your chain should have an error callback.
+
+### Unexpected Errors Should Also Lead to Rejection
+
+So far our error handling only accounts for known errors. It's possible an unhandled exception will happen, completely ruining everything. It's essential that the Promise implementation catches those exceptions and rejects accordingly.
 
 
