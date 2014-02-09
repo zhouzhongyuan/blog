@@ -242,13 +242,9 @@ function Promise(fn) {
 }
 ```
 
-Hoo, it's getting a little squirrelly. Aren't you glad we're building this up slowly? The real key here is that `then()` is returning a new Promise. It's entirely possible this new Promise will go completely ignored, such as in the simple case
+Hoo, it's getting a little squirrelly. Aren't you glad we're building this up slowly? The real key here is that `then()` is returning a new Promise. 
 
-```javascript
-  doSomething().then(showTheResult);
-```
-
-The callback approach does not have this problem. Yet another ding against Promises. You can start to appreciate why much of the NodeJS community has shunned them.
+Since `then()` always returns a new Promise object, there is always at least one Promise object that gets resolved then ignored. The callback approach does not have this problem. Yet another ding against Promises. You can start to appreciate why much of the NodeJS community has shunned them.
 
 When the second Promise is used, what resolved value does it receive? *It receives the return value of the first promise.* This is happening at the bottom of `handle()`, The `handler` object carries around both an `onResolved` callback as well as a reference to `resolve`. This is the bridge from the first Promise to the second. We are concluding the first Promise at this line:
 
@@ -522,6 +518,8 @@ There are some differences in the real implementation and what is here in this a
 
 ## Conclusion
 
-If you made it this far, then thanks for reading! We've covered the core of Promises, what is described in the spec. Most implementations offer much more functionality, such as `all()`, `denodeify()` and much more. I recommend browsing the [API docs for Bluebird](https://github.com/petkaantonov/bluebird/blob/master/API.md) to see what all is possible with Promises. This article really is just the beginning!
+If you made it this far, then thanks for reading! We've covered the core of Promises, what is described in the spec. Most implementations offer much more functionality, such as `all()`, `denodeify()` and much more. I recommend browsing the [API docs for Bluebird](https://github.com/petkaantonov/bluebird/blob/master/API.md) to see what all is possible with Promises. 
+
+Once I came to understand how Promises worked and their caveats, I came to really like them. They have lead to very clean and elegant code in my projects. There's so much more to talk about too, this article is just the beginning!
 
 
