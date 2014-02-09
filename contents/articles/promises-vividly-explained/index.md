@@ -15,19 +15,19 @@ template: article.jade
     color: #655C6F;
   }
   .pitfall {
-    background-color: #DEA2A4;
+    background-color: #EEC2C4;
   }
 </style>
 
 I've been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it comes down to it, I don't fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises very well too. 
 
-We will be incrementaly creating a Promise implementation that by the end will mostly meet the [Promise/A+ spec](http://promises-aplus.github.io/promises-spec/), and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with Promises. If you don't, [promisejs.org](http://promisejs.org) is a good site to checkout.
+We will be incrementaly creating a Promise implementation that by the end will *mostly* meet the [Promise/A+ spec](http://promises-aplus.github.io/promises-spec/), and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with Promises. If you don't, [promisejs.org](http://promisejs.org) is a good site to checkout.
 
 <span class="more"></span>
 
 ## The Simplest Use Case
 
-Let's begin our promise implementation as simple as can be. We want to go from this
+Let's begin our Promise implementation as simple as can be. We want to go from this
 
 ```javascript
 doSomething(function(value) {
@@ -71,7 +71,7 @@ This is just a little sugar for the callback pattern. It's pretty pointless suga
 Promises capture the notion of an eventual value into an object
 </div>
 
-This is the main reason Promises are so interesting. Once the concept of eventuality is captured like this, we can begin to do some very powerful things. We'll explore this a lot more later on.
+This is the main reason Promises are so interesting. Once the concept of eventuality is captured like this, we can begin to do some very powerful things. We'll explore this more later on.
 
 ### Defining the Promise type
 
@@ -101,10 +101,6 @@ function doSomething() {
     resolve(value);
   });
 }
-
-doSomething().then(function(value) {
-  console.log("Got a value:", value);
-});
 ```
 
 There is a problem here. If you trace through the execution, you'll see that `resolve()` gets called before `then()`, which means `callback` will be `null`. Let's hide this problem in a little hack involving `setTimeout`
@@ -129,7 +125,7 @@ function Promise(fn) {
 }
 ```
 
-With the hack in place, this code now works. Sort of.
+With the hack in place, this code now works ... sort of.
 
 ### This Code is Brittle and Bad
 
@@ -146,7 +142,7 @@ Our brittle code above revealed something unexpectedly. Promises have state. We 
 </ul>
 </div>
 
-A Promise can also be **rejected** with a *reason*, but we'll get to error handling later.
+*(A Promise can also be rejected, but we'll get to error handling later)*
 
 Let's explicitly track the state inside of our implementation, which will allow us to do away with our hack
 
@@ -191,7 +187,11 @@ This is because of the `state` flag. Both `then()` and `resolve()` hand off to t
 
 Notice `setTimeout` went away? That's temporary, it will be coming back. But one thing at a time.
 
-We still have quite a few more things in the spec to implement, but our Promises are already pretty powerful. One thing this system allows is for us to call `then()` as many times as we want, we will always get the same value back
+<div class="callout wisdom">
+With Promises, the order in which we work with them doesn't matter. We are free to call `then()` and `resolve()` whenever they suit our purposes. This is one of the powerful advantages of capturing the notion of eventual results into an object
+</div>
+
+We still have quite a few more things in the spec to implement, but our Promises are already pretty powerful. This system allows us to call `then()` as many times as we want, we will always get the same value back
 
 ```javascript
 var promise = doSomething();
@@ -205,7 +205,7 @@ promise.then(function(value) {
 });
 ```
 
-The `promise` object stands as a representation of the result. We can pass it around, store it, use it as many times as we need, etc. Finally, our Promise is starting to give us benefits over the original callback approach we replaced!
+The `promise` object stands as a representation of the result. We can pass it around, store it, use it as many times as we need, etc. 
 
 ## Chaining Promises
 
@@ -275,7 +275,7 @@ Hoo, it's getting a little squirrelly. Aren't you glad we're building this up sl
 Since `then()` always returns a new Promise object, there will always be at least one Promise object that gets created, resolved and then ignored. Which can be seen as waistful. The callback approach does not have this problem. Another ding against Promises. You can start to appreciate why some in the JavaScript community have shunned them.
 </div>
 
-When the second Promise is used, what resolved value does it receive? *It receives the return value of the first promise.* This is happening at the bottom of `handle()`, The `handler` object carries around both an `onResolved` callback as well as a reference to `resolve`. This is the bridge from the first Promise to the second. We are concluding the first Promise at this line:
+What value does the second Promise resolve to? *It receives the return value of the first promise.* This is happening at the bottom of `handle()`, The `handler` object carries around both an `onResolved` callback as well as a reference to `resolve`. There is more than one copy of `resolve()` floating around, each Promise gets their own copy of this function, and a closure for it to run within. This is the bridge from the first Promise to the second. We are concluding the first Promise at this line:
 
 ```javascript
 var ret = handler.onResolved(value);
@@ -359,7 +359,7 @@ doSomething().then(function(result) {
   Promises always resolve to one value. If you need to pass more than one value along, you need to create a multi-value in some fashion (an array, an object, concatting strings, etc)
 </div>
 
-A potentially better way is to use a Promise library's `all()` method, which I'll leave to you to go and discover.
+A potentially better way is to use a Promise library's `all()` method or any number of other utility methods that increase the usefulness of Promises, which I'll leave to you to go and discover. (Maybe that will be a future guide?)
 
 ### Returing Promises inside the Chain
 Our chaining implementation is a bit naive. It's blindly passing the resolved values down the line. What if one of the resolved values is a Promise? For example
@@ -373,7 +373,7 @@ doSomething().then(result) {
 });
 ```
 
-As it stands now, the above won't do what we want. `finalResult` won't actually be a fully resolved value, it'd instead be a Promise. To get the intended result, we'd need to do
+As it stands now, the above won't do what we want. `finalResult` won't actually be a fully resolved value, it will instead be a Promise. To get the intended result, we'd need to do
 
 ```javascript
 doSomething().then(result) {
@@ -407,6 +407,10 @@ We'll keep calling `resolve()` recursively as long as we get a Promise back. Onc
 
 <div class="callout pitfall">
 It *is* possible for this to be an infinite loop. The Promise/A+ spec recommends implementations detect infinite loops, but it's not required.
+</div>
+
+<div class="callout pitfall">
+Also worth pointing out, this implementation does not meet the spec. Nor will we fully meet the spec in this regard in the article. For the more curious, I recommend reading the [Promise resolution procedure](http://promises-aplus.github.io/promises-spec/#the_promise_resolution_procedure) from the spec for some finer points I am leaving out
 </div>
 
 Notice how loose the check is to see if `newValue` is a Promise? We are only looking for a `then()` method. This duck typing is intentional, it allows different Promise implementations to interopt with each other. It's actually quite common for Promise libraries to intermingle, as different third party libraries you use can each use different Promise implementations.
@@ -526,7 +530,7 @@ function Promise(fn) {
 Other than the addition of `reject()` itself, `handle()` also has to be aware of rejection. Within `handle()`, either the rejection path or resolve path will be taken depending on the value of `state`. This value of `state` gets pushed into the next Promise, because calling the next Promises' `resolve()` or `reject()` sets its `state` value accordingly.
 
 <div class="callout pitfall">
-When using Promises, it's very easy to omit the error callback. But if you do, you'll never get *any* indication something went wrong. At the very least, the final Promise in your chain should have an error callback.
+When using Promises, it's very easy to omit the error callback. But if you do, you'll never get *any* indication something went wrong. At the very least, the final Promise in your chain should have an error callback. See the section below about swallowed errors for more info.
 </div>
 
 ### Unexpected Errors Should Also Lead to Rejection
@@ -585,11 +589,17 @@ getSomeJson().then(function(json) {
 });
 ```
 
-What is going to happen here? Our callback inside `then()` is expecting some valid JSON. So it naively tries to parse it. This will throw an exception. But we have an error callback, so we're good, right?
+What is going to happen here? Our callback inside `then()` is expecting some valid JSON. So it naively tries to parse it, which leads to an exception. But we have an error callback, so we're good, right?
 
-Nope. *That error callback will not be invoked!* If you run this example, you will get no output at all. No errors, no nothing. Pure *chilling* silence.
+<div class="callout pitfall">
+**Nope.** *That error callback will not be invoked!* If you run this example, you will get no output at all. No errors, no nothing. Pure *chilling* silence.
+</div>
 
-Why is this? Since the unhandled exception took place in our callback to `then()`, it is being caight inside of `handle()`. This causes `handle()` to reject the Promise that `then()` returned, not the Promise we are already responding to, as that Promise has already properly resolved.
+Why is this? Since the unhandled exception took place in our callback to `then()`, it is being caught inside of `handle()`. This causes `handle()` to reject the Promise that `then()` returned, not the Promise we are already responding to, as that Promise has already properly resolved.
+
+<div class="callout wisdom">
+Always remember, inside of `then()`'s callback, the Promise you are responding to has already resolved. The result of your callback will have no influence on this Promise
+</div>
 
 If you want to capture the above error, you need an error callback further downstream
 
@@ -619,18 +629,35 @@ function handle(handler) {
     return;
   }
   setTimeout(function() {
-    // as before
+    // ... as before
   }, 1);
 }
 ```
 
-This is all that is needed. In truth, real Promise libraries don't tend to use `setTimeout`. If the library is NodeJS oriented it will possibly use `process.nextTick`, for browsers it might use the new `setImmediate` or a setImmediate shim (so far only IE supports setImmediate), or perhaps an asynchronous library such as Kriskowal's [asap](https://github.com/kriskowal/asap). Kriskowal also wrote [Q](https://github.com/kriskowal/q), a popular Promise library.
+This is all that is needed. In truth, real Promise libraries don't tend to use `setTimeout`. If the library is NodeJS oriented it will possibly use `process.nextTick`, for browsers it might use the new `setImmediate` or a [setImmediate shim](https://github.com/NobleJS/setImmediate) (so far only IE supports setImmediate), or perhaps an asynchronous library such as Kriskowal's [asap](https://github.com/kriskowal/asap) (Kriskowal also wrote [Q](https://github.com/kriskowal/q), a popular Promise library)
 
-[[[[TODO why does it need to be async?]]]]
+###Why Is This Async Requirement in the Spec?
 
-## then/promise
+It allows for consistency and reliable execution flow. Consider this contrived example
 
-There are many, full featured, Promise libraries out there. The [then](https://github.com/then) organization's [promise](https://github.com/then/promise) library takes a simpler approach. If you take a look at [their implementation](https://github.com/then/promise/blob/master/core.js), you should see it looks quite familiar. then/promise was the basis of the code for this article. Thanks to Nathan Zadoks and Forbes Lindsay for their great library and work on JavaScript Promises. Forbes Lindsay is also the guy behind the [promisejs.org](http://promisejs.org) site mentioned at the start.
+```javascript
+var promise = doAnOperation();
+invokeSomething();
+promise.then(wrapItAllUp);
+invokeSomethingElse();
+```
+
+What is the call flow here? Based on the naming you'd probably guess it is `invokeSomething -> invokeSomethingElse -> wrapItAllUp`. But this all depends on if the promise resolves synchronously or asynchronously in our current implementation. If `doAnOperation` works asynchronously, then that is the call flow. But if it works synchronously, then the call flow is actually `invokeSomething -> wrapItAllUp -> invokeSomethingElse`, which is probably bad.
+
+To get around this, Promises **always** resolve asynchronously, even if they don't have to. It reduces surprise and allows people to use Promises without having to take into consideration asynchronicity when reasoning about their code.
+
+<div class="callout pitfall">
+Promises always require at least one more iteration of the event loop to resolve. This is not necessarily true of the standard callback approach.
+</div>
+
+## Before We Wrap Up ... then/promise
+
+There are many, full featured, Promise libraries out there. The [then](https://github.com/then) organization's [promise](https://github.com/then/promise) library takes a simpler approach. It is meant to be a simple implementation that meets the spec and nothing more. If you take a look at [their implementation](https://github.com/then/promise/blob/master/core.js), you should see it looks quite familiar. then/promise was the basis of the code for this article, we've *almost* built up the same Promise implementation. Thanks to Nathan Zadoks and Forbes Lindsay for their great library and work on JavaScript Promises. Forbes Lindsay is also the guy behind the [promisejs.org](http://promisejs.org) site mentioned at the start.
 
 There are some differences in the real implementation and what is here in this article. That is because there are more details in the Promise/A+ spec that I have not addressed. I recommend [reading the spec](http://promises-aplus.github.io/promises-spec/), it is short and straightforward. 
 
@@ -640,4 +667,4 @@ If you made it this far, then thanks for reading! We've covered the core of Prom
 
 Once I came to understand how Promises worked and their caveats, I came to really like them. They have lead to very clean and elegant code in my projects. There's so much more to talk about too, this article is just the beginning!
 
-
+You should [follow me on Twitter](http://twitter.com/cityfortyone) to find out when I write another guide like this.

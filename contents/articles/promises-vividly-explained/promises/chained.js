@@ -4,9 +4,13 @@ function Promise(fn) {
   var deferred = null;
 
   function resolve(newValue) {
-    value = newValue;
+    if(newValue && typeof newValue.then === 'function') {
+      newValue.then(resolve);
+      return;
+    }
     state = 'resolved';
-
+    value = newValue;
+  
     if(deferred) {
       handle(deferred);
     }
@@ -41,10 +45,8 @@ function Promise(fn) {
 
 function doSomething() {
   return new Promise(function(resolve) {
-    process.nextTick(function() {
-      var result = 42;
-      resolve(result);
-    });
+    var result = 42;
+    resolve(result);
   });
 }
 
@@ -56,10 +58,18 @@ var p = doSomething();
 //   });
 // }, 200);
 
+function doSomethingAsync() {
+  return new Promise(function(resolve) {
+    setTimeout(function() {
+      resolve('async');
+    }, 100);
+  });
+}
+
 
 p.then(function(result) {
-  console.log('got a result again:', result);
-  return 55;
+  console.log('got a result', result);
+  return doSomethingAsync();
 }).then(function(nextResult) {
   console.log('next result: ' + nextResult);
   return 88;
