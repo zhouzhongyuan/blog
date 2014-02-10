@@ -55,6 +55,7 @@ We will be incrementally creating a Promise implementation that by the end will 
    <li><a href="#promises-have-state">Promises have State</a></li>
    <li><a href="#chaining-promises">Chaining Promises</a>
      <ul>
+       <li><a href="#the-callback-is-optional">The Callback is Optional</a></li>
        <li><a href="#returning-promises-inside-the-chain">Returning Promises Inside the Chain</a></li>
     </li>
     </ul>
@@ -307,7 +308,7 @@ function Promise(fn) {
       return;
     }
 
-    if(handler.onResolved === null) {
+    if(!handler.onResolved) {
       handler.resolve(value);
       return;
     }
@@ -329,7 +330,7 @@ function Promise(fn) {
 }
 ```
 
-<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/HdzLv/1/">fiddle</a>
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/HdzLv/2/">fiddle</a>
 
 Hoo, it's getting a little squirrelly. Aren't you glad we're building this up slowly? The real key here is that `then()` is returning a new Promise. 
 
@@ -423,6 +424,30 @@ doSomething().then(function(result) {
 
 A potentially better way is to use a Promise library's `all()` method or any number of other utility methods that increase the usefulness of Promises, which I'll leave to you to go and discover. 
 
+### The Callback is Optional
+
+The callback to `then()` is not strictly required. If you leave it off, the Promise resolves to the same value as the previous Promise
+
+```javascript
+doSomething().then().then(function(result) {
+  console.log('got a result', result);
+});
+
+// the output is
+//
+// got a result 42
+```
+
+You can see this inside of `handle()`, where if there is no callback, it simply resolves the Promise and exits
+
+```javascript
+if(!handler.onResolved) {
+  handler.resolve(value);
+  return;
+}
+```
+
+
 ### Returning Promises Inside the Chain
 Our chaining implementation is a bit naive. It's blindly passing the resolved values down the line. What if one of the resolved values is a Promise? For example
 
@@ -465,7 +490,7 @@ function resolve(newValue) {
 }
 ```
 
-<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/38CCb/1/">fiddle</a>
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/38CCb/2/">fiddle</a>
 
 We'll keep calling `resolve()` recursively as long as we get a Promise back. Once it's no longer a Promise, then proceed as before.
 
@@ -561,7 +586,7 @@ function Promise(fn) {
       handlerCallback = handler.onRejected;
     }
 
-    if(handlerCallback === null) {
+    if(!handlerCallback) {
       if(state === 'resolved') {
         handler.resolve(value);
       } else {
@@ -590,7 +615,7 @@ function Promise(fn) {
 }
 ```
 
-<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/rLXsL/1/">fiddle</a>
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/rLXsL/2/">fiddle</a>
 
 Other than the addition of `reject()` itself, `handle()` also has to be aware of rejection. Within `handle()`, either the rejection path or resolve path will be taken depending on the value of `state`. This value of `state` gets pushed into the next Promise, because calling the next Promises' `resolve()` or `reject()` sets its `state` value accordingly.
 
@@ -654,7 +679,7 @@ getSomeJson().then(function(json) {
 });
 ```
 
-<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/M7SRM/1/">fiddle</a>
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/M7SRM/2/">fiddle</a>
 
 What is going to happen here? Our callback inside `then()` is expecting some valid JSON. So it naively tries to parse it, which leads to an exception. But we have an error callback, so we're good, right?
 
