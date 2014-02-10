@@ -5,8 +5,6 @@ date: 2014-02-09
 template: article.jade
 ---
 <style>
-  iframe { max-width: 600px }
-
   .callout {
     padding: 10px;
     margin: 20px 0;
@@ -760,3 +758,6 @@ If you made it this far, then thanks for reading! We've covered the core of Prom
 Once I came to understand how Promises worked and their caveats, I came to really like them. They have led to very clean and elegant code in my projects. There's so much more to talk about too, this article is just the beginning!
 
 If you enjoyed this, you should [follow me on Twitter](http://twitter.com/cityfortyone) to find out when I write another guide like this.
+
+**Found a mistake?** if I made an error and you want to let me know, please [email me](mailto:matt.e.greer@gmail.com) or [send me a pull request](https://github.com/city41/blog/blob/master/contents/articles/promises-in-wicked-detail/index.md). Thanks!
+
