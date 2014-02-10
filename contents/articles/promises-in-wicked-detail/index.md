@@ -704,7 +704,7 @@ getSomeJson().then(function(json) {
 });
 ```
 
-Notice we don't have a success callback, it's perfectly fine to omit it. In this case we will properly log the error.
+Now we will properly log the error.
 
 <div class="callout pitfall">
 In my experience, this is the biggest pitfall of Promises. If you read only one section of this article, this is the one!
