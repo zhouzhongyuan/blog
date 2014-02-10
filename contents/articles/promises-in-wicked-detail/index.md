@@ -39,7 +39,7 @@ I've been using Promises in my JavaScript code for a while now. They can be a li
 
 <span class="more"></span>
 
-We will be incrementaly creating a Promise implementation that by the end will *mostly* meet the [Promise/A+ spec](http://promises-aplus.github.io/promises-spec/), and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with Promises. If you don't, [promisejs.org](http://promisejs.org) is a good site to checkout.
+We will be incrementally creating a Promise implementation that by the end will *mostly* meet the [Promise/A+ spec](http://promises-aplus.github.io/promises-spec/), and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with Promises. If you don't, [promisejs.org](http://promisejs.org) is a good site to checkout.
 
 
 ## Table of Contents
