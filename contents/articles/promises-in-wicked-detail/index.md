@@ -17,6 +17,10 @@ template: article.jade
   .pitfall {
     background-color: #EEC2C4;
   }
+  .addendum {
+    background-color: #F9D423;
+    color: #BF4D28;
+  }
 
   .fiddle {
     display: inline-block;
@@ -37,8 +41,12 @@ I've been using Promises in my JavaScript code for a while now. They can be a li
 
 <span class="more"></span>
 
+
 We will be incrementally creating a Promise implementation that by the end will *mostly* meet the [Promise/A+ spec](http://promises-aplus.github.io/promises-spec/), and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with Promises. If you don't, [promisejs.org](http://promisejs.org) is a good site to checkout.
 
+<div class="callout addendum">
+After receiving some feedback on this article, I've made a few changes. Most notable, I added a section about `done()`, you can find it <a href="#done-to-the-rescue">here</a>.
+</div>
 
 ## Table of Contents
 
@@ -62,6 +70,7 @@ We will be incrementally creating a Promise implementation that by the end will 
    <ul>
      <li><a href="#unexpected-errors-should-also-lead-to-rejection">Unexpected Errors Should Also Lead to Rejection</a></li>
      <li><a href="#promises-can-swallow-errors-">Promises Can Swallow Errors!</a></li>
+     <li><a href="#done-to-the-rescue">done() to the Rescue</a></li>
    </ul>
    </li>
    <li><a href="#promise-resolution-needs-to-be-async">Promise Resolution Needs to be Async</a>
@@ -72,6 +81,7 @@ We will be incrementally creating a Promise implementation that by the end will 
    </li>
    <li><a href="#before-we-wrap-up-then-promise">Before We Wrap Up ... then/promise</a></li>
    <li><a href="#conclusion">Conclusion</a></li>
+   <li><a href="#further-reading">Further Reading</a></li>
 
 </ol>
 
@@ -263,6 +273,9 @@ promise.then(function(value) {
   console.log('Got the same value again:', value);
 });
 ```
+<div class="callout pitfall">
+This is not completely true for the Promise implementation in this article. If the opposite happens, ie the caller calls `then()` multiple times before `resolve()` is called, only the last call to `then()` will be honored. The fix for this is to keep a running list of deferreds inside of the Promise instead of just one. I decided to not do that in the interest of keeping the article more simple, it's long enough as it is :)
+</div>
 
 The `promise` object stands as a representation of the result. We can pass it around, store it, use it as many times as we need, etc. 
 
@@ -648,6 +661,7 @@ function handle(deferred) {
     ret = handlerCallback(value);
   } catch(e) {
     handler.reject(e);
+    return;
   }
 
   handler.resolve(ret);
@@ -677,7 +691,7 @@ getSomeJson().then(function(json) {
 });
 ```
 
-<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/M7SRM/2/">fiddle</a>
+<a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/M7SRM/3/">fiddle</a>
 
 What is going to happen here? Our callback inside `then()` is expecting some valid JSON. So it naively tries to parse it, which leads to an exception. But we have an error callback, so we're good, right?
 
@@ -705,7 +719,27 @@ getSomeJson().then(function(json) {
 Now we will properly log the error.
 
 <div class="callout pitfall">
-In my experience, this is the biggest pitfall of Promises. If you read only one section of this article, this is the one!
+In my experience, this is the biggest pitfall of Promises. Read onto the next section for a potentially better solution
+</div>
+
+### done() to the Rescue
+
+Most (but not all) Promise libraries have a `done()` method. It's very similar to `then()`, except it avoids the pitfalls of `then()` (as outlined in the previous section).
+
+`done()` can be called whenever `then()` can. The key differences are it does not return a Promise, and any unhandled exception inside of `done()` is not captured by the Promise implementation. In other words, `done()` represents when the entire Promise chain has fully resolved. Our `getSomeJson()` example can be more robust using `done()`
+
+```javascript
+getSomeJson().done(function(json) {
+  // when this throws, it won't be swallowed
+  var obj = JSON.parse(json);
+  console.log(obj);
+});
+```
+
+`done()` also takes an error callback, `done(callback, errback)`, just like `then()` does, and since the entire Promise resolution is, well, done, you are assured of being informed of any errors that erupted.
+
+<div class="callout pitfall">
+`done()` is not part of the Promise/A+ spec (at least not yet), so your Promise library of choice might not have it.
 </div>
 
 
@@ -724,7 +758,7 @@ function handle(handler) {
 }
 ```
 
-This is all that is needed. In truth, real Promise libraries don't tend to use `setTimeout`. If the library is NodeJS oriented it will possibly use `process.nextTick`, for browsers it might use the new `setImmediate` or a [setImmediate shim](https://github.com/NobleJS/setImmediate) (so far only IE supports setImmediate), or perhaps an asynchronous library such as Kriskowal's [asap](https://github.com/kriskowal/asap) (Kriskowal also wrote [Q](https://github.com/kriskowal/q), a popular Promise library)
+This is all that is needed. In truth, real Promise libraries don't tend to use `setTimeout`. If the library is NodeJS oriented it will possibly use `process.nextTick`, for browsers it might use the new `setImmediate` or a [setImmediate shim](https://github.com/NobleJS/setImmediate) (so far only IE supports setImmediate), or perhaps an asynchronous library such as Kris Kowal's [asap](https://github.com/kriskowal/asap) (Kris Kowal also wrote [Q](https://github.com/kriskowal/q), a popular Promise library)
 
 ###Why Is This Async Requirement in the Spec?
 
@@ -759,5 +793,14 @@ Once I came to understand how Promises worked and their caveats, I came to reall
 
 If you enjoyed this, you should [follow me on Twitter](http://twitter.com/cityfortyone) to find out when I write another guide like this.
 
+## Further Reading
+
+More great articles on Promises
+
+* [promisejs.org](http://promisejs.org) -- great tutorial on Promises (already mentioned it a few times)
+* [Q's Design Rationale](https://github.com/kriskowal/q/blob/v1/design/README.js) -- an article much like this one, but goes into even more detail. By Kris Kowal, creator of Q
+* [Some debate over whether done() is a good thing](https://github.com/domenic/promises-unwrapping/issues/19)
+
 **Found a mistake?** if I made an error and you want to let me know, please [email me](mailto:matt.e.greer@gmail.com) or [send me a pull request](https://github.com/city41/blog/blob/master/contents/articles/promises-in-wicked-detail/index.md). Thanks!
+
 
