@@ -44,10 +44,6 @@ I've been using Promises in my JavaScript code for a while now. They can be a li
 
 We will be incrementally creating a Promise implementation that by the end will *mostly* meet the [Promise/A+ spec](http://promises-aplus.github.io/promises-spec/), and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with Promises. If you don't, [promisejs.org](http://promisejs.org) is a good site to checkout.
 
-<div class="callout addendum">
-After receiving some feedback on this article, I've made a few changes. Most notable, I added a section about `done()`, you can find it <a href="#done-to-the-rescue">here</a>.
-</div>
-
 ## Table of Contents
 
 <ol>
