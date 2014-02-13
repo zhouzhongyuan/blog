@@ -4,39 +4,6 @@ author: Matt
 date: 2014-02-09
 template: article.jade
 ---
-<style>
-  .callout {
-    padding: 10px;
-    margin: 20px 0;
-    max-width: 600px;
-  }
-  .wisdom {
-    background-color: #CFF7B8;
-    color: #655C6F;
-  }
-  .pitfall {
-    background-color: #EEC2C4;
-  }
-  .addendum {
-    background-color: #F9D423;
-    color: #BF4D28;
-  }
-
-  .fiddle {
-    display: inline-block;
-    background-color: orange;
-    color: white;
-    margin: 10px 0;
-    padding: 5px;
-  }
-
-  .fiddle::after {
-    margin-left: 5px;
-    content: "\f045";
-    font-family: FontAwesome;
-  }
-</style>
-
 I've been using Promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn't fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand Promises well too. 
 
 <span class="more"></span>
