@@ -7,7 +7,7 @@ stuff:
 
 - name: Breakouts and Engine Comparison Article
   thumbnail: /media/img/stuff/breakouts.png
-  url: http://city41.github.io/breakouts
+  url: http://jsbreakouts.org
   github: https://github.com/city41/breakouts
   description: 
     "<p>The \"TodoMVC of JavaScript game engines\". Breakouts gathers various implementations of the game Breakout in different JavaScript game engines. It enables people to explore and play with different engines to see which one fits them best.</p>
