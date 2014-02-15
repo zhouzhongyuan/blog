@@ -240,8 +240,6 @@ promise.then(function(value) {
 This is not completely true for the Promise implementation in this article. If the opposite happens, ie the caller calls `then()` multiple times before `resolve()` is called, only the last call to `then()` will be honored. The fix for this is to keep a running list of deferreds inside of the Promise instead of just one. I decided to not do that in the interest of keeping the article more simple, it's long enough as it is :)
 </div>
 
-The `promise` object stands as a representation of the result. We can pass it around, store it, use it as many times as we need, etc. 
-
 ## Chaining Promises
 
 Since Promises capture the notion of asynchronicity in an object, we can chain them, map them, have them run in parallel or sequential, all kinds of useful things. Code like the following is very common with Promises
@@ -389,7 +387,7 @@ doSomething().then(function(result) {
 
 // the output is
 //
-// [42, 88, 99]
+// 42, 88, 99
 ```
 
 <div class="callout wisdom">
@@ -412,7 +410,7 @@ doSomething().then().then(function(result) {
 // got a result 42
 ```
 
-You can see this inside of `handle()`, where if there is no callback, it simply resolves the Promise and exits
+You can see this inside of `handle()`, where if there is no callback, it simply resolves the Promise and exits. `value` is still the value of the previous Promise.
 
 ```javascript
 if(!handler.onResolved) {
@@ -447,7 +445,7 @@ doSomething().then(result) {
 });
 ```
 
-Who wants that crud in their code? Let's have the Promise implementation seemlessly handle this for us. This is simple to do, inside of `resolve()` just add a special case if the resolved value is a Promise
+Who wants that crud in their code? Let's have the Promise implementation seamlessly handle this for us. This is simple to do, inside of `resolve()` just add a special case if the resolved value is a Promise
 
 ```javascript
 function resolve(newValue) {
@@ -473,7 +471,7 @@ It *is* possible for this to be an infinite loop. The Promise/A+ spec recommends
 </div>
 
 <div class="callout pitfall">
-Also worth pointing out, this implementation does not meet the spec. Nor will we fully meet the spec in this regard in the article. For the more curious, I recommend reading the [Promise resolution procedure](http://promises-aplus.github.io/promises-spec/#the_promise_resolution_procedure) from the spec for some finer points I am leaving out
+Also worth pointing out, this implementation does not meet the spec. Nor will we fully meet the spec in this regard in the article. For the more curious, I recommend reading the [Promise resolution procedure](http://promises-aplus.github.io/promises-spec/#the_promise_resolution_procedure).
 </div>
 
 Notice how loose the check is to see if `newValue` is a Promise? We are only looking for a `then()` method. This duck typing is intentional, it allows different Promise implementations to interopt with each other. It's actually quite common for Promise libraries to intermingle, as different third party libraries you use can each use different Promise implementations.
@@ -687,7 +685,7 @@ In my experience, this is the biggest pitfall of Promises. Read onto the next se
 
 ### done() to the Rescue
 
-Most (but not all) Promise libraries have a `done()` method. It's very similar to `then()`, except it avoids the pitfalls of `then()` (as outlined in the previous section).
+Most (but not all) Promise libraries have a `done()` method. It's very similar to `then()`, except it avoids the above pitfalls of `then()`.
 
 `done()` can be called whenever `then()` can. The key differences are it does not return a Promise, and any unhandled exception inside of `done()` is not captured by the Promise implementation. In other words, `done()` represents when the entire Promise chain has fully resolved. Our `getSomeJson()` example can be more robust using `done()`
 
@@ -750,7 +748,7 @@ There are some differences in the real implementation and what is here in this a
 
 ## Conclusion
 
-If you made it this far, then thanks for reading! We've covered the core of Promises, which is the only thing the spec addresses. Most implementations offer much more functionality, such as `all()`, `race()`, `denodeify()` and much more. I recommend browsing the [API docs for Bluebird](https://github.com/petkaantonov/bluebird/blob/master/API.md) to see what all is possible with Promises. 
+If you made it this far, then thanks for reading! We've covered the core of Promises, which is the only thing the spec addresses. Most implementations offer much more functionality, such as `all()`, `spread()`, `race()`, `denodeify()` and much more. I recommend browsing the [API docs for Bluebird](https://github.com/petkaantonov/bluebird/blob/master/API.md) to see what all is possible with Promises. 
 
 Once I came to understand how Promises worked and their caveats, I came to really like them. They have led to very clean and elegant code in my projects. There's so much more to talk about too, this article is just the beginning!
 
@@ -763,7 +761,8 @@ More great articles on Promises
 * [promisejs.org](http://promisejs.org) -- great tutorial on Promises (already mentioned it a few times)
 * [Q's Design Rationale](https://github.com/kriskowal/q/blob/v1/design/README.js) -- an article much like this one, but goes into even more detail. By Kris Kowal, creator of Q
 * [Some debate over whether done() is a good thing](https://github.com/domenic/promises-unwrapping/issues/19)
+* [Flattening Promise Chains](http://solutionoptimist.com/2013/12/27/javascript-promise-chains-2/) by Burleson Thomas. A nice article that goes into more advanced usage of Promises. If my article is the "what", then Burleson's is a nice look at the "why".
 
-**Found a mistake?** if I made an error and you want to let me know, please [email me](mailto:matt.e.greer@gmail.com) or [send me a pull request](https://github.com/city41/blog/blob/master/contents/articles/promises-in-wicked-detail/index.md). Thanks!
+**Found a mistake?** if I made an error and you want to let me know, please [email me](mailto:matt.e.greer@gmail.com) or [file an issue](https://github.com/city41/blog/issues). Thanks!
 
 
