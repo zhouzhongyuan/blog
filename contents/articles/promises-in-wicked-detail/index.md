@@ -761,7 +761,7 @@ More great articles on Promises
 * [promisejs.org](http://promisejs.org) -- great tutorial on Promises (already mentioned it a few times)
 * [Q's Design Rationale](https://github.com/kriskowal/q/blob/v1/design/README.js) -- an article much like this one, but goes into even more detail. By Kris Kowal, creator of Q
 * [Some debate over whether done() is a good thing](https://github.com/domenic/promises-unwrapping/issues/19)
-* [Flattening Promise Chains](http://solutionoptimist.com/2013/12/27/javascript-promise-chains-2/) by Burleson Thomas. A nice article that goes into more advanced usage of Promises. If my article is the "what", then Burleson's is a nice look at the "why".
+* [Flattening Promise Chains](http://solutionoptimist.com/2013/12/27/javascript-promise-chains-2/) by Thomas Burleson. A nice article that goes into more advanced usage of Promises. If my article is the "what", then Thomas's is a nice look at the "why".
 
 **Found a mistake?** if I made an error and you want to let me know, please [email me](mailto:matt.e.greer@gmail.com) or [file an issue](https://github.com/city41/blog/issues). Thanks!
 
