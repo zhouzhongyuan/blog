@@ -1,0 +1,13 @@
+extends layout
+
+block append vars
+  - bodyclass = 'article-detail'
+
+block content
+  article.article.moved
+    h1= page.title
+    p This article has moved. You can find it 
+      a(href=page.metadata.newurl) here
+
+  script.
+    window.location = "#{page.metadata.newurl}";
