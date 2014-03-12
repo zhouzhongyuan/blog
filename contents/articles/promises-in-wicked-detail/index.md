@@ -45,6 +45,7 @@ We will be incrementally creating a promise implementation that by the end will 
    <li><a href="#before-we-wrap-up-then-promise">Before We Wrap Up ... then/promise</a></li>
    <li><a href="#conclusion">Conclusion</a></li>
    <li><a href="#further-reading">Further Reading</a></li>
+   <li><a href="#translations">Translations</a></li>
 
 </ol>
 
@@ -765,4 +766,7 @@ More great articles on promises
 
 **Found a mistake?** if I made an error and you want to let me know, please [email me](mailto:matt.e.greer@gmail.com) or [file an issue](https://github.com/city41/blog/issues). Thanks!
 
+## Translations
+
+* [Japanese Translation](http://p-baleine.hatenablog.com/entry/2014/03/12/190000), translated by Junpei Tajima
 
