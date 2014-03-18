@@ -34,7 +34,7 @@
             <h1>JavaScript Promises ... In Wicked Detail</h1>
             <div class="date"><span>09. February 2014</span></div>
             <article class="article">
-              <section class="content"><p>I’ve been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn’t fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises well too. </p>
+              <section class="content"><p>I’ve been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn’t fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises well too.</p>
 <p><span class="more"></span></p>
 <p>We will be incrementally creating a promise implementation that by the end will <em>mostly</em> meet the <a href="http://promises-aplus.github.io/promises-spec/">Promises/A+ spec</a>, and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with promises. If you don’t, <a href="http://promisejs.org/">promisejs.org</a> is a good site to checkout.</p>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -79,12 +79,12 @@
 <h2 id="the-simplest-use-case">The Simplest Use Case</h2>
 <p>Let’s begin our promise implementation as simple as can be. We want to go from this</p>
 <pre><code class="lang-javascript">doSomething(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> {</span>
-  console.log(<span class="string">'Got a value:'</span> value);
+  console.log(<span class="string">'Got a value:'</span> + value);
 });
 </code></pre>
 <p>to this</p>
 <pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> {</span>
-  console.log(<span class="string">'Got a value:'</span> value);
+  console.log(<span class="string">'Got a value:'</span> + value);
 });
 </code></pre>
 <p>To do this, we just need to change <code>doSomething()</code> from this</p>
@@ -157,10 +157,10 @@ Promises capture the notion of an eventual value into an object
 <h3 id="this-code-is-brittle-and-bad">This Code is Brittle and Bad</h3>
 <p>Our naive, poor promise implementation must use asynchronicity to work. It’s easy to make it fail again, just call <code>then()</code> asynchronously and we are right back to the callback being <code>null</code> again. Why am I setting you up for failure so soon? Because the above implementation has the advantage of being pretty easy to wrap your head around. <code>then()</code> and <code>resolve()</code> won’t go away. They are key concepts in promises.</p>
 <h2 id="promises-have-state">Promises have State</h2>
-<p>Our brittle code above revealed something unexpectedly. Promises have state. We need to know what state they are in before proceeding, and make sure we move through the states correctly. Doing so gets rid of the brittleness. </p>
+<p>Our brittle code above revealed something unexpectedly. Promises have state. We need to know what state they are in before proceeding, and make sure we move through the states correctly. Doing so gets rid of the brittleness.</p>
 <div class=" callout wisdom">
 <ul>
-<li>A promise can be <strong>pending</strong> waiting for a value, or <strong>resolved</strong> with a value. 
+<li>A promise can be <strong>pending</strong> waiting for a value, or <strong>resolved</strong> with a value.
 <li>Once a promise resolves to a value, it will always remain at that value and never resolve again.
 </ul>
 </div>
@@ -279,7 +279,7 @@ This is not completely true for the promise implementation in this article. If t
 }
 </code></pre>
 <p><a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/HdzLv/2/">fiddle</a></p>
-<p>Hoo, it’s getting a little squirrelly. Aren’t you glad we’re building this up slowly? The real key here is that <code>then()</code> is returning a new promise. </p>
+<p>Hoo, it’s getting a little squirrelly. Aren’t you glad we’re building this up slowly? The real key here is that <code>then()</code> is returning a new promise.</p>
 <div class="callout pitfall">
 Since <code>then()</code> always returns a new promise object, there will always be at least one promise object that gets created, resolved and then ignored. Which can be seen as wasteful. The callback approach does not have this problem. Another ding against promises. You can start to appreciate why some in the JavaScript community have shunned them.
 </div>
@@ -352,7 +352,7 @@ doSomething().then(<span class="function"><span class="keyword">function</span><
   Promises always resolve to one value. If you need to pass more than one value along, you need to create a multi-value in some fashion (an array, an object, concatting strings, etc)
 </div>
 
-<p>A potentially better way is to use a promise library’s <code>all()</code> method or any number of other utility methods that increase the usefulness of promises, which I’ll leave to you to go and discover. </p>
+<p>A potentially better way is to use a promise library’s <code>all()</code> method or any number of other utility methods that increase the usefulness of promises, which I’ll leave to you to go and discover.</p>
 <h3 id="the-callback-is-optional">The Callback is Optional</h3>
 <p>The callback to <code>then()</code> is not strictly required. If you leave it off, the promise resolves to the same value as the previous promise</p>
 <pre><code class="lang-javascript">doSomething().then().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
@@ -433,7 +433,7 @@ As mentioned earlier, the promise will transition from <strong>pending</strong> 
 <p>Promises enable rejection by means of <code>reject()</code>, the evil twin of <code>resolve()</code>. Here is <code>doSomething()</code> with error handling support added</p>
 <pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span><span class="params">()</span> {</span>
   <span class="keyword">return</span> <span class="keyword">new</span> Promise(<span class="function"><span class="keyword">function</span><span class="params">(resolve, reject)</span> {</span>
-    <span class="keyword">var</span> result = somehowGetTheValue(); 
+    <span class="keyword">var</span> result = somehowGetTheValue();
     <span class="keyword">if</span>(result.error) {
       reject(result.error);
     } <span class="keyword">else</span> {
@@ -632,9 +632,9 @@ Promises always require at least one more iteration of the event loop to resolve
 
 <h2 id="before-we-wrap-up-then-promise">Before We Wrap Up … then/promise</h2>
 <p>There are many, full featured, promise libraries out there. The <a href="https://github.com/then">then</a> organization’s <a href="https://github.com/then/promise">promise</a> library takes a simpler approach. It is meant to be a simple implementation that meets the spec and nothing more. If you take a look at <a href="https://github.com/then/promise/blob/master/core.js">their implementation</a>, you should see it looks quite familiar. then/promise was the basis of the code for this article, we’ve <em>almost</em> built up the same promise implementation. Thanks to Nathan Zadoks and Forbes Lindsay for their great library and work on JavaScript promises. Forbes Lindsay is also the guy behind the <a href="http://promisejs.org/">promisejs.org</a> site mentioned at the start.</p>
-<p>There are some differences in the real implementation and what is here in this article. That is because there are more details in the Promises/A+ spec that I have not addressed. I recommend <a href="http://promises-aplus.github.io/promises-spec/">reading the spec</a>, it is short and pretty straightforward. </p>
+<p>There are some differences in the real implementation and what is here in this article. That is because there are more details in the Promises/A+ spec that I have not addressed. I recommend <a href="http://promises-aplus.github.io/promises-spec/">reading the spec</a>, it is short and pretty straightforward.</p>
 <h2 id="conclusion">Conclusion</h2>
-<p>If you made it this far, then thanks for reading! We’ve covered the core of promises, which is the only thing the spec addresses. Most implementations offer much more functionality, such as <code>all()</code>, <code>spread()</code>, <code>race()</code>, <code>denodeify()</code> and much more. I recommend browsing the <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md">API docs for Bluebird</a> to see what all is possible with promises. </p>
+<p>If you made it this far, then thanks for reading! We’ve covered the core of promises, which is the only thing the spec addresses. Most implementations offer much more functionality, such as <code>all()</code>, <code>spread()</code>, <code>race()</code>, <code>denodeify()</code> and much more. I recommend browsing the <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md">API docs for Bluebird</a> to see what all is possible with promises.</p>
 <p>Once I came to understand how promises worked and their caveats, I came to really like them. They have led to very clean and elegant code in my projects. There’s so much more to talk about too, this article is just the beginning!</p>
 <p>If you enjoyed this, you should <a href="http://twitter.com/cityfortyone">follow me on Twitter</a> to find out when I write another guide like this.</p>
 <h2 id="further-reading">Further Reading</h2>
