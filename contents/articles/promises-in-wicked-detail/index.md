@@ -4,7 +4,7 @@ author: Matt
 date: 2014-02-09
 template: article.jade
 ---
-I've been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn't fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises well too. 
+I've been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn't fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises well too.
 
 <span class="more"></span>
 
@@ -58,7 +58,7 @@ Let's begin our promise implementation as simple as can be. We want to go from t
 
 ```javascript
 doSomething(function(value) {
-  console.log('Got a value:' value);
+  console.log('Got a value:' + value);
 });
 ```
 
@@ -66,7 +66,7 @@ to this
 
 ```javascript
 doSomething().then(function(value) {
-  console.log('Got a value:' value);
+  console.log('Got a value:' + value);
 });
 ```
 
@@ -164,11 +164,11 @@ Our naive, poor promise implementation must use asynchronicity to work. It's eas
 
 ## Promises have State
 
-Our brittle code above revealed something unexpectedly. Promises have state. We need to know what state they are in before proceeding, and make sure we move through the states correctly. Doing so gets rid of the brittleness. 
+Our brittle code above revealed something unexpectedly. Promises have state. We need to know what state they are in before proceeding, and make sure we move through the states correctly. Doing so gets rid of the brittleness.
 
 <div class=" callout wisdom">
 <ul>
-<li>A promise can be **pending** waiting for a value, or **resolved** with a value. 
+<li>A promise can be **pending** waiting for a value, or **resolved** with a value.
 <li>Once a promise resolves to a value, it will always remain at that value and never resolve again.
 </ul>
 </div>
@@ -305,7 +305,7 @@ function Promise(fn) {
 
 <a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/HdzLv/2/">fiddle</a>
 
-Hoo, it's getting a little squirrelly. Aren't you glad we're building this up slowly? The real key here is that `then()` is returning a new promise. 
+Hoo, it's getting a little squirrelly. Aren't you glad we're building this up slowly? The real key here is that `then()` is returning a new promise.
 
 <div class="callout pitfall">
 Since `then()` always returns a new promise object, there will always be at least one promise object that gets created, resolved and then ignored. Which can be seen as wasteful. The callback approach does not have this problem. Another ding against promises. You can start to appreciate why some in the JavaScript community have shunned them.
@@ -395,7 +395,7 @@ doSomething().then(function(result) {
   Promises always resolve to one value. If you need to pass more than one value along, you need to create a multi-value in some fashion (an array, an object, concatting strings, etc)
 </div>
 
-A potentially better way is to use a promise library's `all()` method or any number of other utility methods that increase the usefulness of promises, which I'll leave to you to go and discover. 
+A potentially better way is to use a promise library's `all()` method or any number of other utility methods that increase the usefulness of promises, which I'll leave to you to go and discover.
 
 ### The Callback is Optional
 
@@ -503,7 +503,7 @@ Promises enable rejection by means of `reject()`, the evil twin of `resolve()`. 
 ```javascript
 function doSomething() {
   return new Promise(function(resolve, reject) {
-    var result = somehowGetTheValue(); 
+    var result = somehowGetTheValue();
     if(result.error) {
       reject(result.error);
     } else {
@@ -530,7 +530,7 @@ function Promise(fn) {
     }
     state = 'resolved';
     value = newValue;
-  
+
     if(deferred) {
       handle(deferred);
     }
@@ -552,7 +552,7 @@ function Promise(fn) {
     }
 
     var handlerCallback;
-    
+
     if(state === 'resolved') {
       handlerCallback = handler.onResolved;
     } else {
@@ -745,11 +745,11 @@ Promises always require at least one more iteration of the event loop to resolve
 
 There are many, full featured, promise libraries out there. The [then](https://github.com/then) organization's [promise](https://github.com/then/promise) library takes a simpler approach. It is meant to be a simple implementation that meets the spec and nothing more. If you take a look at [their implementation](https://github.com/then/promise/blob/master/core.js), you should see it looks quite familiar. then/promise was the basis of the code for this article, we've *almost* built up the same promise implementation. Thanks to Nathan Zadoks and Forbes Lindsay for their great library and work on JavaScript promises. Forbes Lindsay is also the guy behind the [promisejs.org](http://promisejs.org) site mentioned at the start.
 
-There are some differences in the real implementation and what is here in this article. That is because there are more details in the Promises/A+ spec that I have not addressed. I recommend [reading the spec](http://promises-aplus.github.io/promises-spec/), it is short and pretty straightforward. 
+There are some differences in the real implementation and what is here in this article. That is because there are more details in the Promises/A+ spec that I have not addressed. I recommend [reading the spec](http://promises-aplus.github.io/promises-spec/), it is short and pretty straightforward.
 
 ## Conclusion
 
-If you made it this far, then thanks for reading! We've covered the core of promises, which is the only thing the spec addresses. Most implementations offer much more functionality, such as `all()`, `spread()`, `race()`, `denodeify()` and much more. I recommend browsing the [API docs for Bluebird](https://github.com/petkaantonov/bluebird/blob/master/API.md) to see what all is possible with promises. 
+If you made it this far, then thanks for reading! We've covered the core of promises, which is the only thing the spec addresses. Most implementations offer much more functionality, such as `all()`, `spread()`, `race()`, `denodeify()` and much more. I recommend browsing the [API docs for Bluebird](https://github.com/petkaantonov/bluebird/blob/master/API.md) to see what all is possible with promises.
 
 Once I came to understand how promises worked and their caveats, I came to really like them. They have led to very clean and elegant code in my projects. There's so much more to talk about too, this article is just the beginning!
 
@@ -769,4 +769,3 @@ More great articles on promises
 ## Translations
 
 * [Japanese Translation](http://p-baleine.hatenablog.com/entry/2014/03/12/190000), translated by Junpei Tajima
-
