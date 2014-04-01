@@ -3,7 +3,7 @@ stuff:
 - name: Metamorfus
   url: http://metamorf.us
   thumbnail: /media/img/stuff/metamorfus.png
-  description: Metamorfus is a website aimed at helping people improve their social skills. I have teamed up with my sister-in-law who is a psychologist who specializes in anxiety. Together we are creating a site that we feel will really help and hopefully revolutionize how people reduce their anxiety and improve themselves. The site is being written in NodeJS using Restify on the backend, and AngularJS on the frontend. Stay tuned, we expect to open it in early 2014.
+  description: Metamorfus is a website aimed at helping people improve their social skills. I have teamed up with my sister-in-law who is a psychologist who specializes in anxiety. Together we are creating a site that we feel will really help and hopefully revolutionize how people reduce their anxiety and improve themselves. The site is being written in NodeJS using Restify on the backend, and AngularJS on the frontend. It's now open, but in its early stages. We have much to improve upon!
 
 - name: Breakouts and Engine Comparison Article
   thumbnail: /media/img/stuff/breakouts.png
