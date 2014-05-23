@@ -769,3 +769,4 @@ More great articles on promises
 ## Translations
 
 * [Japanese Translation](http://p-baleine.hatenablog.com/entry/2014/03/12/190000), translated by Junpei Tajima
+* [Traditional Chinese Translation](http://987.tw/javascript-promises-in-wicked-detail/), translated by Jih-Chi Lee
