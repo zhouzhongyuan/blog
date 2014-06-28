@@ -34,8 +34,11 @@ article.intro .more:after{margin-left:5px;content:"\f0a9";font-family:FontAwesom
 .wisdom{background-color:#cff7b8;color:#655c6f}
 .pitfall{background-color:#eec2c4}
 .addendum{background-color:#f9d423;color:#bf4d28}
+.btw{background-color:#ddd;color:#000}
 .fiddle{display:inline-block;background-color:#ffa500;color:#fff;margin:10px 0;padding:5px;}
 .fiddle::after{margin-left:5px;content:"\f045";font-family:FontAwesome}
+.diagram{margin:3em 0;width:90%}
+.noscript-warning{margin:30px 0;max-width:600px;padding:10px;background-color:#ce9393;color:#620a0a;border:1px dashed #620a0a}
 .archive h2{font-family:'Lato',sans-serif;font-weight:700;font-size:30px;margin:0;padding:0 0 20px 0}
 .archive li{list-style-type:none}
 .archive .year-label{font-family:'Lato',sans-serif;font-weight:700;font-size:22px;margin:0;padding:0}
