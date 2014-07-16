@@ -16,7 +16,7 @@
       <author></author>
       <description>&lt;p&gt;I’ve been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn’t fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises well too.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;We will be incrementally creating a promise implementation that by the end will &lt;em&gt;mostly&lt;/em&gt; meet the &lt;a href=&quot;http://promises-aplus.github.io/promises-spec/&quot;&gt;Promises/A+ spec&lt;/a&gt;, and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with promises. If you don’t, &lt;a href=&quot;http://promisejs.org/&quot;&gt;promisejs.org&lt;/a&gt; is a good site to checkout.&lt;/p&gt;
+&lt;p&gt;We will be incrementally creating a promise implementation that by the end will &lt;em&gt;mostly&lt;/em&gt; meet the &lt;a href=&quot;http://promises-aplus.github.io/promises-spec/&quot;&gt;Promises/A+ spec&lt;/a&gt;, and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with promises. If you don’t, &lt;a href=&quot;http://promisejs.org&quot;&gt;promisejs.org&lt;/a&gt; is a good site to checkout.&lt;/p&gt;
 &lt;h2 id=&quot;table-of-contents&quot;&gt;Table of Contents&lt;/h2&gt;
 &lt;ol&gt;
   &lt;li&gt;&lt;a href=&quot;#why-&quot;&gt;Why?&lt;/a&gt;&lt;/li&gt;
@@ -611,7 +611,7 @@ Promises always require at least one more iteration of the event loop to resolve
 &lt;/div&gt;
 
 &lt;h2 id=&quot;before-we-wrap-up-then-promise&quot;&gt;Before We Wrap Up … then/promise&lt;/h2&gt;
-&lt;p&gt;There are many, full featured, promise libraries out there. The &lt;a href=&quot;https://github.com/then&quot;&gt;then&lt;/a&gt; organization’s &lt;a href=&quot;https://github.com/then/promise&quot;&gt;promise&lt;/a&gt; library takes a simpler approach. It is meant to be a simple implementation that meets the spec and nothing more. If you take a look at &lt;a href=&quot;https://github.com/then/promise/blob/master/core.js&quot;&gt;their implementation&lt;/a&gt;, you should see it looks quite familiar. then/promise was the basis of the code for this article, we’ve &lt;em&gt;almost&lt;/em&gt; built up the same promise implementation. Thanks to Nathan Zadoks and Forbes Lindsay for their great library and work on JavaScript promises. Forbes Lindsay is also the guy behind the &lt;a href=&quot;http://promisejs.org/&quot;&gt;promisejs.org&lt;/a&gt; site mentioned at the start.&lt;/p&gt;
+&lt;p&gt;There are many, full featured, promise libraries out there. The &lt;a href=&quot;https://github.com/then&quot;&gt;then&lt;/a&gt; organization’s &lt;a href=&quot;https://github.com/then/promise&quot;&gt;promise&lt;/a&gt; library takes a simpler approach. It is meant to be a simple implementation that meets the spec and nothing more. If you take a look at &lt;a href=&quot;https://github.com/then/promise/blob/master/core.js&quot;&gt;their implementation&lt;/a&gt;, you should see it looks quite familiar. then/promise was the basis of the code for this article, we’ve &lt;em&gt;almost&lt;/em&gt; built up the same promise implementation. Thanks to Nathan Zadoks and Forbes Lindsay for their great library and work on JavaScript promises. Forbes Lindsay is also the guy behind the &lt;a href=&quot;http://promisejs.org&quot;&gt;promisejs.org&lt;/a&gt; site mentioned at the start.&lt;/p&gt;
 &lt;p&gt;There are some differences in the real implementation and what is here in this article. That is because there are more details in the Promises/A+ spec that I have not addressed. I recommend &lt;a href=&quot;http://promises-aplus.github.io/promises-spec/&quot;&gt;reading the spec&lt;/a&gt;, it is short and pretty straightforward.&lt;/p&gt;
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;If you made it this far, then thanks for reading! We’ve covered the core of promises, which is the only thing the spec addresses. Most implementations offer much more functionality, such as &lt;code&gt;all()&lt;/code&gt;, &lt;code&gt;spread()&lt;/code&gt;, &lt;code&gt;race()&lt;/code&gt;, &lt;code&gt;denodeify()&lt;/code&gt; and much more. I recommend browsing the &lt;a href=&quot;https://github.com/petkaantonov/bluebird/blob/master/API.md&quot;&gt;API docs for Bluebird&lt;/a&gt; to see what all is possible with promises.&lt;/p&gt;
@@ -620,7 +620,7 @@ Promises always require at least one more iteration of the event loop to resolve
 &lt;h2 id=&quot;further-reading&quot;&gt;Further Reading&lt;/h2&gt;
 &lt;p&gt;More great articles on promises&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;http://promisejs.org/&quot;&gt;promisejs.org&lt;/a&gt; — great tutorial on promises (already mentioned it a few times)&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://promisejs.org&quot;&gt;promisejs.org&lt;/a&gt; — great tutorial on promises (already mentioned it a few times)&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/kriskowal/q/blob/v1/design/README.js&quot;&gt;Q’s Design Rationale&lt;/a&gt; — an article much like this one, but goes into even more detail. By Kris Kowal, creator of Q&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/domenic/promises-unwrapping/issues/19&quot;&gt;Some debate over whether done() is a good thing&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;http://solutionoptimist.com/2013/12/27/javascript-promise-chains-2/&quot;&gt;Flattening Promise Chains&lt;/a&gt; by Thomas Burleson. A nice article that goes into more advanced usage of promises. If my article is the “what”, then Thomas’s is a nice look at the “why”.&lt;/li&gt;
@@ -629,7 +629,7 @@ Promises always require at least one more iteration of the event loop to resolve
 &lt;h2 id=&quot;translations&quot;&gt;Translations&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;http://p-baleine.hatenablog.com/entry/2014/03/12/190000&quot;&gt;Japanese Translation&lt;/a&gt;, translated by Junpei Tajima&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;http://987.tw/javascript-promises-in-wicked-detail/&quot;&gt;Traditional Chinese Translation&lt;/a&gt;, translated by Jih-Chi Lee&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://987.tw/2014/05/23/javascript-promises-in-wicked-detail/&quot;&gt;Traditional Chinese Translation&lt;/a&gt;, translated by Jih-Chi Lee&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
@@ -705,16 +705,16 @@ still very welcome. &lt;/p&gt;
 &lt;iframe width=&quot;560&quot; height=&quot;315&quot; style=&quot;margin-top: 3em; margin-bottom: 3em;&quot; src=&quot;http://www.youtube.com/embed/ZMyg5erp-vk&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;
 
 &lt;h2 id=&quot;part-one-dynamic-lighting&quot;&gt;Part one: dynamic lighting&lt;/h2&gt;
-&lt;p&gt;I was inspired by &lt;a href=&quot;http://www.reddit.com/r/gamedev/comments/115f3y/how_to_dynamic_lighting_on_sprites/&quot;&gt;this post&lt;/a&gt; on Reddit, where aionskull used normal maps in Unity to dynamically light up his sprites. gpillow also posted in the comments how he had done &lt;a href=&quot;https://love2d.org/forums/viewtopic.php?f=5&amp;amp;t=11076&quot;&gt;something similar&lt;/a&gt; in Love2D. &lt;a href=&quot;http://mattgreer.org/articles/dynamic-lighting-and-shadows/pixel_shading.gif&quot;&gt;Here’s a large gif illustrating gpillow’s results&lt;/a&gt;. I’d just include the gif here, but it’s 8 megs. Thanks to jusksmit for making the gif.&lt;/p&gt;
+&lt;p&gt;I was inspired by &lt;a href=&quot;http://www.reddit.com/r/gamedev/comments/115f3y/how_to_dynamic_lighting_on_sprites/&quot;&gt;this post&lt;/a&gt; on Reddit, where aionskull used normal maps in Unity to dynamically light up his sprites. gpillow also posted in the comments how he had done &lt;a href=&quot;https://love2d.org/forums/viewtopic.php?f=5&amp;amp;t=11076&quot;&gt;something similar&lt;/a&gt; in Love2D. &lt;a href=&quot;/articles/dynamic-lighting-and-shadows/pixel_shading.gif&quot;&gt;Here’s a large gif illustrating gpillow’s results&lt;/a&gt;. I’d just include the gif here, but it’s 8 megs. Thanks to jusksmit for making the gif.&lt;/p&gt;
 &lt;p&gt;So, what is dynamic lighting? It’s a 3D graphics technique where a light source lights up objects in the scene. It’s dynamic as the lighting effects update in real time as the light source moves around. This is pretty standard stuff in the 3D world and easy to translate into a 2D environment, assuming you can take advantage of shaders.&lt;/p&gt;
 &lt;p&gt;The key is the angle the light hits a surface indicates how much the surface lights up.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/dynamic-lighting-and-shadows/lighting.gif&quot; alt=&quot;lighting diagram&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/lighting.gif&quot; alt=&quot;lighting diagram&quot;&gt;&lt;/p&gt;
 &lt;p&gt;and the key to &lt;em&gt;that&lt;/em&gt; is the normal vector. A vector which indicates which way a surface is facing. In the above diagram, the arrow sticking out of the center of the panel is the normal vector. You can see that when the light’s rays come in at a shallower angle, the panel is less influenced by the light and not lit up as much. So in the end, the algorithm is quite simple, as that angle increases, have the light source influence less. A simple way to calculate the influence is to calculate the dot product between the light vector and the normal vector.&lt;/p&gt;
 &lt;h3 id=&quot;dynamic-lighting-in-a-2d-environment&quot;&gt;dynamic lighting in a 2d environment&lt;/h3&gt;
 &lt;p&gt;That’s all well and good, but how do you have normal vectors in a 2d game? There aren’t any real 3D objects in the traditional sense, but textures can step in to provide the needed info. I created &lt;em&gt;normal maps&lt;/em&gt; for the two houses in the above video, and use them to calculate the lighting:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/dynamic-lighting-and-shadows/mansionNormals.png&quot; alt=&quot;mansion normals&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/mansionNormals.png&quot; alt=&quot;mansion normals&quot;&gt;&lt;/p&gt;
 &lt;p&gt;For starters, you can see the actual house sprite has no shading drawn into it. Then the normal map encodes the normals for each pixel into a color. A vector needs to be specified with (x,y,z) coordinates, and an image has r,g and b values. So the encoding into the image is easy to do. Take the front face of the house, which is facing due south giving the normal vector values of &lt;code&gt;[x:0, y:0.5, z:0]&lt;/code&gt;. RGB values are positive, so need to shift the values up by 0.5 to force everything positive:  &lt;code&gt;[x:0.5, y:1, z:0.5]&lt;/code&gt;. And RGB values are normally represented as bytes, so multiply each value by &lt;code&gt;255&lt;/code&gt;, yielding (rounded up): &lt;code&gt;[x:128, y:255, z:128]&lt;/code&gt;, or in other words, this bright green &lt;span style=&quot;display:inline-block; width: 30px; height: 15px; background-color: rgb(128, 255, 128)&quot;&gt;&amp;nbsp;&lt;/span&gt;, the same green in the normal map image.&lt;/p&gt;
-&lt;p&gt;With our normals in tow, we’re ready to have the graphics card do its magic. My game is using &lt;a href=&quot;http://www.impactjs.com/&quot;&gt;ImpactJS&lt;/a&gt;, which is very compatibile with &lt;a href=&quot;https://github.com/gameclosure/webgl-2d&quot;&gt;WebGL2D&lt;/a&gt; Using WebGL2D, it was easy to add an additional fragment shader to implement the lighting:&lt;/p&gt;
+&lt;p&gt;With our normals in tow, we’re ready to have the graphics card do its magic. My game is using &lt;a href=&quot;http://www.impactjs.com&quot;&gt;ImpactJS&lt;/a&gt;, which is very compatibile with &lt;a href=&quot;https://github.com/gameclosure/webgl-2d&quot;&gt;WebGL2D&lt;/a&gt; Using WebGL2D, it was easy to add an additional fragment shader to implement the lighting:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;preprocessor&quot;&gt;#ifdef GL_ES&lt;/span&gt;
   precision highp &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt;;
 &lt;span class=&quot;preprocessor&quot;&gt;#endif&lt;/span&gt;
@@ -751,16 +751,16 @@ uniform vec4 lightColor;
 irrelevant in 2D rendering (just 4 vertices to drop the texture into the scene), have no choice but to do per fragment lighting. No problem, per
 fragment lighting is more accurate anyway. Also this shader is only rendering the light itself. It assumes the main sprite has already been drawn. I have to admit I am cheating a little bit, as I am setting my &lt;code&gt;lightColor&lt;/code&gt; to a dark grey, and not sending out light but actually darkness. This
 is because lighting the pixels up makes them looked washed out. There are ways to resolve this, but for now I’m cheating a smidge.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/dynamic-lighting-and-shadows/lightingExamples.png&quot; alt=&quot;lighting examples&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/lightingExamples.png&quot; alt=&quot;lighting examples&quot;&gt;&lt;/p&gt;
 &lt;h2 id=&quot;part-two-casting-shadows&quot;&gt;part two: casting shadows&lt;/h2&gt;
 &lt;p&gt;Casting shadows in 3D environments is a well solved problem, using techniques like &lt;a href=&quot;http://en.wikipedia.org/wiki/Ray_tracing_(graphics&quot;&gt;raytracing&lt;/a&gt;) or &lt;a href=&quot;http://en.wikipedia.org/wiki/Shadow_mapping&quot;&gt;shadow mapping&lt;/a&gt; casting shadows in the scene is pretty easy to accomplish. I struggled to find an implementation in my 2D environment that I was happy with. I think I came up with a good solution, but for sure it has drawbacks.&lt;/p&gt;
 &lt;p&gt;In short, draw a line from a fragment (aka pixel) in the scene to the sun and see if anything gets in the way. if something does, that pixel is in the shade, else it’s in the sun. In the end it’s actually pretty simple.&lt;/p&gt;
 &lt;p&gt;The shader will get &lt;code&gt;xyAngle&lt;/code&gt; and &lt;code&gt;zAngle&lt;/code&gt; passed into it, indicating where the sun is. Since the sun is so far away, these two angles are the same for all pixels, as sunrays are effectively parallel to each other.&lt;/p&gt;
 &lt;p&gt;The other key piece of info the shader receives is the &lt;em&gt;height map&lt;/em&gt; for the world. This height map indicates how tall everything is, buildings, trees, etc. If a pixel is occupied by a building, then that pixel’s value will be something like 10, to indicate that building is 10 pixels tall.&lt;/p&gt;
 &lt;p&gt;So starting at the current pixel and using &lt;code&gt;xyAngle&lt;/code&gt;, we move over just a bit towards the sun in the x/y direction. Using the height map, we figure out how tall the pixel is at this location. If the pixel here is the same height or lower, then we keep moving towards the sun until we find a pixel that is taller than the current pixel.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/dynamic-lighting-and-shadows/xyAngle.gif&quot; alt=&quot;xy angle&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/xyAngle.gif&quot; alt=&quot;xy angle&quot;&gt;&lt;/p&gt;
 &lt;p&gt;Once we find a pixel that has some height to it, we need to see if it’s tall enough to block the sun. Using &lt;code&gt;zAngle&lt;/code&gt;, we determine how tall this pixel needs to be to block the sun:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/dynamic-lighting-and-shadows/zAngle.gif&quot; alt=&quot;z angle&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/zAngle.gif&quot; alt=&quot;z angle&quot;&gt;&lt;/p&gt;
 &lt;p&gt;If it is tall enough, we are done, this pixel is in the shade. Otherwise we keep going. Eventually we give up and declare the pixel to be in the sun (currently I have that hard coded to 100 steps, which so far is working well)&lt;/p&gt;
 &lt;p&gt;Here is the code for the shader in simplified/pseudo form&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; main(&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt;) {
@@ -862,8 +862,8 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
 &lt;p&gt;The &lt;code&gt;uTexStep&lt;/code&gt; uniform is how far to move over each time we check a nearby pixel. This is set to either &lt;code&gt;1/heightMap.width&lt;/code&gt; or &lt;code&gt;1/heightMap.height&lt;/code&gt; before invoking the shader. This is because textures in OpenGL are typically mapped from 0 to 1, so the inverse is how far to move to get to the next pixel.&lt;/p&gt;
 &lt;h3 id=&quot;shadow-wrap-up&quot;&gt;shadow wrap up&lt;/h3&gt;
 &lt;p&gt;Truth be told there are some minor details I’m leaving out in the above code, but the core idea is definitely there. One major problem with this approach is each pixel in the scene can only have one height. A good example of how this is a limitation is trees. I can tell the engine to cast a really low, long shadow for a tree, but the trunk will never show up in the shadow. This is because the overhang area at the bottom of the leaves is not recorded in the height map.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/dynamic-lighting-and-shadows/shadow1.png&quot; alt=&quot;shadow example 1&quot;&gt;  &lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/dynamic-lighting-and-shadows/shadow2.png&quot; alt=&quot;shadow example 2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/shadow1.png&quot; alt=&quot;shadow example 1&quot;&gt;  &lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/shadow2.png&quot; alt=&quot;shadow example 2&quot;&gt;&lt;/p&gt;
 </description>
     </item>
     <item>
@@ -877,7 +877,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
 &lt;h2 id=&quot;kept-it-solidly-up-for-about-6-weeks&quot;&gt;Kept it solidly up for about 6 weeks&lt;/h2&gt;
 &lt;p&gt;Waking up early to tackle personal projects is a good strategy. But it’s not without its cost. I managed to maintain it quite solidly for about 6 weeks. From there I found myself not waking up early on most weekend days for another few weeks. The early hours and extra load do take their toll, nothing is free unfortunately. I could feel my stress levels rising and overall just an extra level of feeling worn out. But how my day job is going is a factor there too.&lt;/p&gt;
 &lt;h2 id=&quot;anything-to-show-for-all-this-&quot;&gt;Anything to show for all this?&lt;/h2&gt;
-&lt;p&gt;My early hours were mostly dedicated to writing a little JavaScript game engine. One thing I did with it was create an animation &lt;a href=&quot;http://yaysarahandmatt.org/&quot;&gt;celebrating my wedding engagement&lt;/a&gt;. I’ve also been working on a game using the engine, an intro/preview of which can be found &lt;a href=&quot;http://mattgreer.org/media/labAdder/index.html&quot;&gt;here&lt;/a&gt;. I was pretty happy with my results and overall felt pretty darn productive.&lt;/p&gt;
+&lt;p&gt;My early hours were mostly dedicated to writing a little JavaScript game engine. One thing I did with it was create an animation &lt;a href=&quot;http://yaysarahandmatt.org&quot;&gt;celebrating my wedding engagement&lt;/a&gt;. I’ve also been working on a game using the engine, an intro/preview of which can be found &lt;a href=&quot;/media/labAdder/index.html&quot;&gt;here&lt;/a&gt;. I was pretty happy with my results and overall felt pretty darn productive.&lt;/p&gt;
 &lt;h2 id=&quot;sporadic-from-there-on&quot;&gt;Sporadic from there on&lt;/h2&gt;
 &lt;p&gt;I still do wake up early, but now it’s more in “spurts”. I will go for a week or two doing it, then take a break for a while. I also find my desire to do it depends on where I’m at inspiration wise. Lately I’ve also been getting more involved with local hack nights. Having a set aside “event” to do personal hacking I am finding is also a good way to accomplish productivity. Being both out of the house and the office to focus on personal projects really amps the focus for me. Experimenting and finding what works best is key.&lt;/p&gt;
 &lt;h2 id=&quot;also-finding-time-for-down-time&quot;&gt;Also finding time for down time&lt;/h2&gt;
@@ -922,7 +922,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
 &lt;h2 id=&quot;the-kanban-board&quot;&gt;The Kanban board&lt;/h2&gt;
 &lt;p&gt;I’ve really become a fan of Kanban, even when just working by myself. I do feel this is a key element in this. It keeps me focused, forces me to break down my tasks into managable chunks (ideally finishable in 2 hours), and makes sure I am never messing around trying to think of where to go next.&lt;/p&gt;
 &lt;p&gt;I got requests to see a screenshot of my board, so here it is (click for full size):&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/waking-up-at-5am-to-code/kanban.png&quot; alt=&quot;kanban&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/waking-up-at-5am-to-code/kanban.png&quot; alt=&quot;kanban&quot;&gt;&lt;/p&gt;
 &lt;h2 id=&quot;other-ideas&quot;&gt;Other ideas&lt;/h2&gt;
 &lt;p&gt;First I plan to see if this will really stick. I am optimisic it will. If it does, I think might look into a coffee pot that can have a nice cup waiting for me right when I get up. &lt;/p&gt;
 &lt;p&gt;I gave the standing desk idea a shot a while back and ultimately went back to sitting. But maybe for two hours in the morning standing would be more ideal? Worth looking into.&lt;/p&gt;
@@ -945,7 +945,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
 &lt;img data-src=&quot;http://chart.apis.google.com/chart?chxr=2,-5,100&amp;chxs=0,676767,10.5,0,l,676767&amp;chxt=y,x&amp;chbh=24,2,1&amp;chs=400x245&amp;cht=bvs&amp;chco=BBCCED,FF9900,3366CC&amp;chds=0,95,0,100,0,105&amp;chd=t:44,33,30,20,30,40,30,20,55|0,0,40,0,40,0,40,0,0|0,20,0,67,0,20,0,63,0&amp;chdl=water|orange stripes|blue stripes&amp;&amp;chma=|40,40&amp;chtt=Chart+Fish+Done+With+Yokul&amp;chts=0C3890,20.5&amp;chxl=0:|deep|shallow|air&quot; /&gt;
 &lt;/div&gt;
 
-&lt;p&gt;Here is a &lt;a href=&quot;http://mattgreer.org/articles/yokul/VerticalBar.min.html&quot;&gt;page of charts&lt;/a&gt; to play with&lt;/p&gt;
+&lt;p&gt;Here is a &lt;a href=&quot;/articles/yokul/VerticalBar.min.html&quot;&gt;page of charts&lt;/a&gt; to play with&lt;/p&gt;
 &lt;h2 id=&quot;advantages&quot;&gt;Advantages&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;Open source and completely runs on the client, no data is sent to any third parties&lt;/li&gt;
