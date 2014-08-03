@@ -3,13 +3,19 @@ stuff:
 - name: Metamorfus
   url: http://metamorf.us
   thumbnail: /media/img/stuff/metamorfus.png
-  description: Metamorfus is a website aimed at helping people improve their social skills. I have teamed up with my sister-in-law who is a psychologist who specializes in anxiety. Together we are creating a site that we feel will really help and hopefully revolutionize how people reduce their anxiety and improve themselves. The site is being written in NodeJS using Restify on the backend, and AngularJS on the frontend. It's now open, but in its early stages. We have much to improve upon!
+  description: Metamorfus is a website aimed at helping people improve their social skills.The site is written in NodeJS using Restify on the backend, and AngularJS on the frontend.
+
+- name: Super Mario World Mega Review
+  url: http://mattgreer.org/super-mario-world
+  github: https://github.com/city41/mario-review
+  thumbnail: /media/img/stuff/mario.png
+  description: A detailed review of Super Mario World. It was an experiment with Om, ClojureScript and HTML5 videos. It contains 53 videos and tends to be a little demanding on browsers :)
 
 - name: Breakouts and Engine Comparison Article
   thumbnail: /media/img/stuff/breakouts.png
   url: http://jsbreakouts.org
   github: https://github.com/city41/breakouts
-  description: 
+  description:
     "<p>The \"TodoMVC of JavaScript game engines\". Breakouts gathers various implementations of the game Breakout in different JavaScript game engines. It enables people to explore and play with different engines to see which one fits them best.</p>
     <p>Breakouts got its start by being the basis for a <a href=\"http://buildnewgames.com/game-engine-comparison/\">game engine comparison article</a> that I wrote for <a href=\"http://buildnewgames.com\">buildnewgames.com</a></p>"
 
@@ -17,7 +23,7 @@ stuff:
   url: http://yaysarahandmatt.org
   thumbnail: /media/img/stuff/yay.png
   github: https://github.com/city41/l7
-  description: 
+  description:
     "<p>L7 is a game engine I wrote in JavaScript using WebGL. It is an experimental, low-res, \"2D voxel\" engine.</p>
     <p>Using L7, I created <a href=\"http://yaysarahandmatt.org\">yaysarahandmatt.org</a>, which celebrates my wife and I getting engaged</p>"
 
