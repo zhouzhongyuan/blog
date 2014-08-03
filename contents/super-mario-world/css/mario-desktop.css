@@ -64,6 +64,15 @@ html, body {
   -ie-transform: scale(1.2);
 }
 
+.trouble {
+  margin-top: 8px;
+  padding: 8px;
+  font-style: italic;
+  font-size: 0.7em;
+  color: #FFa8a8;
+  background-color: #FFe8e8;
+}
+
 button:focus, button:active, a:focus, a:active {
   outline: none !important;
 }
