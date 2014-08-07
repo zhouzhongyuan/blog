@@ -2,7 +2,7 @@
   display: none;
 }
 
-@media (max-width: 320px) {
+@media (max-width: 480px) {
 
   .show-xsv {
     display: block;
@@ -10,7 +10,7 @@
 
 }
 
-@media (max-width: 320px) {
+@media (max-width: 480px) {
 
   .hidden-xsv {
     display: none;
@@ -31,7 +31,7 @@
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -o-box-sizing: border-box;
-  -ie-box-sizing: border-box;
+  -ms-box-sizing: border-box;
 }
 
 html, body {
@@ -56,12 +56,12 @@ html, body {
   -webkit-filter: blur(8px);
   -moz-filter: blur(8px);
   -o-filter: blur(8px);
-  -ie-filter: blur(8px);
+  -ms-filter: blur(8px);
   transform: scale(1.2);
   -webkit-transform: scale(1.2);
   -moz-transform: scale(1.2);
   -o-transform: scale(1.2);
-  -ie-transform: scale(1.2);
+  -ms-transform: scale(1.2);
 }
 
 .trouble {
@@ -310,7 +310,7 @@ article.review .dev-stat a {
 
 }
 
-@-ie-keyframes fadein {
+@-ms-keyframes fadein {
 
   from {
     opacity: 0;
@@ -332,7 +332,7 @@ article.review .dev-stat a {
   -webkit-animation: fadein 3s;
   -moz-animation: fadein 3s;
   -o-animation: fadein 3s;
-  -ie-animation: fadein 3s;
+  -ms-animation: fadein 3s;
 }
 
 #welcome-vid-container {
@@ -400,12 +400,12 @@ article.review .dev-stat a {
   -webkit-animation: mario-agitate 2s infinite;
   -moz-animation: mario-agitate 2s infinite;
   -o-animation: mario-agitate 2s infinite;
-  -ie-animation: mario-agitate 2s infinite;
+  -ms-animation: mario-agitate 2s infinite;
   box-shadow: 6px 6px 8px 1px #999999;
   -webkit-box-shadow: 6px 6px 8px 1px #999999;
   -moz-box-shadow: 6px 6px 8px 1px #999999;
   -o-box-shadow: 6px 6px 8px 1px #999999;
-  -ie-box-shadow: 6px 6px 8px 1px #999999;
+  -ms-box-shadow: 6px 6px 8px 1px #999999;
 }
 
 .gif-warning.fade-out {
@@ -413,7 +413,7 @@ article.review .dev-stat a {
   -webkit-animation: fadeout 1s;
   -moz-animation: fadeout 1s;
   -o-animation: fadeout 1s;
-  -ie-animation: fadeout 1s;
+  -ms-animation: fadeout 1s;
 }
 
 .gif-warning.fade-out-done {
@@ -556,7 +556,7 @@ article.review .dev-stat a {
 
 }
 
-@-ie-keyframes mario-agitate {
+@-ms-keyframes mario-agitate {
 
 0% {
     background-position: 15px 50%;
@@ -600,7 +600,7 @@ article.review .dev-stat a {
   -webkit-animation: fadeout 1s;
   -moz-animation: fadeout 1s;
   -o-animation: fadeout 1s;
-  -ie-animation: fadeout 1s;
+  -ms-animation: fadeout 1s;
   opacity: 0;
 }
 
@@ -652,7 +652,7 @@ article.review .dev-stat a {
 
 }
 
-@-ie-keyframes fadeout {
+@-ms-keyframes fadeout {
 
 0% {
     opacity: 1;
@@ -696,6 +696,10 @@ article.review .dev-stat a {
   background-color: #aaaaaa;
 }
 
+.activatable-animated-gif-view {
+  text-align: center;
+}
+
 .hud-explorer {
   padding: 20px;
   color: white;
@@ -705,7 +709,7 @@ article.review .dev-stat a {
   -webkit-box-shadow: 6px 6px 8px 1px #999999;
   -moz-box-shadow: 6px 6px 8px 1px #999999;
   -o-box-shadow: 6px 6px 8px 1px #999999;
-  -ie-box-shadow: 6px 6px 8px 1px #999999;
+  -ms-box-shadow: 6px 6px 8px 1px #999999;
 }
 
 .hud-explorer-closed {
@@ -898,7 +902,7 @@ article.review .dev-stat a {
   -webkit-box-shadow: 6px 6px 8px 1px #999999;
   -moz-box-shadow: 6px 6px 8px 1px #999999;
   -o-box-shadow: 6px 6px 8px 1px #999999;
-  -ie-box-shadow: 6px 6px 8px 1px #999999;
+  -ms-box-shadow: 6px 6px 8px 1px #999999;
 }
 
 .entity-explorer .entity-explorer-main-area {
@@ -945,7 +949,7 @@ article.review .dev-stat a {
   -webkit-transform: scaleX(-1);
   -moz-transform: scaleX(-1);
   -o-transform: scaleX(-1);
-  -ie-transform: scaleX(-1);
+  -ms-transform: scaleX(-1);
 }
 
 .entity-explorer-header {
@@ -989,7 +993,7 @@ article.review .dev-stat a {
 
 }
 
-@media (max-width: 320px) {
+@media (max-width: 480px) {
 
   .entity-explorer {
     padding-right: 0;
