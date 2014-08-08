@@ -6,7 +6,7 @@ stuff:
   description: Metamorfus is a website aimed at helping people improve their social skills.The site is written in NodeJS using Restify on the backend, and AngularJS on the frontend.
 
 - name: Super Mario World Mega Review
-  url: http://mattgreer.org/super-mario-world
+  url: http://www.mattgreer.org/super-mario-world/index.html
   github: https://github.com/city41/mario-review
   thumbnail: /media/img/stuff/mario.png
   description: A detailed review of Super Mario World. It was an experiment with Om, ClojureScript and HTML5 videos. It contains 53 videos and tends to be a little demanding on browsers :)
