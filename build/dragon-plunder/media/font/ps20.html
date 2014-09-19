@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!-- saved from url=(0030)http://impactjs.com/font-tool/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Impact Font Tool</title>
+	<style type="text/css">
+		body {
+			color: #000;
+			background-color: #cccccc;
+			font-family: helvetica, arial, sans-serif;
+			padding: 1em 0 0 1em;
+			font-size: 10pt;
+		}
+		#form {
+			padding-bottom: 1em;
+		}
+		#canvas {
+			-webkit-font-smoothing: antialiased;
+			display: block;
+		}
+		input[type=number] {
+			width: 4em;
+			text-align: right;
+		}
+		input[type=text] {
+			width: 5em;
+		}
+		input, select {
+			margin-right: 8px;
+		}
+	</style>
+<style type="text/css"></style></head>
+<body>
+
+<div id="form">
+	<select id="font" title="Face"><option value="Adobe Arabic">Adobe Arabic</option><option value="Adobe Caslon Pro">Adobe Caslon Pro</option><option value="Adobe Devanagari">Adobe Devanagari</option><option value="Adobe Fan Heiti Std">Adobe Fan Heiti Std</option><option value="Adobe Fangsong Std">Adobe Fangsong Std</option><option value="Adobe Garamond Pro">Adobe Garamond Pro</option><option value="Adobe Gothic Std">Adobe Gothic Std</option><option value="Adobe Gurmukhi">Adobe Gurmukhi</option><option value="Adobe Hebrew">Adobe Hebrew</option><option value="Adobe Heiti Std">Adobe Heiti Std</option><option value="Adobe Kaiti Std">Adobe Kaiti Std</option><option value="Adobe Ming Std">Adobe Ming Std</option><option value="Adobe Myungjo Std">Adobe Myungjo Std</option><option value="Adobe Naskh">Adobe Naskh</option><option value="Adobe Song Std">Adobe Song Std</option><option value="Al Bayan">Al Bayan</option><option value="Al Nile">Al Nile</option><option value="Al Tarikh">Al Tarikh</option><option value="American Typewriter">American Typewriter</option><option value="Andale Mono">Andale Mono</option><option value="Apple Braille">Apple Braille</option><option value="Apple Chancery">Apple Chancery</option><option value="Apple Color Emoji">Apple Color Emoji</option><option value="Apple LiGothic">Apple LiGothic</option><option value="Apple LiSung">Apple LiSung</option><option value="Apple SD Gothic Neo">Apple SD Gothic Neo</option><option value="Apple Symbols">Apple Symbols</option><option value="AppleGothic">AppleGothic</option><option value="AppleMyungjo">AppleMyungjo</option><option value="Arial">Arial</option><option value="Arial Black">Arial Black</option><option value="Arial Hebrew">Arial Hebrew</option><option value="Arial Narrow">Arial Narrow</option><option value="Arial Rounded MT Bold">Arial Rounded MT Bold</option><option value="Arial Unicode MS">Arial Unicode MS</option><option value="Athelas">Athelas</option><option value="Avenir">Avenir</option><option value="Avenir Next">Avenir Next</option><option value="Avenir Next Condensed">Avenir Next Condensed</option><option value="Ayuthaya">Ayuthaya</option><option value="Baghdad">Baghdad</option><option value="Bangla MN">Bangla MN</option><option value="Bangla Sangam MN">Bangla Sangam MN</option><option value="Baoli SC">Baoli SC</option><option value="Baskerville">Baskerville</option><option value="Beirut">Beirut</option><option value="BiauKai">BiauKai</option><option value="Big Caslon">Big Caslon</option><option value="Birch Std">Birch Std</option><option value="Blackoak Std">Blackoak Std</option><option value="Brush Script MT">Brush Script MT</option><option value="Brush Script Std">Brush Script Std</option><option value="Chalkboard">Chalkboard</option><option value="Chalkboard SE">Chalkboard SE</option><option value="Chalkduster">Chalkduster</option><option value="Chaparral Pro">Chaparral Pro</option><option value="Charcoal CY">Charcoal CY</option><option value="Charlemagne Std">Charlemagne Std</option><option value="Charter">Charter</option><option value="Cochin">Cochin</option><option value="Comic Sans MS">Comic Sans MS</option><option value="Copperplate">Copperplate</option><option value="Corsiva Hebrew">Corsiva Hebrew</option><option value="Courier">Courier</option><option value="Courier New">Courier New</option><option value="DIN Alternate">DIN Alternate</option><option value="DIN Condensed">DIN Condensed</option><option value="Damascus">Damascus</option><option value="DecoType Naskh">DecoType Naskh</option><option value="Devanagari MT">Devanagari MT</option><option value="Devanagari Sangam MN">Devanagari Sangam MN</option><option value="Didot">Didot</option><option value="Diwan Kufi">Diwan Kufi</option><option value="Diwan Thuluth">Diwan Thuluth</option><option value="Euphemia UCAS">Euphemia UCAS</option><option value="Farah">Farah</option><option value="Farisi">Farisi</option><option value="FontAwesome">FontAwesome</option><option value="Futura">Futura</option><option value="GB18030 Bitmap">GB18030 Bitmap</option><option value="Geeza Pro">Geeza Pro</option><option value="Geneva">Geneva</option><option value="Geneva CY">Geneva CY</option><option value="Georgia">Georgia</option><option value="Gill Sans">Gill Sans</option><option value="Great Vibes">Great Vibes</option><option value="Gujarati MT">Gujarati MT</option><option value="Gujarati Sangam MN">Gujarati Sangam MN</option><option value="GungSeo">GungSeo</option><option value="Gurmukhi MN">Gurmukhi MN</option><option value="Gurmukhi MT">Gurmukhi MT</option><option value="Gurmukhi Sangam MN">Gurmukhi Sangam MN</option><option value="Hannotate SC">Hannotate SC</option><option value="Hannotate TC">Hannotate TC</option><option value="HanziPen SC">HanziPen SC</option><option value="HanziPen TC">HanziPen TC</option><option value="HeadLineA">HeadLineA</option><option value="Hei">Hei</option><option value="Heiti SC">Heiti SC</option><option value="Heiti TC">Heiti TC</option><option value="Helvetica">Helvetica</option><option value="Helvetica CY">Helvetica CY</option><option value="Helvetica Neue">Helvetica Neue</option><option value="Herculanum">Herculanum</option><option value="Heydings Common Icons">Heydings Common Icons</option><option value="Hiragino Kaku Gothic Pro">Hiragino Kaku Gothic Pro</option><option value="Hiragino Kaku Gothic ProN">Hiragino Kaku Gothic ProN</option><option value="Hiragino Kaku Gothic Std">Hiragino Kaku Gothic Std</option><option value="Hiragino Kaku Gothic StdN">Hiragino Kaku Gothic StdN</option><option value="Hiragino Maru Gothic Pro">Hiragino Maru Gothic Pro</option><option value="Hiragino Maru Gothic ProN">Hiragino Maru Gothic ProN</option><option value="Hiragino Mincho Pro">Hiragino Mincho Pro</option><option value="Hiragino Mincho ProN">Hiragino Mincho ProN</option><option value="Hiragino Sans GB">Hiragino Sans GB</option><option value="Hobo Std">Hobo Std</option><option value="Hoefler Text">Hoefler Text</option><option value="Impact">Impact</option><option value="InaiMathi">InaiMathi</option><option value="Iowan Old Style">Iowan Old Style</option><option value="Kai">Kai</option><option value="Kailasa">Kailasa</option><option value="Kaiti SC">Kaiti SC</option><option value="Kaiti TC">Kaiti TC</option><option value="Kannada MN">Kannada MN</option><option value="Kannada Sangam MN">Kannada Sangam MN</option><option value="Kefa">Kefa</option><option value="Khmer MN">Khmer MN</option><option value="Khmer Sangam MN">Khmer Sangam MN</option><option value="Kokonor">Kokonor</option><option value="Kozuka Gothic Pr6N">Kozuka Gothic Pr6N</option><option value="Kozuka Gothic Pro">Kozuka Gothic Pro</option><option value="Kozuka Mincho Pr6N">Kozuka Mincho Pr6N</option><option value="Kozuka Mincho Pro">Kozuka Mincho Pro</option><option value="Krungthep">Krungthep</option><option value="KufiStandardGK">KufiStandardGK</option><option value="Lantinghei SC">Lantinghei SC</option><option value="Lantinghei TC">Lantinghei TC</option><option value="Lao MN">Lao MN</option><option value="Lao Sangam MN">Lao Sangam MN</option><option value="Letter Gothic Std">Letter Gothic Std</option><option value="LiHei Pro">LiHei Pro</option><option value="LiSong Pro">LiSong Pro</option><option value="Libian SC">Libian SC</option><option value="Lithos Pro">Lithos Pro</option><option value="Lucida Grande">Lucida Grande</option><option value="Malayalam MN">Malayalam MN</option><option value="Malayalam Sangam MN">Malayalam Sangam MN</option><option value="Marion">Marion</option><option value="Marker Felt">Marker Felt</option><option value="Menlo">Menlo</option><option value="Microsoft Sans Serif">Microsoft Sans Serif</option><option value="Minion Pro">Minion Pro</option><option value="Mishafi">Mishafi</option><option value="Monaco">Monaco</option><option value="Mshtakan">Mshtakan</option><option value="Muna">Muna</option><option value="Myanmar MN">Myanmar MN</option><option value="Myanmar Sangam MN">Myanmar Sangam MN</option><option value="Myriad Arabic">Myriad Arabic</option><option value="Myriad Hebrew">Myriad Hebrew</option><option value="Myriad Pro">Myriad Pro</option><option value="Nadeem">Nadeem</option><option value="Nanum Brush Script">Nanum Brush Script</option><option value="Nanum Gothic">Nanum Gothic</option><option value="Nanum Myeongjo">Nanum Myeongjo</option><option value="Nanum Pen Script">Nanum Pen Script</option><option value="New Peninim MT">New Peninim MT</option><option value="Noteworthy">Noteworthy</option><option value="Nueva Std">Nueva Std</option><option value="OCR A Std">OCR A Std</option><option value="Optima">Optima</option><option value="Orator Std">Orator Std</option><option value="Oriya MN">Oriya MN</option><option value="Oriya Sangam MN">Oriya Sangam MN</option><option value="Osaka">Osaka</option><option value="Oswald">Oswald</option><option value="Oswald Stencil">Oswald Stencil</option><option value="PCMyungjo">PCMyungjo</option><option value="PT Mono">PT Mono</option><option value="PT Sans">PT Sans</option><option value="PT Sans Caption">PT Sans Caption</option><option value="PT Sans Narrow">PT Sans Narrow</option><option value="PT Serif">PT Serif</option><option value="PT Serif Caption">PT Serif Caption</option><option value="Palatino">Palatino</option><option value="Papyrus">Papyrus</option><option value="PilGi">PilGi</option><option value="Plantagenet Cherokee">Plantagenet Cherokee</option><option value="Poplar Std">Poplar Std</option><option value="Press Start">Press Start</option><option value="Press Start K">Press Start K</option><option value="Prestige Elite Std">Prestige Elite Std</option><option value="Raanana">Raanana</option><option value="STFangsong">STFangsong</option><option value="STHeiti">STHeiti</option><option value="STIXGeneral">STIXGeneral</option><option value="STIXIntegralsD">STIXIntegralsD</option><option value="STIXIntegralsSm">STIXIntegralsSm</option><option value="STIXIntegralsUp">STIXIntegralsUp</option><option value="STIXIntegralsUpD">STIXIntegralsUpD</option><option value="STIXIntegralsUpSm">STIXIntegralsUpSm</option><option value="STIXNonUnicode">STIXNonUnicode</option><option value="STIXSizeFiveSym">STIXSizeFiveSym</option><option value="STIXSizeFourSym">STIXSizeFourSym</option><option value="STIXSizeOneSym">STIXSizeOneSym</option><option value="STIXSizeThreeSym">STIXSizeThreeSym</option><option value="STIXSizeTwoSym">STIXSizeTwoSym</option><option value="STIXVariants">STIXVariants</option><option value="STKaiti">STKaiti</option><option value="STSong">STSong</option><option value="Sana">Sana</option><option value="Sathu">Sathu</option><option value="Savoye LET">Savoye LET</option><option value="Seravek">Seravek</option><option value="Silom">Silom</option><option value="Sinhala MN">Sinhala MN</option><option value="Sinhala Sangam MN">Sinhala Sangam MN</option><option value="Skia">Skia</option><option value="Snell Roundhand">Snell Roundhand</option><option value="Songti SC">Songti SC</option><option value="Songti TC">Songti TC</option><option value="Source Sans Pro">Source Sans Pro</option><option value="Superclarendon">Superclarendon</option><option value="Symbol">Symbol</option><option value="Tahoma">Tahoma</option><option value="Tamil MN">Tamil MN</option><option value="Tamil Sangam MN">Tamil Sangam MN</option><option value="Tekton Pro">Tekton Pro</option><option value="Telugu MN">Telugu MN</option><option value="Telugu Sangam MN">Telugu Sangam MN</option><option value="Thonburi">Thonburi</option><option value="Times">Times</option><option value="Times New Roman">Times New Roman</option><option value="Trajan Pro 3">Trajan Pro 3</option><option value="Trebuchet MS">Trebuchet MS</option><option value="Verdana">Verdana</option><option value="Waseem">Waseem</option><option value="Wawati SC">Wawati SC</option><option value="Wawati TC">Wawati TC</option><option value="Webdings">Webdings</option><option value="Weibei SC">Weibei SC</option><option value="Weibei TC">Weibei TC</option><option value="Wingdings">Wingdings</option><option value="Wingdings 2">Wingdings 2</option><option value="Wingdings 3">Wingdings 3</option><option value="Xingkai SC">Xingkai SC</option><option value="YuGothic">YuGothic</option><option value="YuMincho">YuMincho</option><option value="Yuanti SC">Yuanti SC</option><option value="Yuppy SC">Yuppy SC</option><option value="Yuppy TC">Yuppy TC</option><option value="Zapf Dingbats">Zapf Dingbats</option><option value="Zapfino">Zapfino</option></select>
+	<select id="style" title="Style">
+		<option value="">Normal</option>
+		<option value="bold ">Bold</option>
+		<!-- Italic font characters aren't measured correctly :/
+			<option value="italic ">Italic</option>
+			<option value="italic bold ">Bold Italic</option> 
+		-->
+	</select>
+	Size: <input id="size" type="number" min="1" step="1" value="16" title="Size (px)">
+	Color: <input id="color" type="text" value="#000000" title="Color">
+	Extra Spacing: <input id="spacing" type="number" min="1" step="1" value="0" title="Extra letter Spacing">
+	Last Char: <input id="lastChar" type="number" min="1" step="1" value="127" title="Extra letter Spacing">
+	<input type="button" value="Generate" onclick="draw()">
+	<input type="button" value="Save" onclick="save()">
+</div>
+<canvas id="canvas" width="891" height="24"></canvas>
+
+<object id="loadFonts" type="application/x-shockwave-flash" data="http://impactjs.com/font-tool/get_fonts.swf" width="1" height="1">
+	<param name="movie" value="get_fonts.swf">
+</object>
+<script type="text/javascript">
+var chars = [];
+
+function setFont( ctx, font, size, color, style ) {
+	ctx.font = style + size + 'px "' + font + '"';
+	ctx.fillStyle = color;
+	ctx.textBaseline = 'top';
+}
+
+function draw() {
+	var font = document.getElementById('font').value;
+	var size = parseFloat(document.getElementById('size').value);
+	var color = document.getElementById('color').value;
+	var style = document.getElementById('style').value;
+	var spacing = parseFloat(document.getElementById('spacing').value);
+	var lastChar = parseFloat(document.getElementById('lastChar').value);
+	
+	var canvas = document.getElementById('canvas');
+	var ctx = canvas.getContext('2d');
+	
+	chars = [];
+	for( var i = 32; i < lastChar; i++ ) {
+		chars.push( String.fromCharCode(i) );
+	}
+		
+	setFont( ctx, font, size, color, style );
+	
+	// Measure the width of each character
+	var totalWidth = 0;
+	var widthMap = [];
+	for( var i = 0; i < chars.length; i++ ) {
+		var width = Math.max(1,Math.ceil(ctx.measureText(chars[i]).width));
+		totalWidth += width + 1 + spacing * 2;
+		widthMap.push(width);
+	}
+	
+	// Resize Canvas; make it higher than we may need
+	canvas.width = totalWidth;
+	canvas.height = Math.ceil(size * 1.5);
+	setFont( ctx, font, size, color, style );
+	
+	// Draw!
+	ctx.clearRect( 0, 0, canvas.width, canvas.height );
+	for( var i = 0, x = 0; i < chars.length; i++ ) {
+		ctx.fillText( chars[i], x + spacing, 0 );
+		x += widthMap[i] + 1;
+	}
+	
+	// Measure the real height of the text
+	var height = Math.ceil( measureHeight(ctx, canvas.width, canvas.height, size/2) + 1 );
+	
+	
+	// Resize Canvas to the correct height and draw AGAIN :/
+	canvas.height = height + 1;
+	setFont( ctx, font, size, color, style );
+	
+	ctx.clearRect( 0, 0, canvas.width, canvas.height );
+	for( var i = 0, x = 0; i < chars.length; i++ ) {
+		ctx.fillText( chars[i], x + spacing, 0 );
+		ctx.fillRect( x, height, widthMap[i] + spacing * 2, 1 );
+		x += widthMap[i] + 1 + spacing * 2;
+	}
+}
+
+function measureHeight( ctx, width, height, startAtY ) {
+	var data = ctx.getImageData(0, 0, width, height).data;
+	
+	// Go through all pixels and find the first line that is completely
+	// transparent
+	for( var y = startAtY; y < height; y++ ) {
+		var found = false;
+		for( var x = 0; x < width; x++ ) {
+			if( data[y * width * 4 + x * 4 + 3] ) {
+				found = true;
+				break;
+			}
+		}
+		if( !found ) {
+			return y;
+		}
+	}
+	return height;
+}
+
+function save() {
+	window.location = document.getElementById('canvas').toDataURL("image/png");
+}
+
+// This function gets called from the get_fonts.swf and populates the select box
+// (c) by Pepa <http://www.unpljugged.com/>
+function getFontList(user_fonts) {
+	var fonts = user_fonts.split(',');
+	var select = document.getElementById('font');
+	
+	for( var i = 0; i < fonts.length; i++ ) {
+		var opt = document.createElement('option');
+		opt.value = fonts[i];
+		opt.innerHTML = fonts[i]
+		select.appendChild(opt);
+	}
+}
+
+</script>
+
+</body></html>
