@@ -8,7 +8,8 @@ stuff:
 - name: Dragon Plunder
   url: http://www.mattgreer.org/dragon-plunder/
   thumbnail: /media/img/stuff/dragonPlunder.png
-  description: An HTML5 browser game where you must escape a dragon's layer that is crumbling all around you. Built with ImpactJS and my animation engine <a href=\"https://github.com/city41/plunder\">Plunder</a>
+  description:
+    "An HTML5 browser game where you must escape a dragon's layer that is crumbling all around you. Built with ImpactJS and my animation engine <a href=\"https://github.com/city41/plunder\">Plunder</a>"
 
 - name: Super Mario World Mega Review
   url: http://www.mattgreer.org/super-mario-world/index.html
