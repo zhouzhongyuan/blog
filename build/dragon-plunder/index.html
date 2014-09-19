@@ -23,13 +23,21 @@ mixpanel.init("cc292e93c0ddcd3f8ec9da253b6e6965");</script><!-- end Mixpanel -->
 			font-size: 12pt;
 		}
 
-		#canvas {
-			position: absolute;
-			left: 0;
-			right: 0;
-			top: 0;
-			bottom: 0;
-			margin: auto;
+		.canvasContainer {
+			margin: 30px auto 0 auto;
+			width: 512px;
+		}
+
+		.callout {
+			margin-top: 40px;
+			padding: 10px;
+			font-size: 12px;
+			font-style: sans-serif;
+			background-color: #111111;
+		}
+
+		.callout a {
+			color: orange;
 		}
 	</style>
 
@@ -37,6 +45,11 @@ mixpanel.init("cc292e93c0ddcd3f8ec9da253b6e6965");</script><!-- end Mixpanel -->
 	<script type="text/javascript" src="game.min.js"></script>
 </head>
 <body>
-	<canvas id="canvas"></canvas>
+	<div class="canvasContainer">
+		<canvas id="canvas"></canvas>
+		<div class="callout">
+			check out my <a href="http://www.mattgreer.org/super-mario-world/">Super Mario World review</a> too! it's mega detailed with 53 videos.
+		</div>
+	</div>
 </body>
 </html>
