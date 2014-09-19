@@ -5,6 +5,11 @@ stuff:
   thumbnail: /media/img/stuff/metamorfus.png
   description: Metamorfus is a website aimed at helping people improve their social skills.The site is written in NodeJS using Restify on the backend, and AngularJS on the frontend.
 
+- name: Dragon Plunder
+  url: http://www.mattgreer.org/dragon-plunder/
+  thumbnail: /media/img/stuff/dragonPlunder.png
+  description: An HTML5 browser game where you must escape a dragon's layer that is crumbling all around you. Built with ImpactJS and my animation engine <a href=\"https://github.com/city41/plunder\">Plunder</a>
+
 - name: Super Mario World Mega Review
   url: http://www.mattgreer.org/super-mario-world/index.html
   github: https://github.com/city41/mario-review
