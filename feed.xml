@@ -5,13 +5,13 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Tue, 26  Aug 2014 20:00:00 -0400</pubDate>
+    <pubDate>Tue, 26  Aug 2014 18:00:00 -0600</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
     <item>
       <title>Pair Programming Is Not a Panacea</title>
       <link>http://mattgreer.org/articles/pair-programming-is-not-a-panacea/</link>
-      <pubDate>Tue, 26  Aug 2014 20:00:00 -0400</pubDate>
+      <pubDate>Tue, 26  Aug 2014 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/pair-programming-is-not-a-panacea/</guid>
       <author></author>
       <description>&lt;p&gt;For the past 3 years, I have almost exclusively pair programmed at my job. I have paired with many people in many situations and learned a lot about this practice. I have found pairing can be effective, but it can also be ineffective and costly. Pair programming seems to be gaining traction, which concerns me a little bit. Some of us really don’t like to pair, and I feel it’s important to recognize that and maintain a balance here. Pairing is just a tool like anything else, it definitely should not be your company’s default mode of work.&lt;/p&gt;
@@ -65,7 +65,7 @@
     <item>
       <title>JavaScript Promises ... In Wicked Detail</title>
       <link>http://mattgreer.org/articles/promises-in-wicked-detail/</link>
-      <pubDate>Sat, 08 Feb 2014 19:00:00 -0500</pubDate>
+      <pubDate>Sat, 08 Feb 2014 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/promises-in-wicked-detail/</guid>
       <author></author>
       <description>&lt;p&gt;I’ve been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn’t fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises well too.&lt;/p&gt;
@@ -690,7 +690,7 @@ Promises always require at least one more iteration of the event loop to resolve
     <item>
       <title>CoffeeScript's Time is Waning For Me</title>
       <link>http://mattgreer.org/articles/coffeescripts-time-is-waning/</link>
-      <pubDate>Sat, 11 Jan 2014 19:00:00 -0500</pubDate>
+      <pubDate>Sat, 11 Jan 2014 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/coffeescripts-time-is-waning/</guid>
       <author></author>
       <description>&lt;p&gt;CoffeeScript was a welcome addition when it first arrived. Nowadays though, I am
@@ -751,7 +751,7 @@ still very welcome. &lt;/p&gt;
     <item>
       <title>Dynamic Lighting and Shadows in my 2d Game</title>
       <link>http://mattgreer.org/articles/dynamic-lighting-and-shadows/</link>
-      <pubDate>Tue, 16 Oct 2012 20:00:00 -0400</pubDate>
+      <pubDate>Tue, 16 Oct 2012 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/dynamic-lighting-and-shadows/</guid>
       <author></author>
       <description>&lt;p&gt;I’m working on a stealth action game where shadows will play a big role in the gameplay. Using WebGL shaders, I implemented dynamic lighting and shadows. This post is the blog post I wish existed before I started :) Gritty details on how I implemented these below…&lt;/p&gt;
@@ -923,7 +923,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
     <item>
       <title>Still Waking up at 5am to Code?</title>
       <link>http://mattgreer.org/articles/still-waking-up-at-5am/</link>
-      <pubDate>Sun, 26  Aug 2012 20:00:00 -0400</pubDate>
+      <pubDate>Sun, 26  Aug 2012 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/still-waking-up-at-5am/</guid>
       <author></author>
       <description>&lt;p&gt;Back in January I posted an article about &lt;a href=&quot;http://mattgreer.org/articles/waking-up-at-5am-to-code/&quot;&gt;waking up at 5am to code&lt;/a&gt;. It seemed to really strike a chord with a lot of people. Lately I’ve been getting a handful of emails asking me if I still do this and where I’m at with it now. So I thought I’d post a quick follow up.&lt;/p&gt;
@@ -941,7 +941,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
     <item>
       <title>Waking Up at 5am to Code</title>
       <link>http://mattgreer.org/articles/waking-up-at-5am-to-code/</link>
-      <pubDate>Sun, 22 Jan 2012 19:00:00 -0500</pubDate>
+      <pubDate>Sun, 22 Jan 2012 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/waking-up-at-5am-to-code/</guid>
       <author></author>
       <description>&lt;p&gt;I’m currently experimenting with waking up at 5am to work on personal projects before heading to work.&lt;/p&gt;
@@ -985,7 +985,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
     <item>
       <title>Yokul - Google Charts Reimplemented in a Local JS Canvas</title>
       <link>http://mattgreer.org/articles/yokul/</link>
-      <pubDate>Sat, 04 Jun 2011 20:00:00 -0400</pubDate>
+      <pubDate>Sat, 04 Jun 2011 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/yokul/</guid>
       <author></author>
       <description>&lt;p&gt;&lt;a href=&quot;https://github.com/city41/yokul&quot;&gt;Yokul&lt;/a&gt; is a little JavaScript experiment I’ve been playing with in my free time. Using the same query string you’d normally send to the &lt;a href=&quot;http://code.google.com/apis/chart/image/&quot;&gt;Google Image Chart API&lt;/a&gt; a local chart is created on the client using an HTML5 canvas.&lt;/p&gt;
