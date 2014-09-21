@@ -141,7 +141,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
     .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./sandbox/'&lt;/span&gt;));
 });
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;I think this makes it more clear what’s going.&lt;/p&gt;
+&lt;p&gt;I think this makes it more clear what’s going on.&lt;/p&gt;
 &lt;h2 id=&quot;phew-&quot;&gt;Phew!&lt;/h2&gt;
 &lt;p&gt;Traceur, Gulp and all of these tools are still pretty new. Documentation is sparse, and blog posts (of which I just added to…) are all over the place. Hopefully this helps someone. If you know better ways to do any of this, I’d love to hear it. If you &lt;a href=&quot;mailto:matt.e.greer@gmail.com&quot;&gt;email&lt;/a&gt; with any tips, I’ll be sure to update this post with them.&lt;/p&gt;
 </description>
