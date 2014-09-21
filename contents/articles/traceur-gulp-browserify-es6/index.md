@@ -48,7 +48,7 @@ export default RectEntity;
 
 In the ES6 world, this all works just fine and as you'd expect. Traceur, however, does not quite turn this into a CommonJS module in the way I wanted.
 
-Traceur will define the exports from above as
+Traceur will define the export from above as
 
 ```javascript
 Object.defineProperties(exports, {
@@ -79,7 +79,7 @@ In ES6 land, `export default <value>` basically means "this is the default thing
 var BaseEntity = ($__base_45_entity__ = require("./base-entity"), $__base_45_entity__ && $__base_45_entity__.__esModule && $__base_45_entity__ || {default: $__base_45_entity__}).default;
 ```
 
-That long line of generated code basically boils down to -- in CommonJS speak -- `var baseEntity = require('./base-entity').default`
+That long line of generated code basically boils down to -- in CommonJS speak -- `var BaseEntity = require('./base-entity').default`
 
 This meant my `index.js` ended up looking like this
 
@@ -133,7 +133,7 @@ gulp.task('build:lib', function() {
 });
 ```
 
-except *this does not work*! At least, it does not work for me because I am using ES6 modules. I want Traceur to output CommonJS modules for me, and the above causes a chicken and egg scenario. The Traceur runtime itself will be made into a CommonJS module. Which is fine, except any CommonJS module built by Traceur first needs the Traceur runtime. You will get an error that `Reflect is not defined`. This is because `Reflect` gets defined inside the runtime.
+except *this does not work!* At least, it does not work for me because I am using ES6 modules. I want Traceur to output CommonJS modules for me, and the above causes a chicken and egg scenario. The Traceur runtime itself will be made into a CommonJS module. Which is fine, except any CommonJS module built by Traceur first needs the Traceur runtime. You will get an error that `Reflect is not defined`. This is because `Reflect` gets defined inside the runtime.
 
 There are two solutions to this:
 
