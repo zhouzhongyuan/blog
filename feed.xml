@@ -47,7 +47,7 @@ sandbox/
 export &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; RectEntity;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;In the ES6 world, this all works just fine and as you’d expect. Traceur, however, does not quite turn this into a CommonJS module in the way I wanted.&lt;/p&gt;
-&lt;p&gt;Traceur will define the exports from above as&lt;/p&gt;
+&lt;p&gt;Traceur will define the export from above as&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.defineProperties(exports, {
   &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: {get: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; $__default;
@@ -67,7 +67,7 @@ export &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; RectEntity;
 &lt;p&gt;In ES6 land, &lt;code&gt;export default &amp;lt;value&amp;gt;&lt;/code&gt; basically means “this is the default thing we are exporting from this module, if someone just imports this module, give them this”. So you’d think &lt;code&gt;default&lt;/code&gt; would translate into effectively &lt;code&gt;module.exports = RectEntity&lt;/code&gt;, but it doesn’t, it puts a &lt;code&gt;default&lt;/code&gt; property on there. You can even see this in Traceur’s code when you import another module:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; BaseEntity = ($__base_45_entity__ = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;&quot;./base-entity&quot;&lt;/span&gt;), $__base_45_entity__ &amp;amp;&amp;amp; $__base_45_entity__.__esModule &amp;amp;&amp;amp; $__base_45_entity__ || {&lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: $__base_45_entity__}).default;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;That long line of generated code basically boils down to — in CommonJS speak — &lt;code&gt;var baseEntity = require(&amp;#39;./base-entity&amp;#39;).default&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;That long line of generated code basically boils down to — in CommonJS speak — &lt;code&gt;var BaseEntity = require(&amp;#39;./base-entity&amp;#39;).default&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;This meant my &lt;code&gt;index.js&lt;/code&gt; ended up looking like this&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;module.exports = {
   Engine: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/engine'&lt;/span&gt;).default,
@@ -102,7 +102,7 @@ module.exports = {
     .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./lib'&lt;/span&gt;));
 });
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;except &lt;em&gt;this does not work&lt;/em&gt;! At least, it does not work for me because I am using ES6 modules. I want Traceur to output CommonJS modules for me, and the above causes a chicken and egg scenario. The Traceur runtime itself will be made into a CommonJS module. Which is fine, except any CommonJS module built by Traceur first needs the Traceur runtime. You will get an error that &lt;code&gt;Reflect is not defined&lt;/code&gt;. This is because &lt;code&gt;Reflect&lt;/code&gt; gets defined inside the runtime.&lt;/p&gt;
+&lt;p&gt;except &lt;em&gt;this does not work!&lt;/em&gt; At least, it does not work for me because I am using ES6 modules. I want Traceur to output CommonJS modules for me, and the above causes a chicken and egg scenario. The Traceur runtime itself will be made into a CommonJS module. Which is fine, except any CommonJS module built by Traceur first needs the Traceur runtime. You will get an error that &lt;code&gt;Reflect is not defined&lt;/code&gt;. This is because &lt;code&gt;Reflect&lt;/code&gt; gets defined inside the runtime.&lt;/p&gt;
 &lt;p&gt;There are two solutions to this:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Don’t use ES6 modules in your ES6 code:&lt;/strong&gt; Stick with the classic &lt;code&gt;module.exports&lt;/code&gt; and &lt;code&gt;require()&lt;/code&gt; as always, then turn off commonjs modules when invoking gulp-traceur.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Create a second gulp task to pull the runtime in:&lt;/strong&gt; this is hacky and ugly, but basically if you do&lt;/p&gt;

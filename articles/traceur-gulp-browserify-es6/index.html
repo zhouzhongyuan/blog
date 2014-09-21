@@ -67,7 +67,7 @@ sandbox/
 export <span class="keyword">default</span> RectEntity;
 </code></pre>
 <p>In the ES6 world, this all works just fine and as you’d expect. Traceur, however, does not quite turn this into a CommonJS module in the way I wanted.</p>
-<p>Traceur will define the exports from above as</p>
+<p>Traceur will define the export from above as</p>
 <pre><code class="lang-javascript"><span class="built_in">Object</span>.defineProperties(exports, {
   <span class="keyword">default</span>: {get: <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
       <span class="keyword">return</span> $__default;
@@ -87,7 +87,7 @@ export <span class="keyword">default</span> RectEntity;
 <p>In ES6 land, <code>export default &lt;value&gt;</code> basically means “this is the default thing we are exporting from this module, if someone just imports this module, give them this”. So you’d think <code>default</code> would translate into effectively <code>module.exports = RectEntity</code>, but it doesn’t, it puts a <code>default</code> property on there. You can even see this in Traceur’s code when you import another module:</p>
 <pre><code class="lang-javascript"><span class="keyword">var</span> BaseEntity = ($__base_45_entity__ = <span class="built_in">require</span>(<span class="string">"./base-entity"</span>), $__base_45_entity__ &amp;&amp; $__base_45_entity__.__esModule &amp;&amp; $__base_45_entity__ || {<span class="keyword">default</span>: $__base_45_entity__}).default;
 </code></pre>
-<p>That long line of generated code basically boils down to — in CommonJS speak — <code>var baseEntity = require(&#39;./base-entity&#39;).default</code></p>
+<p>That long line of generated code basically boils down to — in CommonJS speak — <code>var BaseEntity = require(&#39;./base-entity&#39;).default</code></p>
 <p>This meant my <code>index.js</code> ended up looking like this</p>
 <pre><code class="lang-javascript">module.exports = {
   Engine: <span class="built_in">require</span>(<span class="string">'./lib/engine'</span>).default,
@@ -122,7 +122,7 @@ module.exports = {
     .pipe(gulp.dest(<span class="string">'./lib'</span>));
 });
 </code></pre>
-<p>except <em>this does not work</em>! At least, it does not work for me because I am using ES6 modules. I want Traceur to output CommonJS modules for me, and the above causes a chicken and egg scenario. The Traceur runtime itself will be made into a CommonJS module. Which is fine, except any CommonJS module built by Traceur first needs the Traceur runtime. You will get an error that <code>Reflect is not defined</code>. This is because <code>Reflect</code> gets defined inside the runtime.</p>
+<p>except <em>this does not work!</em> At least, it does not work for me because I am using ES6 modules. I want Traceur to output CommonJS modules for me, and the above causes a chicken and egg scenario. The Traceur runtime itself will be made into a CommonJS module. Which is fine, except any CommonJS module built by Traceur first needs the Traceur runtime. You will get an error that <code>Reflect is not defined</code>. This is because <code>Reflect</code> gets defined inside the runtime.</p>
 <p>There are two solutions to this:</p>
 <p><strong>Don’t use ES6 modules in your ES6 code:</strong> Stick with the classic <code>module.exports</code> and <code>require()</code> as always, then turn off commonjs modules when invoking gulp-traceur.</p>
 <p><strong>Create a second gulp task to pull the runtime in:</strong> this is hacky and ugly, but basically if you do</p>
