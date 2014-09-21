@@ -5,9 +5,147 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Tue, 26  Aug 2014 18:00:00 -0600</pubDate>
+    <pubDate>Fri, 19 Sep 2014 18:00:00 -0600</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Traceur, Gulp, Browserify and ES6</title>
+      <link>http://mattgreer.org/articles/traceur-gulp-browserify-es6/</link>
+      <pubDate>Fri, 19 Sep 2014 18:00:00 -0600</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/traceur-gulp-browserify-es6/</guid>
+      <author></author>
+      <description>&lt;p&gt;Here’s a brain dump of my experience getting these recent-ish techs up and running together on a small project …&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&quot;project-structure-and-goal&quot;&gt;Project Structure and Goal&lt;/h2&gt;
+&lt;p&gt;My project (named baby-engine), is structured like this, you can see it &lt;a href=&quot;https://github.com/city41/baby-engine&quot;&gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;src/
+    &amp;lt;ES6 JavaScript source&amp;gt;
+
+lib/
+    &amp;lt;the ES6 js in src/ gets built and dumped into here as ES5 JS&amp;gt;
+
+index.js  &amp;lt;-- npm module entry point written in vanilla ES5
+              and require()s stuff from lib/
+
+sandbox/
+    &amp;lt;a small webpage that consumes the module and uses it&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I have two goals:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;A standard npm module with the entry point at &lt;code&gt;index.js&lt;/code&gt;, which then &lt;code&gt;require()&lt;/code&gt;s stuff from &lt;code&gt;lib/&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;A browserify’ed webpage that pulls in baby-engine and then uses it. This is a small test sandbox for dev purposes.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;step-one-es6-modules&quot;&gt;Step One: ES6 Modules&lt;/h2&gt;
+&lt;p&gt;My ES6 code is ES6 through and through, including modules. For example, I have a type called &lt;code&gt;RectEntity&lt;/code&gt; that subclasses &lt;code&gt;BaseEntity&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;import BaseEntity from &lt;span class=&quot;string&quot;&gt;'./base-entity'&lt;/span&gt;;
+
+&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; RectEntity extends BaseEntity {
+    ...
+}
+
+export &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; RectEntity;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In the ES6 world, this all works just fine and as you’d expect. Traceur, however, does not quite turn this into a CommonJS module in the way I wanted.&lt;/p&gt;
+&lt;p&gt;Traceur will define the exports from above as&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.defineProperties(exports, {
+  &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: {get: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; $__default;
+    }},
+  __esModule: {value: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;}
+});
+
+...
+
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; $__default = RectEntity;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;What I really wanted was effectively &lt;code&gt;module.exports = RectEntity&lt;/code&gt;, but I’m pretty convinced Traceur just won’t do that. In ES6, &lt;code&gt;export &amp;lt;name&amp;gt; &amp;lt;value&amp;gt;&lt;/code&gt; is how it works, and Traceur will use that name verbatim. Even if you do this in ES6&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;export class RectEntity ... {
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;which is perfectly legal, but still Traceur will give you an exports with a &lt;code&gt;RectEntity&lt;/code&gt; property defined on it. I don’t want a property, I just want &lt;code&gt;RectEntity&lt;/code&gt; itself to be the export.&lt;/p&gt;
+&lt;p&gt;In ES6 land, &lt;code&gt;export default &amp;lt;value&amp;gt;&lt;/code&gt; basically means “this is the default thing we are exporting from this module, if someone just imports this module, give them this”. So you’d think &lt;code&gt;default&lt;/code&gt; would translate into effectively &lt;code&gt;module.exports = RectEntity&lt;/code&gt;, but it doesn’t, it puts a &lt;code&gt;default&lt;/code&gt; property on there. You can even see this in Traceur’s code when you import another module:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; BaseEntity = ($__base_45_entity__ = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;&quot;./base-entity&quot;&lt;/span&gt;), $__base_45_entity__ &amp;amp;&amp;amp; $__base_45_entity__.__esModule &amp;amp;&amp;amp; $__base_45_entity__ || {&lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: $__base_45_entity__}).default;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;That long line of generated code basically boils down to — in CommonJS speak — &lt;code&gt;var baseEntity = require(&amp;#39;./base-entity&amp;#39;).default&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;This meant my &lt;code&gt;index.js&lt;/code&gt; ended up looking like this&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;module.exports = {
+  Engine: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/engine'&lt;/span&gt;).default,
+  RectEntity: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/rect-entity'&lt;/span&gt;).default
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Which is weird, but I can live with it.&lt;/p&gt;
+&lt;h2 id=&quot;step-two-the-traceur-runtime&quot;&gt;Step Two: The Traceur Runtime&lt;/h2&gt;
+&lt;p&gt;Traceur requires a small runtime, it provides shims and some other utilities to help pull off ES6 features in ES5 land. There are several ways to get this runtime into your module, I’ll list them in order of best to worst. If there is an even better way to pull this off &lt;a href=&quot;mailto:matt.e.greer@gmail.com&quot;&gt;please let me know!&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;approach-one-pull-it-in-yourself&quot;&gt;Approach one: pull it in yourself&lt;/h3&gt;
+&lt;p&gt;This seems the cleanest to me. Install traceur as a dependency (&lt;code&gt;npm install --save traceur&lt;/code&gt;), then in &lt;code&gt;index.js&lt;/code&gt;, require the runtime&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'traceur/bin/traceur-runtime'&lt;/span&gt;);
+
+module.exports = {
+  Engine: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/engine'&lt;/span&gt;).default,
+  RectEntity: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/rect-entity'&lt;/span&gt;).default
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It will define the runtime on &lt;code&gt;global&lt;/code&gt; and from there the rest of your transpiled code will be happy. Pretty simple.&lt;/p&gt;
+&lt;h3 id=&quot;approach-two-pull-it-in-with-gulp-traceur&quot;&gt;Approach two: pull it in with gulp-traceur&lt;/h3&gt;
+&lt;p&gt;I am transpiling from ES6-&amp;gt;ES5 using &lt;a href=&quot;https://github.com/sindresorhus/gulp-traceur&quot;&gt;gulp-traceur&lt;/a&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; gulp.src(&lt;span class=&quot;string&quot;&gt;'src/**/*.js'&lt;/span&gt;)
+    .pipe(traceur({modules:&lt;span class=&quot;string&quot;&gt;'commonjs'&lt;/span&gt;}))
+    .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./lib'&lt;/span&gt;));
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;the above will transpile the code but not include the runtime. gulp-traceur makes it available at &lt;code&gt;traceur.RUNTIME_PATH&lt;/code&gt;, so you can just do&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; gulp.src([traceur.RUNTIME_PATH, &lt;span class=&quot;string&quot;&gt;'src/**/*.js'&lt;/span&gt;])
+    .pipe(traceur({modules:&lt;span class=&quot;string&quot;&gt;'commonjs'&lt;/span&gt;}))
+    .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./lib'&lt;/span&gt;));
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;except &lt;em&gt;this does not work&lt;/em&gt;! At least, it does not work for me because I am using ES6 modules. I want Traceur to output CommonJS modules for me, and the above causes a chicken and egg scenario. The Traceur runtime itself will be made into a CommonJS module. Which is fine, except any CommonJS module built by Traceur first needs the Traceur runtime. You will get an error that &lt;code&gt;Reflect is not defined&lt;/code&gt;. This is because &lt;code&gt;Reflect&lt;/code&gt; gets defined inside the runtime.&lt;/p&gt;
+&lt;p&gt;There are two solutions to this:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Don’t use ES6 modules in your ES6 code:&lt;/strong&gt; Stick with the classic &lt;code&gt;module.exports&lt;/code&gt; and &lt;code&gt;require()&lt;/code&gt; as always, then turn off commonjs modules when invoking gulp-traceur.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Create a second gulp task to pull the runtime in:&lt;/strong&gt; this is hacky and ugly, but basically if you do&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;gulp(&amp;#39;traceur:runtime&amp;#39;, function() {
+  return gulp.src(traceur.RUNTIME_PATH)
+    .pipe(gulp.dest(&amp;#39;./lib&amp;#39;));
+});
+
+gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], function() {
+  return gulp.src(&amp;#39;src/**/*.js&amp;#39;)
+    .pipe(traceur({modules:&amp;#39;commonjs&amp;#39;}))
+    .pipe(gulp.dest(&amp;#39;./lib&amp;#39;));
+});
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;for either of the above solutions you still need to require the runtime in &lt;code&gt;index.js&lt;/code&gt;.&lt;/p&gt;
+&lt;h3 id=&quot;approach-three-punt-on-it-and-let-browserify-bring-the-runtime&quot;&gt;Approach Three: punt on it and let Browserify bring the runtime&lt;/h3&gt;
+&lt;p&gt;Browserify and ES6 get along great thanks to &lt;a href=&quot;https://github.com/thlorenz/es6ify&quot;&gt;es6ify&lt;/a&gt;. es6ify can bring the runtime in too, and for some scenarios this is the way to go. For me it’s not, as it leaves my core NPM module dead in the water unless whoever consumes it knows they need to provide the runtime. Which is pretty lame.&lt;/p&gt;
+&lt;p&gt;With gulp, browserify and es6ify, it looks like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'browserify:sandbox'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;], &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; browserify()
+    .add(es6ify.runtime)
+    .transform(es6ify)
+    .require(&lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;.resolve(&lt;span class=&quot;string&quot;&gt;'./sandbox/sandbox.js'&lt;/span&gt;), { entry: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt; })
+    .bundle()
+    .pipe(source(&lt;span class=&quot;string&quot;&gt;'sandbox-bundle.js'&lt;/span&gt;))
+    .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./sandbox/'&lt;/span&gt;));
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Notice the strange call to Browserify’s require? This is because you must include the runtime first. Otherwise your code will come first and it will be without its runtime and crap out.&lt;/p&gt;
+&lt;p&gt;An alternative way is this, which I actually prefer:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'browserify:sandbox'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;], &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; browserify(es6ify.runtime)
+    .transform(es6ify)
+    .add(&lt;span class=&quot;string&quot;&gt;'./sandbox/sandbox.js'&lt;/span&gt;)
+    .bundle()
+    .pipe(source(&lt;span class=&quot;string&quot;&gt;'sandbox-bundle.js'&lt;/span&gt;))
+    .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./sandbox/'&lt;/span&gt;));
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I think this makes it more clear what’s going.&lt;/p&gt;
+&lt;h2 id=&quot;phew-&quot;&gt;Phew!&lt;/h2&gt;
+&lt;p&gt;Traceur, Gulp and all of these tools are still pretty new. Documentation is sparse, and blog posts (of which I just added to…) are all over the place. Hopefully this helps someone. If you know better ways to do any of this, I’d love to hear it. If you &lt;a href=&quot;mailto:matt.e.greer@gmail.com&quot;&gt;email&lt;/a&gt; with any tips, I’ll be sure to update this post with them.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>Pair Programming Is Not a Panacea</title>
       <link>http://mattgreer.org/articles/pair-programming-is-not-a-panacea/</link>
