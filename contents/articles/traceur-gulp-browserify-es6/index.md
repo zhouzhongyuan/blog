@@ -189,7 +189,7 @@ gulp.task('browserify:sandbox', ['build:lib'], function() {
 });
 ```
 
-I think this makes it more clear what's going.
+I think this makes it more clear what's going on.
 
 ## Phew!
 
