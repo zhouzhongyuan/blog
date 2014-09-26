@@ -1,5 +1,5 @@
 ---
-stuff:
+things:
 - name: Metamorfus
   url: http://metamorf.us
   thumbnail: /media/img/stuff/metamorfus.png
@@ -42,5 +42,5 @@ stuff:
   url: https://itunes.apple.com/app/turrets!/id551344421?ign-mpt=uo%3D5
   thumbnail: /media/img/stuff/turrets.png
   description: A game I made for the iPhone a while back. It's written in Objective-C and OpenGL ES and uses its own engine as it predates Cocos2D and the like.
-template: stuff.jade
+template: things.jade
 ---

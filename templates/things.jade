@@ -1,4 +1,4 @@
-extends layout 
+extends layout
 
 block header-links
   a(href='/') my blog
@@ -6,7 +6,7 @@ block header-links
 block content
   h2.things Some things I've made
   div.container
-    each thing in page.metadata.stuff
+    each thing in page.metadata.things
       div.thing.row
         div.col-md-offset-1.col-md-1
           div.thumbnail
@@ -18,4 +18,3 @@ block content
             div.github
               a(href=thing.github) github
           p!= thing.description
-          

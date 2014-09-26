@@ -28,7 +28,7 @@ html(lang='en')
           h1.pull-left= locals.name
         div.links.pull-right
           block header-links
-            a(href='/stuff.html') stuff I've made
+            a(href='/things.html') things I've made
 
       div.banner-bg
         div.banner
@@ -44,9 +44,9 @@ html(lang='en')
           div.col-md-offset-1.col-md-1
             div.wave.hidden-xs.hidden-sm
           div.col-md-5
-            div.about 
+            div.about
               !=contents['about.md'].html
-          div.col-md-4 
+          div.col-md-4
             !=contents['contacts.md'].html
 
 
@@ -58,4 +58,3 @@ html(lang='en')
 
       ga('create', 'UA-47850394-1', 'mattgreer.org');
       ga('send', 'pageview');
-
