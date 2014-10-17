@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Node sql-fixtures (a new module) - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>Node sql-fixtures (a new module)</h1>
+            <div class="date"><span>16. October 2014</span></div>
+            <article class="article">
+              <section class="content"><p>I don’t think a fixture generator for PostgreSQL exists in NPM. If one does, I could not find it. So I went ahead and <a href="https://github.com/city41/node-sql-fixtures">made one</a>. Added bonus, it works with MySQL, MariaDB and sqlite as well.</p>
+<p><span class="more"></span></p>
+<h2 id="fixtures-">Fixtures?</h2>
+<p>“Fixture” is just a fancy word for “sample data”. I first encountered the idea of fixtures in Ruby on Rails almost a decade ago (egads!). Typically in Ruby you lay out some sample data using YAML, and this data then gets populated into your database. This is ideal for integration tests, dummy data and end-to-end tests.</p>
+<h2 id="sql-fixtures-for-node">SQL Fixtures for Node</h2>
+<p><a href="https://github.com/city41/node-sql-fixtures">sql-fixtures</a> applies the same idea, except this time for Node. Since JavaScript is such a flexible language, no need for something like YAML, it’s easy to just define the fixture data in JavaScript itself.</p>
+<p>For example, here’s how to populate some data in a Users table in your database:</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> fixtures = {
+  Users: [{
+    username: <span class="string">'Henry'</span>
+  }, {
+    username: <span class="string">'Catherine'</span>
+  }]
+};
+
+<span class="keyword">var</span> sqlFixtures = <span class="built_in">require</span>(<span class="string">'sql-fixtures'</span>);
+
+sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+  <span class="comment">// the Users table now has two more rows in it</span>
+  <span class="comment">// result returns what got created,</span>
+  <span class="comment">// so you can make use of the data in your tests</span>
+  console.log(result.Users[<span class="number">0</span>].username); <span class="comment">// Henry</span>
+  console.log(result.Users[<span class="number">0</span>].id);       <span class="comment">// the id the db generated</span>
+  console.log(result.Users[<span class="number">1</span>].username); <span class="comment">// Catherine</span>
+});
+</code></pre>
+<p>The <code>databaseConfig</code> parameter tells sql-fixtures how to connect to your database, more info on that in the <a href="https://github.com/city41/node-sql-fixtures/blob/master/README.md">README</a></p>
+<h2 id="foreign-key-resolution">Foreign Key Resolution</h2>
+<p>The neatest feature of sql-fixtures is automatic foreign key resolution. If you want to insert data into two tables and have their keys point at each other, it can be tedious to do manually. With sql-fixtures you can specify the relation in the fixture spec:</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> fixtures = {
+  Users: {
+    username: <span class="string">'Henry'</span>
+  },
+  Purchase: {
+    purchaseDate: <span class="keyword">new</span> <span class="built_in">Date</span>(),
+    userId: <span class="string">"Users:0"</span>
+  }
+};
+
+sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+  console.log(result.Purchase[<span class="number">0</span>].userId === result.Users[<span class="number">0</span>].id); <span class="comment">// true</span>
+});
+</code></pre>
+<p>In the above, sql-fixtures will create the User row first, then circle back and populate <code>Purchase.userId</code> with Henry’s actual id before adding the new row in the Purchase table.</p>
+<p>The default is to use indices to indicate which record you want to point to, but you can also use a <code>specId</code>. This is useful if you’re generating a lot of data or complex data, as keeping track of which index is which can get tedious:</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> fixtures = {
+  Users: {
+    username: <span class="string">'Henry'</span>,
+    specId: <span class="string">'mySpecialUser'</span>
+  },
+  Purchase: {
+    purchaseDate: <span class="keyword">new</span> <span class="built_in">Date</span>(),
+    userId: <span class="string">"Users:mySpecialUser"</span>
+  }
+};
+</code></pre>
+<p>and with the specId, the association is made just like when using an index.</p>
+<h2 id="that-s-it-">That’s it!</h2>
+<p>Not much to this one. And a shout out to <a href="http://knexjs.org/">Knex.js</a> which is the library that sql-fixtures uses to communicate with the database. I’m a fan of Knex.js and the ORM built on top of it, <a href="http://bookshelfjs.org/">Bookshelf.js</a>.</p>
+<h3 id="by-the-way">By the way</h3>
+<p>Knex.js is why I make the claim this works with Postgres, MySql, Maria and sqlite, as Knex.js supports all of them. However, I only need Postgres so far, so Postgres is the only database that’s seen any real usage. If you use sql-fixtures with one of the other database engines, let me know if you hit any problems.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer based out of Denver, CO. I am mostly interested in web related technology,
+but also dabble in games, Objective-C and startup related topics. My main focus right now is <a href="https://metamorf.us">Metamorfus</a>  </p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It’s hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>

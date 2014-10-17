@@ -5,9 +5,78 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Fri, 19 Sep 2014 18:00:00 -0600</pubDate>
+    <pubDate>Wed, 15 Oct 2014 18:00:00 -0600</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Node sql-fixtures (a new module)</title>
+      <link>http://mattgreer.org/articles/node-sql-fixtures/</link>
+      <pubDate>Wed, 15 Oct 2014 18:00:00 -0600</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/node-sql-fixtures/</guid>
+      <author></author>
+      <description>&lt;p&gt;I don’t think a fixture generator for PostgreSQL exists in NPM. If one does, I could not find it. So I went ahead and &lt;a href=&quot;https://github.com/city41/node-sql-fixtures&quot;&gt;made one&lt;/a&gt;. Added bonus, it works with MySQL, MariaDB and sqlite as well.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&quot;fixtures-&quot;&gt;Fixtures?&lt;/h2&gt;
+&lt;p&gt;“Fixture” is just a fancy word for “sample data”. I first encountered the idea of fixtures in Ruby on Rails almost a decade ago (egads!). Typically in Ruby you lay out some sample data using YAML, and this data then gets populated into your database. This is ideal for integration tests, dummy data and end-to-end tests.&lt;/p&gt;
+&lt;h2 id=&quot;sql-fixtures-for-node&quot;&gt;SQL Fixtures for Node&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/city41/node-sql-fixtures&quot;&gt;sql-fixtures&lt;/a&gt; applies the same idea, except this time for Node. Since JavaScript is such a flexible language, no need for something like YAML, it’s easy to just define the fixture data in JavaScript itself.&lt;/p&gt;
+&lt;p&gt;For example, here’s how to populate some data in a Users table in your database:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; fixtures = {
+  Users: [{
+    username: &lt;span class=&quot;string&quot;&gt;'Henry'&lt;/span&gt;
+  }, {
+    username: &lt;span class=&quot;string&quot;&gt;'Catherine'&lt;/span&gt;
+  }]
+};
+
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; sqlFixtures = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'sql-fixtures'&lt;/span&gt;);
+
+sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// the Users table now has two more rows in it&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// result returns what got created,&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// so you can make use of the data in your tests&lt;/span&gt;
+  console.log(result.Users[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].username); &lt;span class=&quot;comment&quot;&gt;// Henry&lt;/span&gt;
+  console.log(result.Users[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].id);       &lt;span class=&quot;comment&quot;&gt;// the id the db generated&lt;/span&gt;
+  console.log(result.Users[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;].username); &lt;span class=&quot;comment&quot;&gt;// Catherine&lt;/span&gt;
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;databaseConfig&lt;/code&gt; parameter tells sql-fixtures how to connect to your database, more info on that in the &lt;a href=&quot;https://github.com/city41/node-sql-fixtures/blob/master/README.md&quot;&gt;README&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;foreign-key-resolution&quot;&gt;Foreign Key Resolution&lt;/h2&gt;
+&lt;p&gt;The neatest feature of sql-fixtures is automatic foreign key resolution. If you want to insert data into two tables and have their keys point at each other, it can be tedious to do manually. With sql-fixtures you can specify the relation in the fixture spec:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; fixtures = {
+  Users: {
+    username: &lt;span class=&quot;string&quot;&gt;'Henry'&lt;/span&gt;
+  },
+  Purchase: {
+    purchaseDate: &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Date&lt;/span&gt;(),
+    userId: &lt;span class=&quot;string&quot;&gt;&quot;Users:0&quot;&lt;/span&gt;
+  }
+};
+
+sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
+  console.log(result.Purchase[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].userId === result.Users[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].id); &lt;span class=&quot;comment&quot;&gt;// true&lt;/span&gt;
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In the above, sql-fixtures will create the User row first, then circle back and populate &lt;code&gt;Purchase.userId&lt;/code&gt; with Henry’s actual id before adding the new row in the Purchase table.&lt;/p&gt;
+&lt;p&gt;The default is to use indices to indicate which record you want to point to, but you can also use a &lt;code&gt;specId&lt;/code&gt;. This is useful if you’re generating a lot of data or complex data, as keeping track of which index is which can get tedious:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; fixtures = {
+  Users: {
+    username: &lt;span class=&quot;string&quot;&gt;'Henry'&lt;/span&gt;,
+    specId: &lt;span class=&quot;string&quot;&gt;'mySpecialUser'&lt;/span&gt;
+  },
+  Purchase: {
+    purchaseDate: &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Date&lt;/span&gt;(),
+    userId: &lt;span class=&quot;string&quot;&gt;&quot;Users:mySpecialUser&quot;&lt;/span&gt;
+  }
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and with the specId, the association is made just like when using an index.&lt;/p&gt;
+&lt;h2 id=&quot;that-s-it-&quot;&gt;That’s it!&lt;/h2&gt;
+&lt;p&gt;Not much to this one. And a shout out to &lt;a href=&quot;http://knexjs.org/&quot;&gt;Knex.js&lt;/a&gt; which is the library that sql-fixtures uses to communicate with the database. I’m a fan of Knex.js and the ORM built on top of it, &lt;a href=&quot;http://bookshelfjs.org/&quot;&gt;Bookshelf.js&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&quot;by-the-way&quot;&gt;By the way&lt;/h3&gt;
+&lt;p&gt;Knex.js is why I make the claim this works with Postgres, MySql, Maria and sqlite, as Knex.js supports all of them. However, I only need Postgres so far, so Postgres is the only database that’s seen any real usage. If you use sql-fixtures with one of the other database engines, let me know if you hit any problems.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>Traceur, Gulp, Browserify and ES6</title>
       <link>http://mattgreer.org/articles/traceur-gulp-browserify-es6/</link>
