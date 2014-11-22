@@ -4,7 +4,7 @@ author: Matt
 date: 2014-08-27
 template: article.jade
 ---
-For the past 3 years, I have almost exclusively pair programmed at my job. I have paired with many people in many situations and learned a lot about this practice. I have found pairing can be effective, but it can also be ineffective and costly. Pair programming seems to be gaining traction, which concerns me a little bit. Some of us really don't like to pair, and I feel it's important to recognize that and maintain a balance here. Pairing is just a tool like anything else, it definitely should not be your company's default mode of work.
+For the past 3 years, I have almost exclusively pair programmed at my job. I have paired with many people in many situations and learned a lot about this practice. I have found pairing can be effective, but it can also be ineffective and costly. Pair programming seems to be gaining traction, which concerns me a little bit. Some of us really don't like to pair, and I feel it's important to recognize that and maintain a balance here. Pairing is just a tool like anything else; it definitely should not be your company's default mode of work.
 
 <span class="more"></span>
 
