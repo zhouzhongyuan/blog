@@ -175,7 +175,7 @@ module.exports = {
 &lt;p&gt;There are two solutions to this:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Don’t use ES6 modules in your ES6 code:&lt;/strong&gt; Stick with the classic &lt;code&gt;module.exports&lt;/code&gt; and &lt;code&gt;require()&lt;/code&gt; as always, then turn off commonjs modules when invoking gulp-traceur.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Create a second gulp task to pull the runtime in:&lt;/strong&gt; this is hacky and ugly, but basically if you do&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;gulp(&amp;#39;traceur:runtime&amp;#39;, function() {
+&lt;pre&gt;&lt;code&gt;gulp.task(&amp;#39;traceur:runtime&amp;#39;, function() {
   return gulp.src(traceur.RUNTIME_PATH)
     .pipe(gulp.dest(&amp;#39;./lib&amp;#39;));
 });
