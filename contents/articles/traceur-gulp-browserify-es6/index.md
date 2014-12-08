@@ -142,7 +142,7 @@ There are two solutions to this:
 **Create a second gulp task to pull the runtime in:** this is hacky and ugly, but basically if you do
 
 ```
-gulp('traceur:runtime', function() {
+gulp.task('traceur:runtime', function() {
   return gulp.src(traceur.RUNTIME_PATH)
     .pipe(gulp.dest('./lib'));
 });
