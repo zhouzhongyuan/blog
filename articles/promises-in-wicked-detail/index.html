@@ -37,6 +37,10 @@
               <section class="content"><p>I’ve been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn’t fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises well too.</p>
 <p><span class="more"></span></p>
 <p>We will be incrementally creating a promise implementation that by the end will <em>mostly</em> meet the <a href="http://promises-aplus.github.io/promises-spec/">Promises/A+ spec</a>, and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with promises. If you don’t, <a href="http://promisejs.org">promisejs.org</a> is a good site to checkout.</p>
+<h2 id="change-log">Change log</h2>
+<ul>
+<li><strong>2014-12-23:</strong> Added <a href="#recovering-from-rejection">Recovering from Rejection</a> section. The article was a bit ambiguous on handling rejection, this new section should clear things up.</li>
+</ul>
 <h2 id="table-of-contents">Table of Contents</h2>
 <ol>
   <li><a href="#why-">Why?</a></li>
@@ -59,6 +63,7 @@
      <li><a href="#unexpected-errors-should-also-lead-to-rejection">Unexpected Errors Should Also Lead to Rejection</a></li>
      <li><a href="#promises-can-swallow-errors-">Promises Can Swallow Errors!</a></li>
      <li><a href="#done-to-the-rescue">done() to the Rescue</a></li>
+     <li><a href="#recovering-from-rejection">Recovering from Rejection</a></li>
    </ul>
    </li>
    <li><a href="#promise-resolution-needs-to-be-async">Promise Resolution Needs to be Async</a>
@@ -442,7 +447,7 @@ As mentioned earlier, the promise will transition from <strong>pending</strong> 
   });
 }
 </code></pre>
-<p>Inside the promise implementation, we need to account for rejection. As soon as a promise is rejected, all downstream promises from it also need to be rejected.</p>
+<p>Inside the promise implementation, we need to account for rejection. </p>
 <p>Let’s see the full promise implementation again, this time with rejection support added</p>
 <pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> {</span>
   <span class="keyword">var</span> state = <span class="string">'pending'</span>;
@@ -603,7 +608,35 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 <code>done()</code> is not part of the Promises/A+ spec (at least not yet), so your promise library of choice might not have it.
 </div>
 
+<h3 id="recovering-from-rejection">Recovering from Rejection</h3>
+<p>It is possible to recover from a rejected promise. If you pass in an errback to <code>then()</code>, from then on any further promises in this chain will be resolved instead of rejected:</p>
+<pre><code class="lang-javascript">aMethodThatRejects().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+  <span class="comment">// won't get here</span>
+}, <span class="function"><span class="keyword">function</span><span class="params">(err)</span> {</span>
+  <span class="comment">// since aMethodThatRejects calls reject()</span>
+  <span class="comment">// we end up here in the errback</span>
+  <span class="keyword">return</span> <span class="string">"recovered!"</span>;
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+  console.log(<span class="string">"after recovery: "</span>, result);
+}, <span class="function"><span class="keyword">function</span><span class="params">(err)</span> {</span>
+  <span class="comment">// we won't actually get here</span>
+  <span class="comment">// since the rejected promise had an errback</span>
+});
 
+<span class="comment">// the output is</span>
+<span class="comment">// after recovery: recovered!</span>
+</code></pre>
+<p>If you don’t pass in an errback, then the rejection propagates to the next promise in the chain:</p>
+<pre><code class="lang-javascript"><span class="comment">// notice the two calls to then()</span>
+aMethodThatRejects().then().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+  <span class="comment">// we won't get here</span>
+}, <span class="function"><span class="keyword">function</span><span class="params">(err)</span> {</span>
+  console.log(<span class="string">"error propagated"</span>);
+});
+
+<span class="comment">// the output is</span>
+<span class="comment">// error propagated</span>
+</code></pre>
 <h2 id="promise-resolution-needs-to-be-async">Promise Resolution Needs to be Async</h2>
 <p>Early in the article we cheated a bit by using <code>setTimeout</code>. Once we fixed that hack, we’ve not used setTimeout since. But the truth is the Promises/A+ spec requires that promise resolution happen asynchronously. Meeting this requirement is simple, we simply need to wrap most of <code>handle()</code>‘s implementation inside of a <code>setTimeout</code> call</p>
 <pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(handler)</span> {</span>

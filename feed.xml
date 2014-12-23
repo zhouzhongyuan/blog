@@ -278,6 +278,10 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
       <description>&lt;p&gt;I’ve been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn’t fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises well too.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;We will be incrementally creating a promise implementation that by the end will &lt;em&gt;mostly&lt;/em&gt; meet the &lt;a href=&quot;http://promises-aplus.github.io/promises-spec/&quot;&gt;Promises/A+ spec&lt;/a&gt;, and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with promises. If you don’t, &lt;a href=&quot;http://promisejs.org&quot;&gt;promisejs.org&lt;/a&gt; is a good site to checkout.&lt;/p&gt;
+&lt;h2 id=&quot;change-log&quot;&gt;Change log&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;2014-12-23:&lt;/strong&gt; Added &lt;a href=&quot;#recovering-from-rejection&quot;&gt;Recovering from Rejection&lt;/a&gt; section. The article was a bit ambiguous on handling rejection, this new section should clear things up.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2 id=&quot;table-of-contents&quot;&gt;Table of Contents&lt;/h2&gt;
 &lt;ol&gt;
   &lt;li&gt;&lt;a href=&quot;#why-&quot;&gt;Why?&lt;/a&gt;&lt;/li&gt;
@@ -300,6 +304,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
      &lt;li&gt;&lt;a href=&quot;#unexpected-errors-should-also-lead-to-rejection&quot;&gt;Unexpected Errors Should Also Lead to Rejection&lt;/a&gt;&lt;/li&gt;
      &lt;li&gt;&lt;a href=&quot;#promises-can-swallow-errors-&quot;&gt;Promises Can Swallow Errors!&lt;/a&gt;&lt;/li&gt;
      &lt;li&gt;&lt;a href=&quot;#done-to-the-rescue&quot;&gt;done() to the Rescue&lt;/a&gt;&lt;/li&gt;
+     &lt;li&gt;&lt;a href=&quot;#recovering-from-rejection&quot;&gt;Recovering from Rejection&lt;/a&gt;&lt;/li&gt;
    &lt;/ul&gt;
    &lt;/li&gt;
    &lt;li&gt;&lt;a href=&quot;#promise-resolution-needs-to-be-async&quot;&gt;Promise Resolution Needs to be Async&lt;/a&gt;
@@ -683,7 +688,7 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
   });
 }
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Inside the promise implementation, we need to account for rejection. As soon as a promise is rejected, all downstream promises from it also need to be rejected.&lt;/p&gt;
+&lt;p&gt;Inside the promise implementation, we need to account for rejection. &lt;/p&gt;
 &lt;p&gt;Let’s see the full promise implementation again, this time with rejection support added&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; {&lt;/span&gt;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; state = &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;;
@@ -844,7 +849,35 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 &lt;code&gt;done()&lt;/code&gt; is not part of the Promises/A+ spec (at least not yet), so your promise library of choice might not have it.
 &lt;/div&gt;
 
+&lt;h3 id=&quot;recovering-from-rejection&quot;&gt;Recovering from Rejection&lt;/h3&gt;
+&lt;p&gt;It is possible to recover from a rejected promise. If you pass in an errback to &lt;code&gt;then()&lt;/code&gt;, from then on any further promises in this chain will be resolved instead of rejected:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;aMethodThatRejects().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// won't get here&lt;/span&gt;
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// since aMethodThatRejects calls reject()&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// we end up here in the errback&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;recovered!&quot;&lt;/span&gt;;
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
+  console.log(&lt;span class=&quot;string&quot;&gt;&quot;after recovery: &quot;&lt;/span&gt;, result);
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// we won't actually get here&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// since the rejected promise had an errback&lt;/span&gt;
+});
 
+&lt;span class=&quot;comment&quot;&gt;// the output is&lt;/span&gt;
+&lt;span class=&quot;comment&quot;&gt;// after recovery: recovered!&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you don’t pass in an errback, then the rejection propagates to the next promise in the chain:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// notice the two calls to then()&lt;/span&gt;
+aMethodThatRejects().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// we won't get here&lt;/span&gt;
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; {&lt;/span&gt;
+  console.log(&lt;span class=&quot;string&quot;&gt;&quot;error propagated&quot;&lt;/span&gt;);
+});
+
+&lt;span class=&quot;comment&quot;&gt;// the output is&lt;/span&gt;
+&lt;span class=&quot;comment&quot;&gt;// error propagated&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id=&quot;promise-resolution-needs-to-be-async&quot;&gt;Promise Resolution Needs to be Async&lt;/h2&gt;
 &lt;p&gt;Early in the article we cheated a bit by using &lt;code&gt;setTimeout&lt;/code&gt;. Once we fixed that hack, we’ve not used setTimeout since. But the truth is the Promises/A+ spec requires that promise resolution happen asynchronously. Meeting this requirement is simple, we simply need to wrap most of &lt;code&gt;handle()&lt;/code&gt;‘s implementation inside of a &lt;code&gt;setTimeout&lt;/code&gt; call&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(handler)&lt;/span&gt; {&lt;/span&gt;
