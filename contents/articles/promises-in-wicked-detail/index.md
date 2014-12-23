@@ -11,6 +11,10 @@ I've been using promises in my JavaScript code for a while now. They can be a li
 
 We will be incrementally creating a promise implementation that by the end will *mostly* meet the [Promises/A+ spec](http://promises-aplus.github.io/promises-spec/), and understand how promises meet the needs of asynchronous programming along the way. This article assumes you already have some familiarity with promises. If you don't, [promisejs.org](http://promisejs.org) is a good site to checkout.
 
+## Change log
+
+* **2014-12-23:** Added <a href="#recovering-from-rejection">Recovering from Rejection</a> section. The article was a bit ambiguous on handling rejection, this new section should clear things up.
+
 ## Table of Contents
 
 <ol>
@@ -34,6 +38,7 @@ We will be incrementally creating a promise implementation that by the end will 
      <li><a href="#unexpected-errors-should-also-lead-to-rejection">Unexpected Errors Should Also Lead to Rejection</a></li>
      <li><a href="#promises-can-swallow-errors-">Promises Can Swallow Errors!</a></li>
      <li><a href="#done-to-the-rescue">done() to the Rescue</a></li>
+     <li><a href="#recovering-from-rejection">Recovering from Rejection</a></li>
    </ul>
    </li>
    <li><a href="#promise-resolution-needs-to-be-async">Promise Resolution Needs to be Async</a>
@@ -513,7 +518,7 @@ function doSomething() {
 }
 ```
 
-Inside the promise implementation, we need to account for rejection. As soon as a promise is rejected, all downstream promises from it also need to be rejected.
+Inside the promise implementation, we need to account for rejection. 
 
 Let's see the full promise implementation again, this time with rejection support added
 
@@ -703,6 +708,43 @@ getSomeJson().done(function(json) {
 <div class="callout pitfall">
 `done()` is not part of the Promises/A+ spec (at least not yet), so your promise library of choice might not have it.
 </div>
+
+### Recovering from Rejection
+
+It is possible to recover from a rejected promise. If you pass in an errback to `then()`, from then on any further promises in this chain will be resolved instead of rejected:
+
+```javascript
+aMethodThatRejects().then(function(result) {
+  // won't get here
+}, function(err) {
+  // since aMethodThatRejects calls reject()
+  // we end up here in the errback
+  return "recovered!";
+}).then(function(result) {
+  console.log("after recovery: ", result);
+}, function(err) {
+  // we won't actually get here
+  // since the rejected promise had an errback
+});
+
+// the output is
+// after recovery: recovered!
+```
+
+If you don't pass in an errback, then the rejection propagates to the next promise in the chain:
+
+```javascript
+// notice the two calls to then()
+aMethodThatRejects().then().then(function(result) {
+  // we won't get here
+}, function(err) {
+  console.log("error propagated");
+});
+
+// the output is
+// error propagated
+```
+
 
 
 ## Promise Resolution Needs to be Async
