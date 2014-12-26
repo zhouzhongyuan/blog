@@ -274,7 +274,7 @@ That's as far as I needed to take Vars, I'm sure they get more involved if you n
 
 ##Having Pegdown Use Your Parser Plugin
 
-Now with the parser plugin written it, I need to tell Pegdown to use it:
+Now with the parser plugin written, I need to tell Pegdown to use it:
 
 ```java
   PegDownPlugins plugins = new PegDownPlugins.Builder()
@@ -327,8 +327,9 @@ Now I'll serialize the custom node into the final HTML. This requires me to give
   List<ToHtmlSerializerPlugin> serializePlugins =
     Arrays.asList((ToHtmlSerializerPlugin)(new ComponentSerializer()));
 
-  String finalHtml = new ToHtmlSerializer(new LinkRenderer(), serializePlugins)
-    .toHtml(ast);
+  String finalHtml =
+    new ToHtmlSerializer(new LinkRenderer(), serializePlugins)
+      .toHtml(ast);
 ```
 
 And of course `ComponentSerializer` is a class I wrote to handle my custom stuff:
@@ -342,6 +343,8 @@ public class ComponentSerializer implements ToHtmlSerializerPlugin {
       ComponentNode cNode = (ComponentNode)node;
 
       printer.print("This gets dumped into the final HTML");
+      printer.print(cNode.getName());
+      printer.println();
 
       return true;
     }

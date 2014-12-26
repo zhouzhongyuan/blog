@@ -236,7 +236,7 @@ Pegdown has one expectation here: &lt;em&gt;your plugin should finish its job wi
 
 &lt;p&gt;That’s as far as I needed to take Vars, I’m sure they get more involved if you need to do fancier stuff.&lt;/p&gt;
 &lt;h2 id=&quot;having-pegdown-use-your-parser-plugin&quot;&gt;Having Pegdown Use Your Parser Plugin&lt;/h2&gt;
-&lt;p&gt;Now with the parser plugin written it, I need to tell Pegdown to use it:&lt;/p&gt;
+&lt;p&gt;Now with the parser plugin written, I need to tell Pegdown to use it:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  PegDownPlugins plugins = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; PegDownPlugins.Builder()
     .withPlugin(ComponentParser.class).build();
 
@@ -278,8 +278,9 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
 &lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  List&amp;lt;ToHtmlSerializerPlugin&amp;gt; serializePlugins =
     Arrays.asList((ToHtmlSerializerPlugin)(&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ComponentSerializer()));
 
-  String finalHtml = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ToHtmlSerializer(&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; LinkRenderer(), serializePlugins)
-    .toHtml(ast);
+  String finalHtml =
+    &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ToHtmlSerializer(&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; LinkRenderer(), serializePlugins)
+      .toHtml(ast);
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;And of course &lt;code&gt;ComponentSerializer&lt;/code&gt; is a class I wrote to handle my custom stuff:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentSerializer&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ToHtmlSerializerPlugin&lt;/span&gt; {&lt;/span&gt;
@@ -290,6 +291,8 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
       ComponentNode cNode = (ComponentNode)node;
 
       printer.print(&lt;span class=&quot;string&quot;&gt;&quot;This gets dumped into the final HTML&quot;&lt;/span&gt;);
+      printer.print(cNode.getName());
+      printer.println();
 
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;true&lt;/span&gt;;
     }
