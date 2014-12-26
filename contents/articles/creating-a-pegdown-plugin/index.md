@@ -1,7 +1,7 @@
 ---
 title: Creating a Pegdown Plugin
 author: Matt
-date: 2014-12-25
+date: 2014-12-26
 template: article.jade
 ---
 
