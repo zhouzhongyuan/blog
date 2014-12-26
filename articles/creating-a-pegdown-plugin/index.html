@@ -256,7 +256,7 @@ Pegdown has one expectation here: <em>your plugin should finish its job with one
 
 <p>That’s as far as I needed to take Vars, I’m sure they get more involved if you need to do fancier stuff.</p>
 <h2 id="having-pegdown-use-your-parser-plugin">Having Pegdown Use Your Parser Plugin</h2>
-<p>Now with the parser plugin written it, I need to tell Pegdown to use it:</p>
+<p>Now with the parser plugin written, I need to tell Pegdown to use it:</p>
 <pre><code class="lang-java">  PegDownPlugins plugins = <span class="keyword">new</span> PegDownPlugins.Builder()
     .withPlugin(ComponentParser.class).build();
 
@@ -298,8 +298,9 @@ You need to give Pegdown your parser’s <strong>class</strong>, this is key to 
 <pre><code class="lang-java">  List&lt;ToHtmlSerializerPlugin&gt; serializePlugins =
     Arrays.asList((ToHtmlSerializerPlugin)(<span class="keyword">new</span> ComponentSerializer()));
 
-  String finalHtml = <span class="keyword">new</span> ToHtmlSerializer(<span class="keyword">new</span> LinkRenderer(), serializePlugins)
-    .toHtml(ast);
+  String finalHtml =
+    <span class="keyword">new</span> ToHtmlSerializer(<span class="keyword">new</span> LinkRenderer(), serializePlugins)
+      .toHtml(ast);
 </code></pre>
 <p>And of course <code>ComponentSerializer</code> is a class I wrote to handle my custom stuff:</p>
 <pre><code class="lang-java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ComponentSerializer</span> <span class="keyword">implements</span> <span class="title">ToHtmlSerializerPlugin</span> {</span>
@@ -310,6 +311,8 @@ You need to give Pegdown your parser’s <strong>class</strong>, this is key to 
       ComponentNode cNode = (ComponentNode)node;
 
       printer.print(<span class="string">"This gets dumped into the final HTML"</span>);
+      printer.print(cNode.getName());
+      printer.println();
 
       <span class="keyword">return</span> <span class="keyword">true</span>;
     }
