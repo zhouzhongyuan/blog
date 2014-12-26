@@ -5,9 +5,302 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Wed, 15 Oct 2014 18:00:00 -0600</pubDate>
+    <pubDate>Wed, 24 Dec 2014 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Creating a Pegdown Plugin</title>
+      <link>http://mattgreer.org/articles/creating-a-pegdown-plugin/</link>
+      <pubDate>Wed, 24 Dec 2014 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/creating-a-pegdown-plugin/</guid>
+      <author></author>
+      <description>&lt;p&gt;I recently found myself needing to create a &lt;a href=&quot;http://pegdown.org&quot;&gt;Pegdown&lt;/a&gt; plugin. The documentation was a bit all over the place on this, so I figured I’d dump my end-to-end experience into a blog post for Google to consume.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&quot;what-is-pegdown-&quot;&gt;What is Pegdown?&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;http://pegdown.org&quot;&gt;Pegdown&lt;/a&gt; is a Markdown parser and HTML generator for the JVM. Converting Markdown to HTML is as simple as &lt;code&gt;new PegDownProcessor().markdownToHtml(markdown);&lt;/code&gt;, which is awesome. If you want to extend Markdown with your own syntax, Pegdown’s got you covered with its plugin system. However creating a Pegdown plugin is not quite as simple.&lt;/p&gt;
+&lt;h2 id=&quot;the-two-phases-of-pegdown&quot;&gt;The Two Phases of Pegdown&lt;/h2&gt;
+&lt;p&gt;Pegdown works in two phases. First it converts Markdown into an abstract syntax tree, then it takes that AST and serializes it into HTML. Your plugin probably needs to be involved in both phases, but you are free to only work with one phase if it suits you.&lt;/p&gt;
+&lt;h2 id=&quot;the-parsing-plugin&quot;&gt;The Parsing Plugin&lt;/h2&gt;
+&lt;p&gt;First, create a plugin that participates in the parsing/AST phase. In my case, I wanted to parse this extension to Markdown&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-markdown&quot;&gt;%%% someMethod(someParam=someValue)
+body goes here
+%%%
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You need to create a class that implements &lt;a href=&quot;https://github.com/sirthias/pegdown/blob/master/src/main/java/org/pegdown/plugins/InlinePluginParser.java&quot;&gt;InlinePluginParser&lt;/a&gt; and/or &lt;a href=&quot;https://github.com/sirthias/pegdown/blob/master/src/main/java/org/pegdown/plugins/BlockPluginParser.java&quot;&gt;BlockPluginParser&lt;/a&gt;. An inline plugin parses something that happens during the course of a sentence, such as &lt;code&gt;using backticks for code&lt;/code&gt;, and a block level plugin parses an entire top level chunk of Markdown, like the example above.&lt;/p&gt;
+&lt;p&gt;Here is my parsing plugin in its entirety. Afterwards I’ll dive into some of its specifics:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; java.util.Map;
+
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; org.parboiled.BaseParser;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; org.parboiled.Rule;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; org.parboiled.support.StringBuilderVar;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; org.pegdown.Parser;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; org.pegdown.plugins.BlockPluginParser;
+
+&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentParser&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Parser&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;BlockPluginParser&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;final&lt;/span&gt; String TAG = &lt;span class=&quot;string&quot;&gt;&quot;%%%&quot;&lt;/span&gt;;
+
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentParser&lt;/span&gt;() {
+    &lt;span class=&quot;keyword&quot;&gt;super&lt;/span&gt;(ALL, &lt;span class=&quot;number&quot;&gt;1000&lt;/span&gt;l, DefaultParseRunnerProvider);
+  }
+
+  &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule[] &lt;span class=&quot;title&quot;&gt;blockPluginRules&lt;/span&gt;() {
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Rule[] { component() };
+  }
+
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;component&lt;/span&gt;() {
+
+    &lt;span class=&quot;comment&quot;&gt;// stack ends up like this:&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;//&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;// body&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;// params map&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;// component name&lt;/span&gt;
+
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; NodeSequence(
+             open(),
+             body(),
+             close(),
+             push(&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ComponentNode(
+                        (String)pop(&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;),
+                        (Map&amp;lt;String, String&amp;gt;)pop(&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;),
+                        (String)pop())));
+  }
+
+  &lt;span class=&quot;comment&quot;&gt;/*
+   * parses out the component name and its parameters
+   *
+   * example:
+   * %%% myComponent(foo=bar)
+   */&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;open&lt;/span&gt;() {
+    StringBuilderVar componentName = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
+
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Sequence(
+             TAG,
+             whitespace(),
+             OneOrMore(
+               TestNot(&lt;span class=&quot;string&quot;&gt;'('&lt;/span&gt;),
+               BaseParser.ANY,
+               componentName.append(matchedChar())
+             ),
+             push(componentName.getString()),
+             whitespace(),
+             &lt;span class=&quot;string&quot;&gt;'('&lt;/span&gt;,
+               whitespace(),
+               params(),
+               whitespace(),
+             &lt;span class=&quot;string&quot;&gt;')'&lt;/span&gt;,
+             whitespace(),
+             Newline());
+  }
+
+  &lt;span class=&quot;comment&quot;&gt;/*
+   * parses out parameters from in between the parentheses
+   * they look like: foo=bar,baz=boo
+   * and optionally have whitespace around any tokens
+   * foo = bar , baz=boo
+   */&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;params&lt;/span&gt;() {
+    ParamVar params = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ParamVar();
+    StringBuilderVar paramName = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
+    StringBuilderVar paramValue = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
+
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Sequence(
+             ZeroOrMore(
+               whitespace(),
+               OneOrMore(
+                 TestNot(&lt;span class=&quot;string&quot;&gt;'='&lt;/span&gt;),
+                 TestNot(&lt;span class=&quot;string&quot;&gt;' '&lt;/span&gt;),
+                 BaseParser.ANY,
+                 paramName.append(matchedChar())),
+               whitespace(),
+               &lt;span class=&quot;string&quot;&gt;'='&lt;/span&gt;,
+               whitespace(),
+               OneOrMore(
+                 TestNot(&lt;span class=&quot;string&quot;&gt;')'&lt;/span&gt;),
+                 TestNot(&lt;span class=&quot;string&quot;&gt;','&lt;/span&gt;),
+                 TestNot(&lt;span class=&quot;string&quot;&gt;' '&lt;/span&gt;),
+                 BaseParser.ANY,
+                 paramValue.append(matchedChar())),
+               whitespace(),
+               Optional(&lt;span class=&quot;string&quot;&gt;','&lt;/span&gt;),
+               whitespace(),
+               params.put(paramName.getString(), paramValue.getString()),
+               paramName.clear(),
+               paramValue.clear()),
+             push(params.get()));
+  }
+
+  &lt;span class=&quot;comment&quot;&gt;/*
+   * extracts the body of the component into a raw string
+   */&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;body&lt;/span&gt;() {
+    StringBuilderVar rawBody = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
+
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Sequence(
+             OneOrMore(
+               TestNot(TAG),
+               BaseParser.ANY,
+               rawBody.append(matchedChar())),
+             push(rawBody.getString().trim()));
+  }
+
+  &lt;span class=&quot;comment&quot;&gt;/*
+   * end of the component, ie &quot;%%%&quot;
+   */&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; String &lt;span class=&quot;title&quot;&gt;close&lt;/span&gt;() {
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; TAG;
+  }
+
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;whitespace&lt;/span&gt;() {
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; ZeroOrMore(
+             AnyOf(&lt;span class=&quot;string&quot;&gt;&quot; \t\f&quot;&lt;/span&gt;));
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;implementing-blockpluginparser&quot;&gt;Implementing BlockPluginParser&lt;/h3&gt;
+&lt;p&gt;This interface only has one method, &lt;code&gt;Rule[] blockPluginRules()&lt;/code&gt;, which returns all of the top level rules you want the parser to follow. In my case I am just returning the &lt;code&gt;component&lt;/code&gt; Rule, which has subrules that altogether tell Pegdown how to parse an entire component block.&lt;/p&gt;
+&lt;h3 id=&quot;the-value-stack&quot;&gt;The Value Stack&lt;/h3&gt;
+&lt;p&gt;Notice in my plugin calls to &lt;code&gt;push()&lt;/code&gt; and &lt;code&gt;pop()&lt;/code&gt;, that is where I am interacting with Pegdown’s value stack. This is a typical stack where Rules can stash temporary values. As the parser works its way through parsing my component, I push stuff onto the stack as I figure them out.&lt;/p&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+Pegdown has one expectation here: &lt;em&gt;your plugin should finish its job with one Node pushed onto the stack&lt;/em&gt;. In other words, after your plugin completely finishes, the stack should be one deeper, and that top value you left behind needs to be a Node, which is your plugin’s contribution to the overall AST that is getting built.
+&lt;/div&gt;
+
+&lt;p&gt;Leaving behind two nodes or zero nodes won’t cut it. The last thing my plugin does in &lt;code&gt;component()&lt;/code&gt; is push on a &lt;code&gt;ComponentNode&lt;/code&gt;, which is covered below.&lt;/p&gt;
+&lt;h3 id=&quot;parboiled-s-rule-rewriting-magic&quot;&gt;Parboiled’s Rule Rewriting Magic&lt;/h3&gt;
+&lt;p&gt;Pegdown is built on top of &lt;a href=&quot;http://parboiled.org&quot;&gt;Parboiled&lt;/a&gt;. So your plugin is really working with Parboiled mostly. Notice how the rules directly call methods like &lt;code&gt;push()&lt;/code&gt;? That seems odd, wouldn’t they just get called right away and have no effect? You want them to get invoked while the actual parsing is happening.&lt;/p&gt;
+&lt;p&gt;That’s where Parboiled comes in, it will rewrite your Rule methods so that everything you’re declaring actually happens at parse time. It’s an interesting approach, and has the advantage of making writing Rules simpler.&lt;/p&gt;
+&lt;h3 id=&quot;rules-matching-and-actions&quot;&gt;Rules, Matching and Actions&lt;/h3&gt;
+&lt;p&gt;Your Rule methods are attempting to match the Markdown text and see if the text conforms to what they expect. If the text does, then Rules can also take actions, which are responses to when a successful match happens.&lt;/p&gt;
+&lt;p&gt;Take a look at the &lt;code&gt;open()&lt;/code&gt; Rule, which parses the opening line of my components. It’s working with&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-markdown&quot;&gt;%%% someMethod(someParam=someValue)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;here it is, in a slightly simplified form&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;open&lt;/span&gt;() {
+    StringBuilderVar componentName = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
+
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Sequence(
+             &lt;span class=&quot;string&quot;&gt;&quot;%%%&quot;&lt;/span&gt;,
+             OneOrMore(
+               TestNot(&lt;span class=&quot;string&quot;&gt;'('&lt;/span&gt;),
+               BaseParser.ANY,
+               componentName.append(matchedChar())
+             ),
+             push(componentName.getString()),
+             &lt;span class=&quot;string&quot;&gt;'('&lt;/span&gt;,
+               params(),
+             &lt;span class=&quot;string&quot;&gt;')'&lt;/span&gt;,
+             Newline());
+  }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here a &lt;code&gt;Sequence()&lt;/code&gt; is being returned. It wants to match the entire opening line.&lt;/p&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+  &lt;code&gt;Sequence()&lt;/code&gt; comes from &lt;a href=&quot;https://github.com/sirthias/parboiled/blob/master/parboiled-java/src/main/java/org/parboiled/BaseParser.java&quot;&gt;&lt;code&gt;org.parboiled.BaseParser&lt;/code&gt;&lt;/a&gt;. Notice my plugin extends &lt;code&gt;org.pegdown.Parser&lt;/code&gt;, which is a subclass of &lt;code&gt;BaseParser&lt;/code&gt;. You don’t have to extend these classes, but doing so is highly recommended. They provide many parsing primitives you will need, such as &lt;code&gt;Sequence()&lt;/code&gt; and &lt;code&gt;Newline()&lt;/code&gt;
+&lt;/div&gt;
+
+&lt;p&gt;After finding the opening &lt;code&gt;%%%&lt;/code&gt;, I then want to extract the name. &lt;code&gt;OneOrMore()&lt;/code&gt; is doing just that. First &lt;code&gt;TestNot(&amp;#39;(&amp;#39;)&lt;/code&gt; says “as long as the next character isn’t a &lt;code&gt;(&lt;/code&gt;, then keep doing your thing”. &lt;code&gt;BaseParser.ANY&lt;/code&gt; then matches any character at all (since &lt;code&gt;TestNot&lt;/code&gt; has succeeded at this point, I know I like what &lt;code&gt;ANY&lt;/code&gt; is going to find). From there I grab what was matched out of the text stream and throw it into &lt;code&gt;componentName&lt;/code&gt;. This will happen repeatedly until a &lt;code&gt;(&lt;/code&gt; is hit. At that point, &lt;code&gt;push(componentName.getString())&lt;/code&gt; will happen, and the name of the component is tucked away onto the stack.&lt;/p&gt;
+&lt;p&gt;The rest of the method looks for a set of parentheses and has the &lt;code&gt;params()&lt;/code&gt; rule handle whatever is found inside of them.&lt;/p&gt;
+&lt;h3 id=&quot;what-if-a-rule-fizzles-out-&quot;&gt;What If a Rule Fizzles Out?&lt;/h3&gt;
+&lt;p&gt;What if the input was actually&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-markdown&quot;&gt;%%% someComponent thisIsUnexpected
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;wouldn’t the above Rule push the name onto the stack, then crap out? Yes, it would. But if a Rule doesn’t fully finish parsing, then Pegdown/Parboiled will abandon the changes the Rule made to the stack. So don’t worry, just charge ahead.&lt;/p&gt;
+&lt;h3 id=&quot;dealing-with-vars&quot;&gt;Dealing with Vars&lt;/h3&gt;
+&lt;p&gt;At this point, you’re pretty much good to go on how parsing plugins work. It’s then mostly a matter of getting a feel for composing primitive Rules together.&lt;/p&gt;
+&lt;p&gt;But there is one more funky thing you might have to deal with, Parboiled Vars. Remember that magic that Parboiled does to your Rules methods? This magic means you can’t just use any ol’ Java you want. If you need to work with a data structure, such as a string, then you need to do so with it wrapped up in a &lt;code&gt;Var&lt;/code&gt;. Notice in &lt;code&gt;open()&lt;/code&gt; the &lt;code&gt;componentName&lt;/code&gt; was being added to a &lt;code&gt;StringBuilderVar&lt;/code&gt;? That’s just a simple class that wraps a &lt;code&gt;StringBuilder&lt;/code&gt;, and does so in such a way that is compatible with Parboiled’s rewrite magic.&lt;/p&gt;
+&lt;p&gt;Here is &lt;code&gt;params()&lt;/code&gt;, which parses out the parameters to the component:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;params&lt;/span&gt;() {
+    ParamVar params = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ParamVar();
+    StringBuilderVar paramName = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
+    StringBuilderVar paramValue = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
+
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Sequence(
+             ...
+             params.put(paramName.getString(), paramValue.getString())
+             ...
+          );
+  }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It’s using &lt;code&gt;StringBuilderVar&lt;/code&gt;s again, which come with Parboiled. But &lt;code&gt;ParamVar&lt;/code&gt; is my own creation. It wraps a &lt;code&gt;Map&amp;lt;String,String&amp;gt;&lt;/code&gt; into a Var. Basically all you need to do is have working with your data structure return &lt;code&gt;true&lt;/code&gt; to let Parboiled know it can continue with the next step of your Rule.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ParamVar&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Var&amp;lt;Map&amp;lt;String,String&amp;gt;&amp;gt;&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ParamVar&lt;/span&gt;() {
+    &lt;span class=&quot;keyword&quot;&gt;super&lt;/span&gt;(&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; HashMap&amp;lt;String,String&amp;gt;());
+  }
+
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;put&lt;/span&gt;(String key, String value) {
+    get().put(key, value);
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;true&lt;/span&gt;;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That’s as far as I needed to take Vars, I’m sure they get more involved if you need to do fancier stuff.&lt;/p&gt;
+&lt;h2 id=&quot;having-pegdown-use-your-parser-plugin&quot;&gt;Having Pegdown Use Your Parser Plugin&lt;/h2&gt;
+&lt;p&gt;Now with the parser plugin written it, I need to tell Pegdown to use it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  PegDownPlugins plugins = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; PegDownPlugins.Builder()
+    .withPlugin(ComponentParser.class).build();
+
+  PegDownProcessor processor = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; PegDownProcessor(&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, plugins);
+  RootNode ast = processor.parseMarkdown(markdown.toCharArray());
+&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;callout pitfall&quot;&gt;
+You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, this is key to allowing Parboiled to perform its rewrite magic.
+&lt;/div&gt;
+
+&lt;h2 id=&quot;nodes&quot;&gt;Nodes&lt;/h2&gt;
+&lt;p&gt;Pegdown parses Markdown into a tree of Nodes, where &lt;code&gt;RootNode&lt;/code&gt; is the root. In my parser plugin above, I created a &lt;code&gt;ComponentNode&lt;/code&gt;, which is my own class. This allows your custom parsing’s results to live in the AST. Here is my &lt;code&gt;ComponentNode&lt;/code&gt; class, simplified a bit:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentNode&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;AbstractNode&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; String name;
+  &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; Map&amp;lt;String,String&amp;gt; params;
+  &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; String body;
+
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentNode&lt;/span&gt;(String name, Map&amp;lt;String,String&amp;gt; params, String body) {
+    &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.name = name;
+    &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.params = params;
+    &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.body = body;
+  }
+
+  &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;accept&lt;/span&gt;(Visitor visitor) {
+    visitor.visit((Node) &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);
+  }
+
+  &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; List&amp;lt;Node&amp;gt; &lt;span class=&quot;title&quot;&gt;getChildren&lt;/span&gt;() {
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;;
+  }
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Converting from AST to HTML involves the visitor pattern, hence the &lt;code&gt;accept()&lt;/code&gt; method.&lt;/p&gt;
+&lt;h2 id=&quot;from-ast-to-html&quot;&gt;From AST to HTML&lt;/h2&gt;
+&lt;p&gt;Now I’ll serialize the custom node into the final HTML. This requires me to give Pegdown a serializer plugin during the serialization phase:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  List&amp;lt;ToHtmlSerializerPlugin&amp;gt; serializePlugins =
+    Arrays.asList((ToHtmlSerializerPlugin)(&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ComponentSerializer()));
+
+  String finalHtml = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ToHtmlSerializer(&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; LinkRenderer(), serializePlugins)
+    .toHtml(ast);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And of course &lt;code&gt;ComponentSerializer&lt;/code&gt; is a class I wrote to handle my custom stuff:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentSerializer&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ToHtmlSerializerPlugin&lt;/span&gt; {&lt;/span&gt;
+
+  &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;visit&lt;/span&gt;(Node node, Visitor visitor, Printer printer) {
+    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (node &lt;span class=&quot;keyword&quot;&gt;instanceof&lt;/span&gt; ComponentNode) {
+      ComponentNode cNode = (ComponentNode)node;
+
+      printer.print(&lt;span class=&quot;string&quot;&gt;&quot;This gets dumped into the final HTML&quot;&lt;/span&gt;);
+
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;true&lt;/span&gt;;
+    }
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;false&lt;/span&gt;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You need to return &lt;code&gt;true&lt;/code&gt; to let Pegdown know you’ve successfully handled the node.&lt;/p&gt;
+&lt;p&gt;And that’s all it takes to add custom Markdown extensions with Pegdown.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>Node sql-fixtures (a new module)</title>
       <link>http://mattgreer.org/articles/node-sql-fixtures/</link>
