@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Reagent Rocks! - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>Reagent Rocks!</h1>
+            <div class="date"><span>24 January 2015</span></div>
+            <article class="article">
+              <section class="content"><p>Lately all of my front end work has been in <a href="http://holmsand.github.io/reagent/">Reagent</a>, a <a href="https://github.com/clojure/clojurescript">ClojureScript</a> interface to Facebook’s <a href="http://facebook.github.io/react/">React</a>. I’m really enjoying working with Reagent, this post attempts to shed some light on why.</p>
+<p><span class="more"></span></p>
+<h2 id="clojurescript-crash-course">ClojureScript Crash Course</h2>
+<p>If you’re at all familiar with Clojure, go ahead and <a href="#on-to-reagent">skip to the next section</a>. This is a <em>very</em> quick introduction to the language, it will help make the Reagent bits coming later more clear.</p>
+<h3 id="functions">Functions</h3>
+<p>Functions are created with <code>defn</code>:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> add <span class="collection">[a b]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">+</span></span> a b)</span>)</span>
+</code></pre>
+<p>is roughly equivalent to:</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> add = <span class="function"><span class="keyword">function</span><span class="params">(a, b)</span> </span>{
+  <span class="keyword">return</span> a + b;
+};
+</code></pre>
+<p>ClojureScript functions always return the last expression that was evaluated.</p>
+<h3 id="maps">Maps</h3>
+<p>Maps are similar to JavaScript objects, they are collections of key/value pairs:</p>
+<pre><code class="lang-clojure"><span class="collection">{<span class="string">"name"</span> <span class="string">"Calvin"</span> <span class="string">"position"</span> <span class="string">"goalie"</span>}</span>
+</code></pre>
+<p>is roughly equivalent to:</p>
+<pre><code class="lang-javascript">{
+  name: <span class="string">"Calvin"</span>,
+  position: <span class="string">"goalie"</span>
+}
+</code></pre>
+<h3 id="keywords">Keywords</h3>
+<p>Notice how the map above used strings for keys? That’s a little awkward. More commonly keywords are used. Think of them as simple constants:</p>
+<pre><code class="lang-clojure"><span class="collection">{<span class="attribute">:name</span> <span class="string">"Calvin"</span> <span class="attribute">:position</span> <span class="string">"goalie"</span>}</span>
+</code></pre>
+<h3 id="vectors">Vectors</h3>
+<p>Vectors are similar to JavaScript arrays:</p>
+<pre><code class="lang-clojure"><span class="comment">;; simple vector</span>
+<span class="collection">[<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>]</span>
+
+<span class="comment">;; you can put anything in a vector</span>
+<span class="collection">[<span class="string">"a string"</span> <span class="collection">[<span class="attribute">:even</span> <span class="attribute">:another</span> <span class="attribute">:vector</span>]</span>]</span>
+</code></pre>
+<div class="callout pitfall">
+This crash course glossed over many many things. Clojure fans are clenching their teeth right about now. If you want more information, I recommend starting with David Nolen’s <a href="https://github.com/swannodette/lt-cljs-tutorial">ClojureScript tutorial</a>
+</div>
+
+<h2 id="on-to-reagent">On to Reagent</h2>
+<p>Phew! Now let’s start building some Reagent components. Here’s a very simple one:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> hello <span class="collection">[]</span>
+  <span class="collection">[<span class="attribute">:div</span> <span class="string">"hello world"</span>]</span>)</span>
+</code></pre>
+<p>By itself it doesn’t do much, but we can render it to the page like so</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword">reagent/render</span> hello <span class="list">(<span class="keyword">.getElementById</span> js/document <span class="string">"my-container"</span>)</span>)</span>
+</code></pre>
+<p>Take another look at the <code>hello</code> component. It’s simply a function that returns a vector containing a keyword and a string. Nothing more than bread and butter Clojure. If you’re familiar with React, you might be wondering where <code>createClass</code>, <code>componentDidMount</code>, <code>render</code> and all of that other hoopla went. <em>There’s no boilerplate at all!</em></p>
+<div class="callout wisdom">
+React fans might be crying fowl about now. The above would be <code>React.createElement(&#39;div&#39;, null, &#39;hello world&#39;)</code> in React. Also pretty simple. But in Reagent, there is no distinction between elements and components, they’re all just vanilla ClojureScript functions.
+</div>
+
+
+<p>Of course you’ll be doing more than rendering “hello world” into your webpages, and Reagent doesn’t manage to keep this abstraction up indefinitely. But it does a great job overall. If you need to, dropping down to the “metal” of React is possible, as is integrating Reagent with native React components. Reagent covers all the bases.</p>
+<h3 id="getting-more-involved">Getting More Involved</h3>
+<p>Components can take parameters</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> hello <span class="collection">[name]</span>
+  <span class="collection">[<span class="attribute">:div</span> <span class="string">"hello "</span> name]</span>)</span>
+
+<span class="list">(<span class="keyword">reagent/render</span> <span class="collection">[hello <span class="string">"Bob"</span>]</span> <span class="list">(<span class="keyword">.-body</span> js/document)</span>)</span>
+</code></pre>
+<p>Notice <code>hello</code> was passed to <code>render</code> inside a vector? Since hello is just a function, shouldn’t it be <code>(hello &quot;Bob&quot;)</code>? Technically you can get away with that in simple scenarios, but by handing Reagent a vector, Reagent can then only invoke your component when it needs to, allowing for more efficient rendering.</p>
+<p>Components can also contain other components:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> page <span class="collection">[body]</span>
+  <span class="collection">[<span class="attribute">:div.page</span>
+    <span class="collection">[<span class="attribute">:div.header</span> <span class="string">"This is the header"</span>]</span>
+    body
+    <span class="collection">[<span class="attribute">:div.footer</span> <span class="string">"This is the footer"</span>]</span>]</span>)</span>
+
+<span class="list">(<span class="keyword">reagent/render</span> <span class="collection">[page <span class="collection">[hello <span class="string">"Bob"</span>]</span>]</span> <span class="list">(<span class="keyword">.-body</span> js/document)</span>)</span>
+</code></pre>
+<p>And yeah, adding classes to elements is as simple as appending them to the keyword, ie <code>:div.header</code></p>
+<h2 id="clojurescript-crash-course-part-two">ClojureScript Crash Course Part Two</h2>
+<p>Almost everything in ClojureScript is immutable. You can’t alter a vector after it’s been created, for example. To accomplish mutability, ClojureScript has atoms:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> my-atom <span class="list">(<span class="keyword"><span class="built_in">atom</span></span> <span class="number">4</span>)</span>)</span>
+</code></pre>
+<p>An atom is a reference to an object. You can get at the object by dereferencing the atom</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword">.log</span> js/console <span class="list">(<span class="keyword"><span class="built_in">deref</span></span> my-atom)</span>)</span>
+
+<span class="comment">;; or, use the @ sugar</span>
+<span class="list">(<span class="keyword">.log</span> js/console @my-atom)</span>
+</code></pre>
+<p>It’s very similar to dereferencing a pointer in C.</p>
+<p>You can update the atom with <code>reset!</code> or <code>swap!</code></p>
+<pre><code class="lang-clojure"><span class="comment">;; reset! causes the atom to point at a different object</span>
+<span class="list">(<span class="keyword"><span class="built_in">reset!</span></span> my-atom <span class="number">6</span>)</span>
+
+<span class="comment">;; this now prints 6</span>
+<span class="list">(<span class="keyword">.log</span> js/console @my-atom)</span>
+
+<span class="comment">;; swap is a little trickier</span>
+<span class="comment">;; you give it a function and any needed arguments to update the atom</span>
+<span class="list">(<span class="keyword"><span class="built_in">swap!</span></span> my-atom + <span class="number">5</span>)</span>
+
+<span class="comment">;; the above is effectively this:</span>
+<span class="comment">;; (reset! my-atom (+ @my-atom 5))</span>
+
+<span class="comment">;; this will print 11</span>
+<span class="list">(<span class="keyword">.log</span> js/console @my-atom)</span>
+</code></pre>
+<div class="callout pitfall">
+And again, this is super glossed over
+</div>
+
+<h2 id="atoms-and-reagent">Atoms and Reagent</h2>
+<p>Not surprisingly, atoms are how Reagent deals with state too. Let’s create a component that expands and collapses whenever the user clicks it:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> expanded <span class="list">(<span class="keyword"><span class="built_in">atom</span></span> <span class="literal">true</span>)</span>)</span>
+
+<span class="list">(<span class="keyword"><span class="built_in">defn</span></span> on-header-click <span class="collection">[]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">swap!</span></span> expanded not)</span>)</span>
+
+<span class="list">(<span class="keyword"><span class="built_in">defn</span></span> expandable-view <span class="collection">[]</span>
+  <span class="collection">[<span class="attribute">:div.expandable</span>
+    <span class="collection">[<span class="attribute">:div.header</span> <span class="collection">{<span class="attribute">:on-click</span> on-header-click}</span>
+      <span class="string">"Click me to expand and collapse the body"</span>]</span>
+    <span class="list">(<span class="keyword"><span class="built_in">if</span></span> @expanded
+      <span class="collection">[<span class="attribute">:div.body</span> <span class="string">"I am the body"</span>]</span>)</span>]</span>)</span>
+</code></pre>
+<p>Here the header div gets a map, allowing us to add a click handler. Every time the header gets clicked, the atom alternates between <code>true</code> and <code>false</code> (that’s what <code>swap!</code> and <code>not</code> are up to, <code>not</code> flips booleans). Whether the body is present depends on the state of the <code>expanded</code> atom.</p>
+<p>Except this isn’t <em>entirely</em> true. In order to pull off the above, we need to swap out the native atom with an atom that Reagent provides:</p>
+<pre><code class="lang-clojure"><span class="comment">;; use a Reagent atom instead</span>
+<span class="list">(<span class="keyword"><span class="built_in">def</span></span> expanded <span class="list">(<span class="keyword">reagent/atom</span> <span class="literal">true</span>)</span>)</span>
+
+<span class="comment">;; as before ...</span>
+</code></pre>
+<p>Reagent atoms (aka ratoms) are a little magical. Reagent keeps track of all the components that are using ratoms. Whenever a ratom changes, all of the affected components are rerendered. Since React is underneath, the rendering is super efficient and fast (virtual DOM and all that good stuff). Other than the magic, ratoms behave just like real atoms.</p>
+<h2 id="all-this-adds-up-to-">All This Adds Up To …</h2>
+<p>I took you through this whirlwind tour of ClojureScript and Reagent to finally be able to make the point that Reagent and ClojureScript are really a stellar combo.</p>
+<p>Notice in the last component the call to <code>if</code>? It’s trivial to build up your components using just about anything in your ClojureScript toolbox as you see fit. Atoms are a simple, straightforward way to deal with state, and at the end of the day your code just describes your components and how they should behave. It’s easy to reason about and a pleasure to work with.</p>
+<h3 id="ratom-flavors">Ratom Flavors</h3>
+<p>Ratoms tend to come in two flavors, and roughly correspond to props and state in React. Prop-like ratoms contain data, typically pulled down from your server with an AJAX call. And state-like ratoms just keep track of things like “expanded or collapsed”. I tend to couple state-like ratoms directly into my components:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> expandable-view <span class="collection">[]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[expanded <span class="list">(<span class="keyword">reagent/atom</span> <span class="literal">true</span>)</span>]</span>
+    <span class="list">(<span class="keyword"><span class="built_in">fn</span></span> <span class="collection">[]</span>
+      <span class="collection">[<span class="attribute">:div.expandable</span>
+        <span class="collection">[<span class="attribute">:div.header</span> <span class="collection">{<span class="attribute">:on-click</span> #<span class="list">(<span class="keyword"><span class="built_in">swap!</span></span> expanded not)</span>}</span>
+         <span class="string">"Click me to expand and collapse"</span>]</span>
+        <span class="list">(<span class="keyword"><span class="built_in">if</span></span> @expanded
+          <span class="collection">[<span class="attribute">:div.body</span> <span class="string">"I am the body"</span>]</span>)</span>]</span>)</span>)</span>)</span>
+</code></pre>
+<p>In the above the <code>expanded</code> atom got pulled inside of the component. This is a bit more advanced than the other examples, but the general concept should be clear.</p>
+<p>And I tend to decouple my prop-like data ratoms from my components. I instead manage them elsewhere and simply pass them to the component as a parameter. This makes reusing and testing components very easy:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> comment-view <span class="collection">[comment]</span>
+  <span class="collection">[<span class="attribute">:div.comment</span>
+    <span class="collection">[<span class="attribute">:span.author</span> <span class="list">(<span class="attribute">:author</span> comment)</span>]</span>
+    <span class="collection">[<span class="attribute">:span.body</span>   <span class="list">(<span class="attribute">:body</span> comment)</span>]</span>]</span>)</span>
+
+<span class="comment">;; here comments is a ratom that probably got populated</span>
+<span class="comment">;; with an AJAX call. But comment-list doesn't care,</span>
+<span class="comment">;; it just takes the comments and runs with them</span>
+<span class="list">(<span class="keyword"><span class="built_in">defn</span></span> comment-list <span class="collection">[comments]</span>
+  <span class="collection">[<span class="attribute">:div.comment-list</span>
+    <span class="list">(<span class="keyword"><span class="built_in">for</span></span> <span class="collection">[comment @comments]</span>
+      <span class="collection">[comment-view comment]</span>)</span>]</span>)</span>
+</code></pre>
+<p>Again, Reagent simplifies things and lets you construct your components in whatever way works best for you. The hard distinction between props and state is completely gone, instead just use ratoms however you prefer.</p>
+<p>That about wraps it up for now. If you’re on the fence about ClojureScript,  I’m hoping I piqued your interest a little bit.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer based out of Denver, CO. I am mostly interested in web related technology,
+but also dabble in games, Clojure(Script), and devops-ish stuff. My main focus right now is <a href="https://metamorf.us">Metamorfus</a>.  </p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>
