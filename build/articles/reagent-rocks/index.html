@@ -112,14 +112,14 @@ React fans might be crying fowl about now. The above would be <code>React.create
 <p>Almost everything in ClojureScript is immutable. You can’t alter a vector after it’s been created, for example. To accomplish mutability, ClojureScript has atoms:</p>
 <pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> my-atom <span class="list">(<span class="keyword"><span class="built_in">atom</span></span> <span class="number">4</span>)</span>)</span>
 </code></pre>
-<p>An atom is a reference to an object. You can get at the object by dereferencing the atom</p>
+<p>An atom is a reference to an object. You can get at the object by dereferencing the atom:</p>
 <pre><code class="lang-clojure"><span class="list">(<span class="keyword">.log</span> js/console <span class="list">(<span class="keyword"><span class="built_in">deref</span></span> my-atom)</span>)</span>
 
 <span class="comment">;; or, use the @ sugar</span>
 <span class="list">(<span class="keyword">.log</span> js/console @my-atom)</span>
 </code></pre>
 <p>It’s very similar to dereferencing a pointer in C.</p>
-<p>You can update the atom with <code>reset!</code> or <code>swap!</code></p>
+<p>You can update the atom with <code>reset!</code> or <code>swap!</code>:</p>
 <pre><code class="lang-clojure"><span class="comment">;; reset! causes the atom to point at a different object</span>
 <span class="list">(<span class="keyword"><span class="built_in">reset!</span></span> my-atom <span class="number">6</span>)</span>
 

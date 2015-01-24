@@ -131,7 +131,7 @@ Almost everything in ClojureScript is immutable. You can't alter a vector after 
 (def my-atom (atom 4))
 ```
 
-An atom is a reference to an object. You can get at the object by dereferencing the atom
+An atom is a reference to an object. You can get at the object by dereferencing the atom:
 
 ```clojure
 (.log js/console (deref my-atom))
@@ -142,7 +142,7 @@ An atom is a reference to an object. You can get at the object by dereferencing 
 
 It's very similar to dereferencing a pointer in C.
 
-You can update the atom with `reset!` or `swap!`
+You can update the atom with `reset!` or `swap!`:
 
 ```clojure
 ;; reset! causes the atom to point at a different object
