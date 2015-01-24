@@ -5,9 +5,176 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Thu, 25 Dec 2014 17:00:00 -0700</pubDate>
+    <pubDate>Fri, 23 Jan 2015 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Reagent Rocks!</title>
+      <link>http://mattgreer.org/articles/reagent-and-clojurescript/</link>
+      <pubDate>Fri, 23 Jan 2015 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/reagent-and-clojurescript/</guid>
+      <author></author>
+      <description>&lt;p&gt;Lately all of my front end work has been in &lt;a href=&quot;http://holmsand.github.io/reagent/&quot;&gt;Reagent&lt;/a&gt;, a &lt;a href=&quot;https://github.com/clojure/clojurescript&quot;&gt;ClojureScript&lt;/a&gt; interface to Facebook’s &lt;a href=&quot;http://facebook.github.io/react/&quot;&gt;React&lt;/a&gt;. I’m really enjoying working with Reagent, this post attempts to shed some light on why.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&quot;clojurescript-crash-course&quot;&gt;ClojureScript Crash Course&lt;/h2&gt;
+&lt;p&gt;If you’re at all familiar with Clojure, go ahead and &lt;a href=&quot;#on-to-reagent&quot;&gt;skip to the next section&lt;/a&gt;. This is a &lt;em&gt;very&lt;/em&gt; quick introduction to the language, it will help make the Reagent bits coming later more clear.&lt;/p&gt;
+&lt;h3 id=&quot;functions&quot;&gt;Functions&lt;/h3&gt;
+&lt;p&gt;Functions are created with &lt;code&gt;defn&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; add &lt;span class=&quot;collection&quot;&gt;[a b]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;+&lt;/span&gt;&lt;/span&gt; a b)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;is roughly equivalent to:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; add = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(a, b)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; a + b;
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;ClojureScript functions always return the last expression that was evaluated.&lt;/p&gt;
+&lt;h3 id=&quot;maps&quot;&gt;Maps&lt;/h3&gt;
+&lt;p&gt;Maps are similar to JavaScript objects, they are collections of key/value pairs:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;string&quot;&gt;&quot;name&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;Calvin&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;position&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;goalie&quot;&lt;/span&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;is roughly equivalent to:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;{
+  name: &lt;span class=&quot;string&quot;&gt;&quot;Calvin&quot;&lt;/span&gt;,
+  position: &lt;span class=&quot;string&quot;&gt;&quot;goalie&quot;&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;keywords&quot;&gt;Keywords&lt;/h3&gt;
+&lt;p&gt;Notice how the map above used strings for keys? That’s a little awkward. More commonly keywords are used. Think of them as simple constants:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:name&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;Calvin&quot;&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:position&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;goalie&quot;&lt;/span&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;vectors&quot;&gt;Vectors&lt;/h3&gt;
+&lt;p&gt;Vectors are similar to JavaScript arrays:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;comment&quot;&gt;;; simple vector&lt;/span&gt;
+&lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;]&lt;/span&gt;
+
+&lt;span class=&quot;comment&quot;&gt;;; you can put anything in a vector&lt;/span&gt;
+&lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;string&quot;&gt;&quot;a string&quot;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:even&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:another&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:vector&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;callout pitfall&quot;&gt;
+This crash course glossed over many many things. Clojure fans are clenching their teeth right about now. If you want more information, I recommend starting with David Nolen’s &lt;a href=&quot;https://github.com/swannodette/lt-cljs-tutorial&quot;&gt;ClojureScript tutorial&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;on-to-reagent&quot;&gt;On to Reagent&lt;/h2&gt;
+&lt;p&gt;Phew! Now let’s start building some Reagent components. Here’s a very simple one:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; hello &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;hello world&quot;&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;By itself it doesn’t do much, but we can render it to the page like so&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;reagent/render&lt;/span&gt; hello &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.getElementById&lt;/span&gt; js/document &lt;span class=&quot;string&quot;&gt;&quot;my-container&quot;&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Take another look at the &lt;code&gt;hello&lt;/code&gt; component. It’s simply a function that returns a vector containing a keyword and a string. Nothing more than bread and butter Clojure. If you’re familiar with React, you might be wondering where &lt;code&gt;createClass&lt;/code&gt;, &lt;code&gt;componentDidMount&lt;/code&gt;, &lt;code&gt;render&lt;/code&gt; and all of that other hoopla went. &lt;em&gt;There’s no boilerplate at all!&lt;/em&gt;&lt;/p&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+React fans might be crying fowl about now. The above would be &lt;code&gt;React.createElement(&amp;#39;div&amp;#39;, null, &amp;#39;hello world&amp;#39;)&lt;/code&gt; in React. Also pretty simple. But in Reagent, there is no distinction between elements and components, they’re all just vanilla ClojureScript functions.
+&lt;/div&gt;
+
+
+&lt;p&gt;Of course you’ll be doing more than rendering “hello world” into your webpages, and Reagent doesn’t manage to keep this abstraction up indefinitely. But it does a great job overall. If you need to, dropping down to the “metal” of React is possible, as is integrating Reagent with native React components. Reagent covers all the bases.&lt;/p&gt;
+&lt;h3 id=&quot;getting-more-involved&quot;&gt;Getting More Involved&lt;/h3&gt;
+&lt;p&gt;Components can take parameters&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; hello &lt;span class=&quot;collection&quot;&gt;[name]&lt;/span&gt;
+  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;hello &quot;&lt;/span&gt; name]&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;reagent/render&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[hello &lt;span class=&quot;string&quot;&gt;&quot;Bob&quot;&lt;/span&gt;]&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-body&lt;/span&gt; js/document)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Notice &lt;code&gt;hello&lt;/code&gt; was passed to &lt;code&gt;render&lt;/code&gt; inside a vector? Since hello is just a function, shouldn’t it be &lt;code&gt;(hello &amp;quot;Bob&amp;quot;)&lt;/code&gt;? Technically you can get away with that in simple scenarios, but by handing Reagent a vector, Reagent can then only invoke your component when it needs to, allowing for more efficient rendering.&lt;/p&gt;
+&lt;p&gt;Components can also contain other components:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; page &lt;span class=&quot;collection&quot;&gt;[body]&lt;/span&gt;
+  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.page&lt;/span&gt;
+    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.header&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;This is the header&quot;&lt;/span&gt;]&lt;/span&gt;
+    body
+    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.footer&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;This is the footer&quot;&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;reagent/render&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[page &lt;span class=&quot;collection&quot;&gt;[hello &lt;span class=&quot;string&quot;&gt;&quot;Bob&quot;&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-body&lt;/span&gt; js/document)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And yeah, adding classes to elements is as simple as appending them to the keyword, ie &lt;code&gt;:div.header&lt;/code&gt;&lt;/p&gt;
+&lt;h2 id=&quot;clojurescript-crash-course-part-two&quot;&gt;ClojureScript Crash Course Part Two&lt;/h2&gt;
+&lt;p&gt;Almost everything in ClojureScript is immutable. You can’t alter a vector after it’s been created, for example. To accomplish mutability, ClojureScript has atoms:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; my-atom &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;atom&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;An atom is a reference to an object. You can get at the object by dereferencing the atom&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.log&lt;/span&gt; js/console &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;deref&lt;/span&gt;&lt;/span&gt; my-atom)&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;comment&quot;&gt;;; or, use the @ sugar&lt;/span&gt;
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.log&lt;/span&gt; js/console @my-atom)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It’s very similar to dereferencing a pointer in C.&lt;/p&gt;
+&lt;p&gt;You can update the atom with &lt;code&gt;reset!&lt;/code&gt; or &lt;code&gt;swap!&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;comment&quot;&gt;;; reset! causes the atom to point at a different object&lt;/span&gt;
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; my-atom &lt;span class=&quot;number&quot;&gt;6&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;comment&quot;&gt;;; this now prints 6&lt;/span&gt;
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.log&lt;/span&gt; js/console @my-atom)&lt;/span&gt;
+
+&lt;span class=&quot;comment&quot;&gt;;; swap is a little trickier&lt;/span&gt;
+&lt;span class=&quot;comment&quot;&gt;;; you give it a function and any needed arguments to update the atom&lt;/span&gt;
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; my-atom + &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;comment&quot;&gt;;; the above is effectively this:&lt;/span&gt;
+&lt;span class=&quot;comment&quot;&gt;;; (reset! my-atom (+ @my-atom 5))&lt;/span&gt;
+
+&lt;span class=&quot;comment&quot;&gt;;; this will print 11&lt;/span&gt;
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.log&lt;/span&gt; js/console @my-atom)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;callout pitfall&quot;&gt;
+And again, this is super glossed over
+&lt;/div&gt;
+
+&lt;h2 id=&quot;atoms-and-reagent&quot;&gt;Atoms and Reagent&lt;/h2&gt;
+&lt;p&gt;Not surprisingly, atoms are how Reagent deals with state too. Let’s create a component that expands and collapses whenever the user clicks it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; expanded &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;atom&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; on-header-click &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; expanded not)&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; expandable-view &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.expandable&lt;/span&gt;
+    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.header&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:on-click&lt;/span&gt; on-header-click}&lt;/span&gt;
+      &lt;span class=&quot;string&quot;&gt;&quot;Click me to expand and collapse the body&quot;&lt;/span&gt;]&lt;/span&gt;
+    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; @expanded
+      &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.body&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;I am the body&quot;&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here the header div gets a map, allowing us to add a click handler. Every time the header gets clicked, the atom alternates between &lt;code&gt;true&lt;/code&gt; and &lt;code&gt;false&lt;/code&gt; (that’s what &lt;code&gt;swap!&lt;/code&gt; and &lt;code&gt;not&lt;/code&gt; are up to, &lt;code&gt;not&lt;/code&gt; flips booleans). Whether the body is present depends on the state of the &lt;code&gt;expanded&lt;/code&gt; atom.&lt;/p&gt;
+&lt;p&gt;Except this isn’t &lt;em&gt;entirely&lt;/em&gt; true. In order to pull off the above, we need to swap out the native atom with an atom that Reagent provides:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;comment&quot;&gt;;; use a Reagent atom instead&lt;/span&gt;
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; expanded &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;reagent/atom&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;comment&quot;&gt;;; as before ...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Reagent atoms (aka ratoms) are a little magical. Reagent keeps track of all the components that are using ratoms. Whenever a ratom changes, all of the affected components are rerendered. Since React is underneath, the rendering is super efficient and fast (virtual DOM and all that good stuff). Other than the magic, ratoms behave just like real atoms.&lt;/p&gt;
+&lt;h2 id=&quot;all-this-adds-up-to-&quot;&gt;All This Adds Up To …&lt;/h2&gt;
+&lt;p&gt;I took you through this whirlwind tour of ClojureScript and Reagent to finally be able to make the point that Reagent and ClojureScript are really a stellar combo.&lt;/p&gt;
+&lt;p&gt;Notice in the last component the call to &lt;code&gt;if&lt;/code&gt;? It’s trivial to build up your components using just about anything in your ClojureScript toolbox as you see fit. Atoms are a simple, straightforward way to deal with state, and at the end of the day your code just describes your components and how they should behave. It’s easy to reason about and a pleasure to work with.&lt;/p&gt;
+&lt;h3 id=&quot;ratom-flavors&quot;&gt;Ratom Flavors&lt;/h3&gt;
+&lt;p&gt;Ratoms tend to come in two flavors, and roughly correspond to props and state in React. Prop-like ratoms contain data, typically pulled down from your server with an AJAX call. And state-like ratoms just keep track of things like “expanded or collapsed”. I tend to couple state-like ratoms directly into my components:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; expandable-view &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[expanded &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;reagent/atom&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
+    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;fn&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+      &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.expandable&lt;/span&gt;
+        &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.header&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:on-click&lt;/span&gt; #&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; expanded not)&lt;/span&gt;}&lt;/span&gt;
+         &lt;span class=&quot;string&quot;&gt;&quot;Click me to expand and collapse&quot;&lt;/span&gt;]&lt;/span&gt;
+        &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; @expanded
+          &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.body&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;I am the body&quot;&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In the above the &lt;code&gt;expanded&lt;/code&gt; atom got pulled inside of the component. This is a bit more advanced than the other examples, but the general concept should be clear.&lt;/p&gt;
+&lt;p&gt;And I tend to decouple my prop-like data ratoms from my components. I instead manage them elsewhere and simply pass them to the component as a parameter. This makes reusing and testing components very easy:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; comment-view &lt;span class=&quot;collection&quot;&gt;[comment]&lt;/span&gt;
+  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.comment&lt;/span&gt;
+    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:span.author&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:author&lt;/span&gt; comment)&lt;/span&gt;]&lt;/span&gt;
+    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:span.body&lt;/span&gt;   &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:body&lt;/span&gt; comment)&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;comment&quot;&gt;;; here comments is a ratom that probably got populated&lt;/span&gt;
+&lt;span class=&quot;comment&quot;&gt;;; with an AJAX call. But comment-list doesn't care,&lt;/span&gt;
+&lt;span class=&quot;comment&quot;&gt;;; it just takes the comments and runs with them&lt;/span&gt;
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; comment-list &lt;span class=&quot;collection&quot;&gt;[comments]&lt;/span&gt;
+  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.comment-list&lt;/span&gt;
+    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;for&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[comment @comments]&lt;/span&gt;
+      &lt;span class=&quot;collection&quot;&gt;[comment-view comment]&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Again, Reagent simplifies things and lets you construct your components in whatever way works best for you. The hard distinction between props and state is completely gone, instead just use ratoms however you prefer.&lt;/p&gt;
+&lt;p&gt;That about wraps it up for now. If you’re on the fence about ClojureScript,  I’m hoping I piqued your interest a little bit.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>Creating a Pegdown Plugin</title>
       <link>http://mattgreer.org/articles/creating-a-pegdown-plugin/</link>
@@ -36,19 +203,19 @@ body goes here
 &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; org.pegdown.Parser;
 &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; org.pegdown.plugins.BlockPluginParser;
 
-&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentParser&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Parser&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;BlockPluginParser&lt;/span&gt; {&lt;/span&gt;
+&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentParser&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Parser&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;BlockPluginParser&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;final&lt;/span&gt; String TAG = &lt;span class=&quot;string&quot;&gt;&quot;%%%&quot;&lt;/span&gt;;
 
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentParser&lt;/span&gt;() {
-    &lt;span class=&quot;keyword&quot;&gt;super&lt;/span&gt;(ALL, &lt;span class=&quot;number&quot;&gt;1000&lt;/span&gt;l, DefaultParseRunnerProvider);
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentParser&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;super&lt;/span&gt;(ALL, &lt;span class=&quot;number&quot;&gt;1000l&lt;/span&gt;, DefaultParseRunnerProvider);
   }
 
   &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule[] &lt;span class=&quot;title&quot;&gt;blockPluginRules&lt;/span&gt;() {
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule[] blockPluginRules() {
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Rule[] { component() };
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;component&lt;/span&gt;() {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;component&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
 
     &lt;span class=&quot;comment&quot;&gt;// stack ends up like this:&lt;/span&gt;
     &lt;span class=&quot;comment&quot;&gt;//&lt;/span&gt;
@@ -72,7 +239,7 @@ body goes here
    * example:
    * %%% myComponent(foo=bar)
    */&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;open&lt;/span&gt;() {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
     StringBuilderVar componentName = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
 
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Sequence(
@@ -100,7 +267,7 @@ body goes here
    * and optionally have whitespace around any tokens
    * foo = bar , baz=boo
    */&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;params&lt;/span&gt;() {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
     ParamVar params = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ParamVar();
     StringBuilderVar paramName = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
     StringBuilderVar paramValue = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
@@ -134,7 +301,7 @@ body goes here
   &lt;span class=&quot;comment&quot;&gt;/*
    * extracts the body of the component into a raw string
    */&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;body&lt;/span&gt;() {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
     StringBuilderVar rawBody = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
 
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Sequence(
@@ -148,11 +315,11 @@ body goes here
   &lt;span class=&quot;comment&quot;&gt;/*
    * end of the component, ie &quot;%%%&quot;
    */&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; String &lt;span class=&quot;title&quot;&gt;close&lt;/span&gt;() {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; String &lt;span class=&quot;title&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; TAG;
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;whitespace&lt;/span&gt;() {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;whitespace&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; ZeroOrMore(
              AnyOf(&lt;span class=&quot;string&quot;&gt;&quot; \t\f&quot;&lt;/span&gt;));
   }
@@ -176,7 +343,7 @@ Pegdown has one expectation here: &lt;em&gt;your plugin should finish its job wi
 &lt;pre&gt;&lt;code class=&quot;lang-markdown&quot;&gt;%%% someMethod(someParam=someValue)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;here it is, in a slightly simplified form&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;open&lt;/span&gt;() {
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
     StringBuilderVar componentName = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
 
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Sequence(
@@ -209,7 +376,7 @@ Pegdown has one expectation here: &lt;em&gt;your plugin should finish its job wi
 &lt;p&gt;At this point, you’re pretty much good to go on how parsing plugins work. It’s then mostly a matter of getting a feel for composing primitive Rules together.&lt;/p&gt;
 &lt;p&gt;But there is one more funky thing you might have to deal with, Parboiled Vars. Remember that magic that Parboiled does to your Rules methods? This magic means you can’t just use any ol’ Java you want. If you need to work with a data structure, such as a string, then you need to do so with it wrapped up in a &lt;code&gt;Var&lt;/code&gt;. Notice in &lt;code&gt;open()&lt;/code&gt; the &lt;code&gt;componentName&lt;/code&gt; was being added to a &lt;code&gt;StringBuilderVar&lt;/code&gt;? That’s just a simple class that wraps a &lt;code&gt;StringBuilder&lt;/code&gt;, and does so in such a way that is compatible with Parboiled’s rewrite magic.&lt;/p&gt;
 &lt;p&gt;Here is &lt;code&gt;params()&lt;/code&gt;, which parses out the parameters to the component:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;params&lt;/span&gt;() {
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule &lt;span class=&quot;title&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
     ParamVar params = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ParamVar();
     StringBuilderVar paramName = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
     StringBuilderVar paramValue = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; StringBuilderVar();
@@ -249,24 +416,24 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
 
 &lt;h2 id=&quot;nodes&quot;&gt;Nodes&lt;/h2&gt;
 &lt;p&gt;Pegdown parses Markdown into a tree of Nodes, where &lt;code&gt;RootNode&lt;/code&gt; is the root. In my parser plugin above, I created a &lt;code&gt;ComponentNode&lt;/code&gt;, which is my own class. This allows your custom parsing’s results to live in the AST. Here is my &lt;code&gt;ComponentNode&lt;/code&gt; class, simplified a bit:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentNode&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;AbstractNode&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentNode&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;AbstractNode&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; String name;
   &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; Map&amp;lt;String,String&amp;gt; params;
   &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; String body;
 
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentNode&lt;/span&gt;(String name, Map&amp;lt;String,String&amp;gt; params, String body) {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentNode&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(String name, Map&amp;lt;String,String&amp;gt; params, String body)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.name = name;
     &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.params = params;
     &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.body = body;
   }
 
   &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;accept&lt;/span&gt;(Visitor visitor) {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;accept&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Visitor visitor)&lt;/span&gt; &lt;/span&gt;{
     visitor.visit((Node) &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);
   }
 
   &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; List&amp;lt;Node&amp;gt; &lt;span class=&quot;title&quot;&gt;getChildren&lt;/span&gt;() {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; List&amp;lt;Node&amp;gt; &lt;span class=&quot;title&quot;&gt;getChildren&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;;
   }
   ...
@@ -283,10 +450,10 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
       .toHtml(ast);
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;And of course &lt;code&gt;ComponentSerializer&lt;/code&gt; is a class I wrote to handle my custom stuff:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentSerializer&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ToHtmlSerializerPlugin&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentSerializer&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ToHtmlSerializerPlugin&lt;/span&gt; &lt;/span&gt;{
 
   &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;visit&lt;/span&gt;(Node node, Visitor visitor, Printer printer) {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;visit&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Node node, Visitor visitor, Printer printer)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (node &lt;span class=&quot;keyword&quot;&gt;instanceof&lt;/span&gt; ComponentNode) {
       ComponentNode cNode = (ComponentNode)node;
 
@@ -327,13 +494,13 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
 
 &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; sqlFixtures = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'sql-fixtures'&lt;/span&gt;);
 
-sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
+sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// the Users table now has two more rows in it&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// result returns what got created,&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// so you can make use of the data in your tests&lt;/span&gt;
-  console.log(result.Users[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].username); &lt;span class=&quot;comment&quot;&gt;// Henry&lt;/span&gt;
-  console.log(result.Users[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].id);       &lt;span class=&quot;comment&quot;&gt;// the id the db generated&lt;/span&gt;
-  console.log(result.Users[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;].username); &lt;span class=&quot;comment&quot;&gt;// Catherine&lt;/span&gt;
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(result.Users[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].username); &lt;span class=&quot;comment&quot;&gt;// Henry&lt;/span&gt;
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(result.Users[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].id);       &lt;span class=&quot;comment&quot;&gt;// the id the db generated&lt;/span&gt;
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(result.Users[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;].username); &lt;span class=&quot;comment&quot;&gt;// Catherine&lt;/span&gt;
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The &lt;code&gt;databaseConfig&lt;/code&gt; parameter tells sql-fixtures how to connect to your database, more info on that in the &lt;a href=&quot;https://github.com/city41/node-sql-fixtures/blob/master/README.md&quot;&gt;README&lt;/a&gt;&lt;/p&gt;
@@ -349,8 +516,8 @@ sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&
   }
 };
 
-sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
-  console.log(result.Purchase[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].userId === result.Users[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].id); &lt;span class=&quot;comment&quot;&gt;// true&lt;/span&gt;
+sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(result.Purchase[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].userId === result.Users[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].id); &lt;span class=&quot;comment&quot;&gt;// true&lt;/span&gt;
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;In the above, sql-fixtures will create the User row first, then circle back and populate &lt;code&gt;Purchase.userId&lt;/code&gt; with Henry’s actual id before adding the new row in the Purchase table.&lt;/p&gt;
@@ -414,7 +581,7 @@ export &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; RectEntity;
 &lt;p&gt;In the ES6 world, this all works just fine and as you’d expect. Traceur, however, does not quite turn this into a CommonJS module in the way I wanted.&lt;/p&gt;
 &lt;p&gt;Traceur will define the export from above as&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.defineProperties(exports, {
-  &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: {get: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: {get: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; $__default;
     }},
   __esModule: {value: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;}
@@ -434,7 +601,7 @@ export &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; RectEntity;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;That long line of generated code basically boils down to — in CommonJS speak — &lt;code&gt;var BaseEntity = require(&amp;#39;./base-entity&amp;#39;).default&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;This meant my &lt;code&gt;index.js&lt;/code&gt; ended up looking like this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;module.exports = {
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;module&lt;/span&gt;.exports = {
   Engine: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/engine'&lt;/span&gt;).default,
   RectEntity: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/rect-entity'&lt;/span&gt;).default
 };
@@ -446,7 +613,7 @@ export &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; RectEntity;
 &lt;p&gt;This seems the cleanest to me. Install traceur as a dependency (&lt;code&gt;npm install --save traceur&lt;/code&gt;), then in &lt;code&gt;index.js&lt;/code&gt;, require the runtime&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'traceur/bin/traceur-runtime'&lt;/span&gt;);
 
-module.exports = {
+&lt;span class=&quot;built_in&quot;&gt;module&lt;/span&gt;.exports = {
   Engine: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/engine'&lt;/span&gt;).default,
   RectEntity: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/rect-entity'&lt;/span&gt;).default
 };
@@ -454,14 +621,14 @@ module.exports = {
 &lt;p&gt;It will define the runtime on &lt;code&gt;global&lt;/code&gt; and from there the rest of your transpiled code will be happy. Pretty simple.&lt;/p&gt;
 &lt;h3 id=&quot;approach-two-pull-it-in-with-gulp-traceur&quot;&gt;Approach two: pull it in with gulp-traceur&lt;/h3&gt;
 &lt;p&gt;I am transpiling from ES6-&amp;gt;ES5 using &lt;a href=&quot;https://github.com/sindresorhus/gulp-traceur&quot;&gt;gulp-traceur&lt;/a&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; gulp.src(&lt;span class=&quot;string&quot;&gt;'src/**/*.js'&lt;/span&gt;)
     .pipe(traceur({modules:&lt;span class=&quot;string&quot;&gt;'commonjs'&lt;/span&gt;}))
     .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./lib'&lt;/span&gt;));
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;the above will transpile the code but not include the runtime. gulp-traceur makes it available at &lt;code&gt;traceur.RUNTIME_PATH&lt;/code&gt;, so you can just do&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; gulp.src([traceur.RUNTIME_PATH, &lt;span class=&quot;string&quot;&gt;'src/**/*.js'&lt;/span&gt;])
     .pipe(traceur({modules:&lt;span class=&quot;string&quot;&gt;'commonjs'&lt;/span&gt;}))
     .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./lib'&lt;/span&gt;));
@@ -485,7 +652,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
 &lt;h3 id=&quot;approach-three-punt-on-it-and-let-browserify-bring-the-runtime&quot;&gt;Approach Three: punt on it and let Browserify bring the runtime&lt;/h3&gt;
 &lt;p&gt;Browserify and ES6 get along great thanks to &lt;a href=&quot;https://github.com/thlorenz/es6ify&quot;&gt;es6ify&lt;/a&gt;. es6ify can bring the runtime in too, and for some scenarios this is the way to go. For me it’s not, as it leaves my core NPM module dead in the water unless whoever consumes it knows they need to provide the runtime. Which is pretty lame.&lt;/p&gt;
 &lt;p&gt;With gulp, browserify and es6ify, it looks like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'browserify:sandbox'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;], &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'browserify:sandbox'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;], &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; browserify()
     .add(es6ify.runtime)
     .transform(es6ify)
@@ -497,7 +664,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Notice the strange call to Browserify’s require? This is because you must include the runtime first. Otherwise your code will come first and it will be without its runtime and crap out.&lt;/p&gt;
 &lt;p&gt;An alternative way is this, which I actually prefer:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'browserify:sandbox'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;], &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'browserify:sandbox'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;], &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; browserify(es6ify.runtime)
     .transform(es6ify)
     .add(&lt;span class=&quot;string&quot;&gt;'./sandbox/sandbox.js'&lt;/span&gt;)
@@ -620,25 +787,25 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
 &lt;p&gt;Why bother to understand promises to this level of detail? Really understanding how something works can increase your ability to take advantage of it, and debug it more successfully when things go wrong. I was inspired to write this article when a coworker and I got stumped on a tricky promise scenario. Had I known then what I know now, we wouldn’t have gotten stumped.&lt;/p&gt;
 &lt;h2 id=&quot;the-simplest-use-case&quot;&gt;The Simplest Use Case&lt;/h2&gt;
 &lt;p&gt;Let’s begin our promise implementation as simple as can be. We want to go from this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'Got a value:'&lt;/span&gt; + value);
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Got a value:'&lt;/span&gt; + value);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;to this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'Got a value:'&lt;/span&gt; + value);
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Got a value:'&lt;/span&gt; + value);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;To do this, we just need to change &lt;code&gt;doSomething()&lt;/code&gt; from this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(callback)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(callback)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value = &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;;
   callback(value);
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;to this “promise” based solution&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
-    then: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(callback)&lt;/span&gt; {&lt;/span&gt;
+    then: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(callback)&lt;/span&gt; &lt;/span&gt;{
       &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value = &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;;
       callback(value);
     }
@@ -654,13 +821,13 @@ Promises capture the notion of an eventual value into an object
 &lt;p&gt;This is the main reason promises are so interesting. Once the concept of eventuality is captured like this, we can begin to do some very powerful things. We’ll explore this more later on.&lt;/p&gt;
 &lt;h3 id=&quot;defining-the-promise-type&quot;&gt;Defining the Promise type&lt;/h3&gt;
 &lt;p&gt;This simple object literal isn’t going to hold up. Let’s define an actual &lt;code&gt;Promise&lt;/code&gt; type that we’ll be able to expand upon&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; callback = &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
-  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(cb)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(cb)&lt;/span&gt; &lt;/span&gt;{
     callback = cb;
   };
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
     callback(value);
   }
 
@@ -668,25 +835,25 @@ Promises capture the notion of an eventual value into an object
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;and reimplement &lt;code&gt;doSomething()&lt;/code&gt; to use it&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Promise(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Promise(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value = &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;;
     resolve(value);
   });
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;There is a problem here. If you trace through the execution, you’ll see that &lt;code&gt;resolve()&lt;/code&gt; gets called before &lt;code&gt;then()&lt;/code&gt;, which means &lt;code&gt;callback&lt;/code&gt; will be &lt;code&gt;null&lt;/code&gt;. Let’s hide this problem in a little hack involving &lt;code&gt;setTimeout&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; callback = &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
-  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(cb)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(cb)&lt;/span&gt; &lt;/span&gt;{
     callback = cb;
   };
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;comment&quot;&gt;// force callback to be called in the next&lt;/span&gt;
     &lt;span class=&quot;comment&quot;&gt;// iteration of the event loop, giving&lt;/span&gt;
     &lt;span class=&quot;comment&quot;&gt;// callback a chance to be set by then()&lt;/span&gt;
-    setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+    setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
       callback(value);
     }, &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;);
   }
@@ -709,12 +876,12 @@ Promises capture the notion of an eventual value into an object
 
 &lt;p&gt;&lt;em&gt;(A promise can also be rejected, but we’ll get to error handling later)&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;Let’s explicitly track the state inside of our implementation, which will allow us to do away with our hack&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; state = &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; deferred;
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; &lt;/span&gt;{
     value = newValue;
     state = &lt;span class=&quot;string&quot;&gt;'resolved'&lt;/span&gt;;
 
@@ -723,7 +890,7 @@ Promises capture the notion of an eventual value into an object
     }
   }
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(state === &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;) {
       deferred = onResolved;
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
@@ -732,7 +899,7 @@ Promises capture the notion of an eventual value into an object
     onResolved(value);
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved)&lt;/span&gt; &lt;/span&gt;{
     handle(onResolved);
   };
 
@@ -754,12 +921,12 @@ With promises, the order in which we work with them doesn’t matter. We are fre
 &lt;p&gt;We still have quite a few more things in the spec to implement, but our promises are already pretty powerful. This system allows us to call &lt;code&gt;then()&lt;/code&gt; as many times as we want, we will always get the same value back&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; promise = doSomething();
 
-promise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'Got a value:'&lt;/span&gt;, value);
+promise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Got a value:'&lt;/span&gt;, value);
 });
 
-promise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'Got the same value again:'&lt;/span&gt;, value);
+promise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Got the same value again:'&lt;/span&gt;, value);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;div class=&quot;callout pitfall&quot;&gt;
@@ -779,12 +946,12 @@ This is not completely true for the promise implementation in this article. If t
 &lt;/div&gt;
 
 &lt;p&gt;Here is our promise type with chaining added in&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; state = &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; deferred = &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; &lt;/span&gt;{
     value = newValue;
     state = &lt;span class=&quot;string&quot;&gt;'resolved'&lt;/span&gt;;
 
@@ -793,7 +960,7 @@ This is not completely true for the promise implementation in this article. If t
     }
   }
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(handler)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(handler)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(state === &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;) {
       deferred = handler;
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
@@ -808,8 +975,8 @@ This is not completely true for the promise implementation in this article. If t
     handler.resolve(ret);
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved)&lt;/span&gt; {&lt;/span&gt;
-    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Promise(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved)&lt;/span&gt; &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Promise(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve)&lt;/span&gt; &lt;/span&gt;{
       handle({
         onResolved: onResolved,
         resolve: resolve
@@ -830,16 +997,16 @@ Since &lt;code&gt;then()&lt;/code&gt; always returns a new promise object, there
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; ret = handler.onResolved(value);
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;In the examples I’ve been using here, &lt;code&gt;handler.onResolved&lt;/code&gt; is&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;&quot;Got a value:&quot;&lt;/span&gt;, value);
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;Got a value:&quot;&lt;/span&gt;, value);
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;in other words, it’s what was passed into the first call to &lt;code&gt;then()&lt;/code&gt;. The return value of that first handler is used to resolve the second promise. Thus chaining is accomplished&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'first result'&lt;/span&gt;, result);
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'first result'&lt;/span&gt;, result);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;88&lt;/span&gt;;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(secondResult)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'second result'&lt;/span&gt;, secondResult);
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(secondResult)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'second result'&lt;/span&gt;, secondResult);
 });
 
 &lt;span class=&quot;comment&quot;&gt;// the output is&lt;/span&gt;
@@ -848,11 +1015,11 @@ Since &lt;code&gt;then()&lt;/code&gt; always returns a new promise object, there
 &lt;span class=&quot;comment&quot;&gt;// second result 88&lt;/span&gt;
 
 
-doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'first result'&lt;/span&gt;, result);
+doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'first result'&lt;/span&gt;, result);
   &lt;span class=&quot;comment&quot;&gt;// not explicitly returning anything&lt;/span&gt;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(secondResult)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'second result'&lt;/span&gt;, secondResult);
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(secondResult)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'second result'&lt;/span&gt;, secondResult);
 });
 
 &lt;span class=&quot;comment&quot;&gt;// now the output is&lt;/span&gt;
@@ -861,29 +1028,29 @@ doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;k
 &lt;span class=&quot;comment&quot;&gt;// second result undefined&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Since &lt;code&gt;then()&lt;/code&gt; always returns a new promise, this chaining can go as deep as we like&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'first result'&lt;/span&gt;, result);
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'first result'&lt;/span&gt;, result);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;88&lt;/span&gt;;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(secondResult)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'second result'&lt;/span&gt;, secondResult);
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(secondResult)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'second result'&lt;/span&gt;, secondResult);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;99&lt;/span&gt;;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(thirdResult)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'third result'&lt;/span&gt;, thirdResult);
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(thirdResult)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'third result'&lt;/span&gt;, thirdResult);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;200&lt;/span&gt;;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fourthResult)&lt;/span&gt; {&lt;/span&gt;
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fourthResult)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// on and on...&lt;/span&gt;
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;What if in the above example, we wanted all the results in the end? With chaining, we would need to manually build up the result ourself&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; results = [result];
   results.push(&lt;span class=&quot;number&quot;&gt;88&lt;/span&gt;);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; results;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(results)&lt;/span&gt; {&lt;/span&gt;
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(results)&lt;/span&gt; &lt;/span&gt;{
   results.push(&lt;span class=&quot;number&quot;&gt;99&lt;/span&gt;);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; results;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(results)&lt;/span&gt; {&lt;/span&gt;
-  console.log(results.join(&lt;span class=&quot;string&quot;&gt;', '&lt;/span&gt;);
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(results)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(results.join(&lt;span class=&quot;string&quot;&gt;', '&lt;/span&gt;);
 });
 
 &lt;span class=&quot;comment&quot;&gt;// the output is&lt;/span&gt;
@@ -897,8 +1064,8 @@ doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;k
 &lt;p&gt;A potentially better way is to use a promise library’s &lt;code&gt;all()&lt;/code&gt; method or any number of other utility methods that increase the usefulness of promises, which I’ll leave to you to go and discover.&lt;/p&gt;
 &lt;h3 id=&quot;the-callback-is-optional&quot;&gt;The Callback is Optional&lt;/h3&gt;
 &lt;p&gt;The callback to &lt;code&gt;then()&lt;/code&gt; is not strictly required. If you leave it off, the promise resolves to the same value as the previous promise&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'got a result'&lt;/span&gt;, result);
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'got a result'&lt;/span&gt;, result);
 });
 
 &lt;span class=&quot;comment&quot;&gt;// the output is&lt;/span&gt;
@@ -916,22 +1083,22 @@ doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;k
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(result) {
   &lt;span class=&quot;comment&quot;&gt;// doSomethingElse returns a promise&lt;/span&gt;
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; doSomethingElse(result)
-}.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(finalResult)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;&quot;the final result is&quot;&lt;/span&gt;, finalResult);
+}.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(finalResult)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;the final result is&quot;&lt;/span&gt;, finalResult);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;As it stands now, the above won’t do what we want. &lt;code&gt;finalResult&lt;/code&gt; won’t actually be a fully resolved value, it will instead be a promise. To get the intended result, we’d need to do&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(result) {
   &lt;span class=&quot;comment&quot;&gt;// doSomethingElse returns a promise&lt;/span&gt;
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; doSomethingElse(result)
-}.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(anotherPromise)&lt;/span&gt; {&lt;/span&gt;
-  anotherPromise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(finalResult)&lt;/span&gt; {&lt;/span&gt;
-    console.log(&lt;span class=&quot;string&quot;&gt;&quot;the final result is&quot;&lt;/span&gt;, finalResult);
+}.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(anotherPromise)&lt;/span&gt; &lt;/span&gt;{
+  anotherPromise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(finalResult)&lt;/span&gt; &lt;/span&gt;{
+    &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;the final result is&quot;&lt;/span&gt;, finalResult);
   });
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Who wants that crud in their code? Let’s have the promise implementation seamlessly handle this for us. This is simple to do, inside of &lt;code&gt;resolve()&lt;/code&gt; just add a special case if the resolved value is a promise&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(newValue &amp;amp;&amp;amp; &lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; newValue.then === &lt;span class=&quot;string&quot;&gt;'function'&lt;/span&gt;) {
     newValue.then(resolve);
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
@@ -962,10 +1129,10 @@ Different promise implementations can interopt with each other, as long as they 
 &lt;p&gt;With chaining in place, our implementation is pretty complete. But we’ve completely ignored error handling.&lt;/p&gt;
 &lt;h2 id=&quot;rejecting-promises&quot;&gt;Rejecting Promises&lt;/h2&gt;
 &lt;p&gt;When something goes wrong during the course of a promise, it needs to be &lt;strong&gt;rejected&lt;/strong&gt; with a &lt;em&gt;reason&lt;/em&gt;. How does the caller know when this happens? They can find out by passing in a second callback to &lt;code&gt;then()&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'Success!'&lt;/span&gt;, value);
-}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(error)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'Uh oh'&lt;/span&gt;, error);
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Success!'&lt;/span&gt;, value);
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(error)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Uh oh'&lt;/span&gt;, error);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;div class=&quot;callout wisdom&quot;&gt;
@@ -973,8 +1140,8 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
 &lt;/div&gt;
 
 &lt;p&gt;Promises enable rejection by means of &lt;code&gt;reject()&lt;/code&gt;, the evil twin of &lt;code&gt;resolve()&lt;/code&gt;. Here is &lt;code&gt;doSomething()&lt;/code&gt; with error handling support added&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Promise(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve, reject)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Promise(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve, reject)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; result = somehowGetTheValue();
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(result.error) {
       reject(result.error);
@@ -986,12 +1153,12 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Inside the promise implementation, we need to account for rejection. &lt;/p&gt;
 &lt;p&gt;Let’s see the full promise implementation again, this time with rejection support added&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; state = &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; deferred = &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(newValue &amp;amp;&amp;amp; &lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; newValue.then === &lt;span class=&quot;string&quot;&gt;'function'&lt;/span&gt;) {
       newValue.then(resolve, reject);
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
@@ -1004,7 +1171,7 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
     }
   }
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;reject&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(reason)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;reject&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(reason)&lt;/span&gt; &lt;/span&gt;{
     state = &lt;span class=&quot;string&quot;&gt;'rejected'&lt;/span&gt;;
     value = reason;
 
@@ -1013,7 +1180,7 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
     }
   }
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(handler)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(handler)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(state === &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;) {
       deferred = handler;
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
@@ -1041,8 +1208,8 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
     handler.resolve(ret);
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved, onRejected)&lt;/span&gt; {&lt;/span&gt;
-    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Promise(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve, reject)&lt;/span&gt; {&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved, onRejected)&lt;/span&gt; &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Promise(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve, reject)&lt;/span&gt; &lt;/span&gt;{
       handle({
         onResolved: onResolved,
         onRejected: onRejected,
@@ -1064,7 +1231,7 @@ When using promises, it’s very easy to omit the error callback. But if you do,
 &lt;h3 id=&quot;unexpected-errors-should-also-lead-to-rejection&quot;&gt;Unexpected Errors Should Also Lead to Rejection&lt;/h3&gt;
 &lt;p&gt;So far our error handling only accounts for known errors. It’s possible an unhandled exception will happen, completely ruining everything. It’s essential that the promise implementation catch these exceptions and reject accordingly.&lt;/p&gt;
 &lt;p&gt;This means that &lt;code&gt;resolve()&lt;/code&gt; should get wrapped in a try/catch block&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;try&lt;/span&gt; {
     &lt;span class=&quot;comment&quot;&gt;// ... as before&lt;/span&gt;
   } &lt;span class=&quot;keyword&quot;&gt;catch&lt;/span&gt;(e) {
@@ -1073,7 +1240,7 @@ When using promises, it’s very easy to omit the error callback. But if you do,
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;It’s also important to make sure the callbacks given to us by the caller don’t throw unhandled exceptions. These callbacks are called in &lt;code&gt;handle()&lt;/code&gt;, so we end up with&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(deferred)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(deferred)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// ... as before&lt;/span&gt;
 
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; ret;
@@ -1093,18 +1260,18 @@ It’s possible for a misunderstanding of promises to lead to completely swallow
 &lt;/div&gt;
 
 &lt;p&gt;Consider this example&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getSomeJson&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Promise(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve, reject)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getSomeJson&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Promise(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve, reject)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; badJson = &lt;span class=&quot;string&quot;&gt;&quot;&amp;lt;div&amp;gt;uh oh, this is not JSON at all!&amp;lt;/div&amp;gt;&quot;&lt;/span&gt;;
     resolve(badJson);
   });
 }
 
-getSomeJson().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(json)&lt;/span&gt; {&lt;/span&gt;
+getSomeJson().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(json)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; obj = &lt;span class=&quot;built_in&quot;&gt;JSON&lt;/span&gt;.parse(json);
-  console.log(obj);
-}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(error)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;'uh oh'&lt;/span&gt;, error);
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(obj);
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(error)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'uh oh'&lt;/span&gt;, error);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;http://jsfiddle.net/city41/M7SRM/3/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
@@ -1119,11 +1286,11 @@ Always remember, inside of &lt;code&gt;then()&lt;/code&gt;‘s callback, the pro
 &lt;/div&gt;
 
 &lt;p&gt;If you want to capture the above error, you need an error callback further downstream&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;getSomeJson().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(json)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;getSomeJson().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(json)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; obj = &lt;span class=&quot;built_in&quot;&gt;JSON&lt;/span&gt;.parse(json);
-  console.log(obj);
-}).then(&lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(error)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;&quot;an error occured: &quot;&lt;/span&gt;, error);
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(obj);
+}).then(&lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(error)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;an error occured: &quot;&lt;/span&gt;, error);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Now we will properly log the error.&lt;/p&gt;
@@ -1134,10 +1301,10 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 &lt;h3 id=&quot;done-to-the-rescue&quot;&gt;done() to the Rescue&lt;/h3&gt;
 &lt;p&gt;Most (but not all) promise libraries have a &lt;code&gt;done()&lt;/code&gt; method. It’s very similar to &lt;code&gt;then()&lt;/code&gt;, except it avoids the above pitfalls of &lt;code&gt;then()&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;done()&lt;/code&gt; can be called whenever &lt;code&gt;then()&lt;/code&gt; can. The key differences are it does not return a promise, and any unhandled exception inside of &lt;code&gt;done()&lt;/code&gt; is not captured by the promise implementation. In other words, &lt;code&gt;done()&lt;/code&gt; represents when the entire promise chain has fully resolved. Our &lt;code&gt;getSomeJson()&lt;/code&gt; example can be more robust using &lt;code&gt;done()&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;getSomeJson().done(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(json)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;getSomeJson().done(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(json)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// when this throws, it won't be swallowed&lt;/span&gt;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; obj = &lt;span class=&quot;built_in&quot;&gt;JSON&lt;/span&gt;.parse(json);
-  console.log(obj);
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(obj);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;code&gt;done()&lt;/code&gt; also takes an error callback, &lt;code&gt;done(callback, errback)&lt;/code&gt;, just like &lt;code&gt;then()&lt;/code&gt; does, and since the entire promise resolution is, well, done, you are assured of being informed of any errors that erupted.&lt;/p&gt;
@@ -1147,15 +1314,15 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 
 &lt;h3 id=&quot;recovering-from-rejection&quot;&gt;Recovering from Rejection&lt;/h3&gt;
 &lt;p&gt;It is possible to recover from a rejected promise. If you pass in an errback to &lt;code&gt;then()&lt;/code&gt;, from then on any further promises in this chain will be resolved instead of rejected:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;aMethodThatRejects().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;aMethodThatRejects().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// won't get here&lt;/span&gt;
-}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; {&lt;/span&gt;
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// since aMethodThatRejects calls reject()&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// we end up here in the errback&lt;/span&gt;
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;recovered!&quot;&lt;/span&gt;;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;&quot;after recovery: &quot;&lt;/span&gt;, result);
-}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; {&lt;/span&gt;
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;after recovery: &quot;&lt;/span&gt;, result);
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// we won't actually get here&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// since the rejected promise had an errback&lt;/span&gt;
 });
@@ -1165,10 +1332,10 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;If you don’t pass in an errback, then the rejection propagates to the next promise in the chain:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// notice the two calls to then()&lt;/span&gt;
-aMethodThatRejects().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; {&lt;/span&gt;
+aMethodThatRejects().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// we won't get here&lt;/span&gt;
-}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; {&lt;/span&gt;
-  console.log(&lt;span class=&quot;string&quot;&gt;&quot;error propagated&quot;&lt;/span&gt;);
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;error propagated&quot;&lt;/span&gt;);
 });
 
 &lt;span class=&quot;comment&quot;&gt;// the output is&lt;/span&gt;
@@ -1176,12 +1343,12 @@ aMethodThatRejects().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id=&quot;promise-resolution-needs-to-be-async&quot;&gt;Promise Resolution Needs to be Async&lt;/h2&gt;
 &lt;p&gt;Early in the article we cheated a bit by using &lt;code&gt;setTimeout&lt;/code&gt;. Once we fixed that hack, we’ve not used setTimeout since. But the truth is the Promises/A+ spec requires that promise resolution happen asynchronously. Meeting this requirement is simple, we simply need to wrap most of &lt;code&gt;handle()&lt;/code&gt;‘s implementation inside of a &lt;code&gt;setTimeout&lt;/code&gt; call&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(handler)&lt;/span&gt; {&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(handler)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(state === &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;) {
     deferred = handler;
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
   }
-  setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+  setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;comment&quot;&gt;// ... as before&lt;/span&gt;
   }, &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;);
 }
@@ -1307,14 +1474,14 @@ still very welcome. &lt;/p&gt;
 &lt;p&gt;With our normals in tow, we’re ready to have the graphics card do its magic. My game is using &lt;a href=&quot;http://www.impactjs.com&quot;&gt;ImpactJS&lt;/a&gt;, which is very compatibile with &lt;a href=&quot;https://github.com/gameclosure/webgl-2d&quot;&gt;WebGL2D&lt;/a&gt; Using WebGL2D, it was easy to add an additional fragment shader to implement the lighting:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;preprocessor&quot;&gt;#ifdef GL_ES&lt;/span&gt;
   precision highp &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt;;
-&lt;span class=&quot;preprocessor&quot;&gt;#endif&lt;/span&gt;
+&lt;span class=&quot;preprocessor&quot;&gt;#&lt;span class=&quot;keyword&quot;&gt;endif&lt;/span&gt;&lt;/span&gt;
 
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
 uniform vec3 lightDirection;
 uniform vec4 lightColor;
 
-&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; main(&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt;) {
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt;)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// pull the normal vector out of the texture&lt;/span&gt;
   vec4 rawNormal = texture2D(uSampler, vTextureCoord);
 
@@ -1353,7 +1520,7 @@ is because lighting the pixels up makes them looked washed out. There are ways t
 &lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/zAngle.gif&quot; alt=&quot;z angle&quot;&gt;&lt;/p&gt;
 &lt;p&gt;If it is tall enough, we are done, this pixel is in the shade. Otherwise we keep going. Eventually we give up and declare the pixel to be in the sun (currently I have that hard coded to 100 steps, which so far is working well)&lt;/p&gt;
 &lt;p&gt;Here is the code for the shader in simplified/pseudo form&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; main(&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt;) {
+&lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt;)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; alpha = &lt;span class=&quot;number&quot;&gt;0.0&lt;/span&gt;;
 
   &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(isInShadow()) {
@@ -1362,7 +1529,7 @@ is because lighting the pixels up makes them looked washed out. There are ways t
   gl_FragColor = vec4(&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, alpha);
 }
 
-&lt;span class=&quot;keyword&quot;&gt;bool&lt;/span&gt; isInShadow() {
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;isInShadow&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; height = getHeight(currentPixel);
   &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance = &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;;
 
@@ -1385,28 +1552,28 @@ is because lighting the pixels up makes them looked washed out. There are ways t
 &lt;p&gt;And here is the whole shebang:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;preprocessor&quot;&gt;#ifdef GL_ES&lt;/span&gt;
   precision highp &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt;;
-&lt;span class=&quot;preprocessor&quot;&gt;#endif&lt;/span&gt;
+&lt;span class=&quot;preprocessor&quot;&gt;#&lt;span class=&quot;keyword&quot;&gt;endif&lt;/span&gt;&lt;/span&gt;
 
-vec2 extrude(vec2 other, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; angle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; length) {
+&lt;span class=&quot;function&quot;&gt;vec2 &lt;span class=&quot;title&quot;&gt;extrude&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(vec2 other, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; angle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; length)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; x = length * &lt;span class=&quot;built_in&quot;&gt;cos&lt;/span&gt;(angle);
   &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; y = length * &lt;span class=&quot;built_in&quot;&gt;sin&lt;/span&gt;(angle);
 
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; vec2(other.x + x, other.y + y);
 }
 
-&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; getHeightAt(vec2 texCoord, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; xyAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance,
-    sampler2D heightMap) {
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getHeightAt&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(vec2 texCoord, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; xyAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance,
+    sampler2D heightMap)&lt;/span&gt; &lt;/span&gt;{
 
   vec2 newTexCoord = extrude(texCoord, xyAngle, distance);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; texture2D(heightMap, newTexCoord).r;
 }
 
-&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; getTraceHeight(&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; height, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; zAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance) {
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getTraceHeight&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; height, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; zAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; distance * &lt;span class=&quot;built_in&quot;&gt;tan&lt;/span&gt;(zAngle) + height;
 }
 
-&lt;span class=&quot;keyword&quot;&gt;bool&lt;/span&gt; isInShadow(&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; xyAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; zAngle, sampler2D heightMap,
-    vec2 texCoord, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; step) {
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;isInShadow&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; xyAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; zAngle, sampler2D heightMap,
+    vec2 texCoord, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; step)&lt;/span&gt; &lt;/span&gt;{
 
   &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance;
   &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; height;
@@ -1437,7 +1604,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uZAngle;
 uniform &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; uMaxShadowSteps;
 uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
 
-&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; main(&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt;) {
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt;)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; alpha = &lt;span class=&quot;number&quot;&gt;0.0&lt;/span&gt;;
 
   &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(isInShadow(uXYAngle, uZAngle, uHeightMap, uMaxShadowSteps,
