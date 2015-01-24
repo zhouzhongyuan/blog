@@ -10,9 +10,9 @@
     <language>en</language>
     <item>
       <title>Reagent Rocks!</title>
-      <link>http://mattgreer.org/articles/reagent-and-clojurescript/</link>
+      <link>http://mattgreer.org/articles/reagent-rocks/</link>
       <pubDate>Fri, 23 Jan 2015 17:00:00 -0700</pubDate>
-      <guid isPermaLink="true">http://mattgreer.org/articles/reagent-and-clojurescript/</guid>
+      <guid isPermaLink="true">http://mattgreer.org/articles/reagent-rocks/</guid>
       <author></author>
       <description>&lt;p&gt;Lately all of my front end work has been in &lt;a href=&quot;http://holmsand.github.io/reagent/&quot;&gt;Reagent&lt;/a&gt;, a &lt;a href=&quot;https://github.com/clojure/clojurescript&quot;&gt;ClojureScript&lt;/a&gt; interface to Facebook’s &lt;a href=&quot;http://facebook.github.io/react/&quot;&gt;React&lt;/a&gt;. I’m really enjoying working with Reagent, this post attempts to shed some light on why.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
