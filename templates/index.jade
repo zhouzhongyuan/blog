@@ -8,7 +8,7 @@ block content
         h2
           a(href=article.url)= article.title
         div.date
-          span= moment.utc(article.date).format('DD. MMMM YYYY')
+          span= moment.utc(article.date).format('DD MMMM YYYY')
       section.content
         != article.intro
       if article.hasMore
@@ -17,6 +17,3 @@ block content
 
   div.archives
     a(href='/archive.html') Archive
-
-
-
