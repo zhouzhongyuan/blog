@@ -92,14 +92,14 @@ React fans might be crying fowl about now. The above would be &lt;code&gt;React.
 &lt;p&gt;Almost everything in ClojureScript is immutable. You can’t alter a vector after it’s been created, for example. To accomplish mutability, ClojureScript has atoms:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; my-atom &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;atom&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;An atom is a reference to an object. You can get at the object by dereferencing the atom&lt;/p&gt;
+&lt;p&gt;An atom is a reference to an object. You can get at the object by dereferencing the atom:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.log&lt;/span&gt; js/console &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;deref&lt;/span&gt;&lt;/span&gt; my-atom)&lt;/span&gt;)&lt;/span&gt;
 
 &lt;span class=&quot;comment&quot;&gt;;; or, use the @ sugar&lt;/span&gt;
 &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.log&lt;/span&gt; js/console @my-atom)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;It’s very similar to dereferencing a pointer in C.&lt;/p&gt;
-&lt;p&gt;You can update the atom with &lt;code&gt;reset!&lt;/code&gt; or &lt;code&gt;swap!&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;You can update the atom with &lt;code&gt;reset!&lt;/code&gt; or &lt;code&gt;swap!&lt;/code&gt;:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;comment&quot;&gt;;; reset! causes the atom to point at a different object&lt;/span&gt;
 &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; my-atom &lt;span class=&quot;number&quot;&gt;6&lt;/span&gt;)&lt;/span&gt;
 
