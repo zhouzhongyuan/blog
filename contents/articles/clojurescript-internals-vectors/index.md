@@ -94,7 +94,7 @@ Technically the root is not empty, it actually contains an array of 32 nulls. Ea
 <img class="diagram" src="/articles/clojurescript-internals-vectors/img/vector-4-diagram.svg" />
 
 <div class="callout btw">
-(there is a [bug](http://stackoverflow.com/questions/21938875/text-in-svg-does-not-use-proper-font-when-drawn-to-an-img-element-in-chrome) in Chrome that makese these diagrams look a bit off)
+(there is a [bug](http://stackoverflow.com/questions/21938875/text-in-svg-does-not-use-proper-font-when-drawn-to-an-img-element-in-chrome) in Chrome that makes these diagrams look a bit off)
 </div>
 
 What happens when the vector is larger than 32 elements? That is where the root comes into play. Generally, the root contains `floor(count / 32) * 32` elements  and the tail contains `count % 32` elements. So if the vector is 900 elements long, 896 elements go to the root, and the remaining 4 head to the tail.
