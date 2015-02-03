@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>A Game Made With Reagent - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>A Game Made With Reagent</h1>
+            <div class="date"><span>02 February 2015</span></div>
+            <article class="article">
+              <section class="content"><p>Mostly for the heck of it, I built Breakout using ClojureScript and Reagent. I was pretty pleased with the results.
+<span class="more"></span></p>
+<p>I based it off of the <a href="http://www.jsbreakouts.org">Breakouts project</a> that I started a while back.</p>
+<div class="center diagram">
+  <img src="img/reagent-breakout.png" alt="screenshot of breakout" />
+</div>
+
+<p>You can play it <a href="http://city41.github.io/reagent-breakout">here</a>.</p>
+<h2 id="the-reagent-components">The Reagent Components</h2>
+<p>The components such as the ball and bricks are dead simple, there’s pretty much nothing to them. Here is the ball</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">ns</span></span> breakout.cmp.ball)</span>
+
+<span class="list">(<span class="keyword"><span class="built_in">defn</span></span> cmp <span class="collection">[pos size]</span>
+  <span class="collection">[<span class="attribute">:div.ball</span> <span class="collection">{<span class="attribute">:style</span> <span class="collection">{<span class="attribute">:background-image</span> <span class="string">"url(img/tiles.png)"</span>
+                      <span class="attribute">:position</span> <span class="string">"absolute"</span>
+                      <span class="attribute">:width</span> <span class="list">(<span class="attribute">:width</span> size)</span>
+                      <span class="attribute">:height</span> <span class="list">(<span class="attribute">:height</span> size)</span>
+                      <span class="attribute">:top</span> <span class="list">(<span class="attribute">:y</span> pos)</span>
+                      <span class="attribute">:left</span> <span class="list">(<span class="attribute">:x</span> pos)</span>}</span>}</span>]</span>)</span>
+</code></pre>
+<p>All of the animation is accomplished with <a href="https://github.com/city41/reagent-breakout/blob/master/resources/public/css/site.css">CSS</a>, which helped make everything that much more simple. Small lesson learned, even on a tiny project like this I should have used a CSS generation tool. CSS, why are you so tedious?</p>
+<h3 id="using-react-s-csstransitiongroup-for-the-bricks">Using React’s CSSTransitionGroup for the bricks</h3>
+<p>Whenever a brick is hit, it fades out using a CSS animation. React’s <a href="http://facebook.github.io/react/docs/animation.html">CSSTransitionGroup</a> is perfect for this, and easy to get going in Reagent. Just add it as one of your components, and underneath it place all the components that need animation</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> ctg <span class="list">(<span class="keyword">aget</span> js/React <span class="string">"addons"</span> <span class="string">"CSSTransitionGroup"</span>)</span>)</span>
+
+<span class="comment">;; ...</span>
+
+<span class="collection">[ctg <span class="collection">{<span class="attribute">:transitionName</span> <span class="string">"spawn"</span>}</span>
+  <span class="list">(<span class="keyword"><span class="built_in">for</span></span> <span class="collection">[brick @bricks]</span>
+    <span class="comment">^{:key brick}</span> <span class="collection">[brick/cmp brick]</span>)</span>]</span>
+</code></pre>
+<p>I was really happy how seamlessly CSSTransitionGroup dropped right in.</p>
+<h2 id="the-game-logic">The Game Logic</h2>
+<p>By far the beefiest file is <a href="https://github.com/city41/reagent-breakout/blob/master/src/cljs/breakout/engine/level.cljs">level.cljs</a>. Weighing in at 184 lines of code, it manages everything related to playing the game.</p>
+<p>The hit detection could still use some work, but 184 lines to whip up a Breakout game from scratch isn’t bad at all. I have no game engine helping me out, and needed to pretty much roll everything myself. The entire game from head to toe is 403 lines of code.</p>
+<p><code>level.cljs</code> calls <code>requestAnimationFrame</code> in order to accomplish its game loop, and from there it just updates a lot of atoms that represent the current state of the game. From there the Reagent components just render that state, with almost no logic at all of their own. This worked out well, but I think <code>level</code> could probably still be cleaner and simpler.</p>
+<h3 id="multimethods-and-watching-atoms">multimethods and watching atoms</h3>
+<p>When playing the game there are two phases</p>
+<ol>
+<li>the countdown phase: where the player waits for numbers to count down before beginning, giving them a chance to get ready</li>
+<li>the play phase: standard breakout gameplay</li>
+</ol>
+<p>I was able to separate out these phases using multimethods, which made the code cleaner.</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> update! <span class="collection">[ts]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">when</span></span> @running
+    <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[delta <span class="list">(<span class="keyword"><span class="built_in">-</span></span> ts <span class="list">(<span class="keyword"><span class="built_in">or</span></span> @last-ts ts)</span>)</span>]</span>
+      <span class="list">(<span class="keyword"><span class="built_in">reset!</span></span> last-ts ts)</span>
+      <span class="list">(<span class="keyword">update-phase!</span> delta @phase)</span>)</span>
+    <span class="list">(<span class="keyword"><span class="built_in">.</span></span> js/window <span class="list">(<span class="keyword">requestAnimationFrame</span> update!)</span>)</span>)</span>)</span>
+</code></pre>
+<p>Here <code>update-phase!</code> will end up calling the appropriate function for the current phase, for example here is what the countdown phase does</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defmethod</span></span> update-phase! <span class="attribute">:countdown</span> <span class="collection">[delta _]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">swap!</span></span> countdown-duration - delta)</span>
+  <span class="list">(<span class="keyword"><span class="built_in">when</span></span> <span class="list">(<span class="keyword"><span class="built_in">&lt;=</span></span> @countdown-duration <span class="number">0</span>)</span>
+    <span class="list">(<span class="keyword"><span class="built_in">reset!</span></span> phase <span class="attribute">:gameplay</span>)</span>)</span>)</span>
+</code></pre>
+<p>By adding a watch to the <code>phase</code> atom, it was really easy to set up a tiny little state machine in the game</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">add-watch</span></span> phase <span class="attribute">:scene-phase</span>
+           <span class="list">(<span class="keyword"><span class="built_in">fn</span></span> <span class="collection">[key r old-phase new-phase]</span>
+             <span class="list">(<span class="keyword"><span class="built_in">when</span></span> new-phase
+               <span class="list">(<span class="keyword">init-phase!</span> new-phase)</span>)</span>)</span>)</span>
+</code></pre>
+<p>Whenever switching phases, this watch handler kicks in and asks the new phase to do any initialization it needs (such as placing the ball back to its starting location). Again multimethods helped to separate the initialization of the phases into separate methods.</p>
+<h2 id="performance">Performance</h2>
+<p>Granted this is a very simple game, but my computer has no problem running it at 60fps. And despite creating a <em>ton</em> of objects, the memory never gets out of control nor do I see any garbage collection hiccups. It seems like modern JavaScript engines can handle ClojureScripts immutable approach pretty well.</p>
+<h2 id="figwheel">Figwheel</h2>
+<p>I’m digging <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a>. It creates a connection between your dev environment and the browser, and pushes changes as they happen. This is great for tweaking CSS and Reagent components in real time. I found with a game Figwheel can get a little confused and thus a hard refresh is occasionally needed, <code>requestAnimationFrame</code> and the loads of game state seem to foil it. Or maybe I just need to explore the tool some more.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Not the most practical project I’ve ever taken on, but it was fun. I’m impressed with how far DOM manipulation performance has come, especially with React’s virtual DOM.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer based out of Denver, CO. I am mostly interested in web related technology,
+but also dabble in games, Clojure(Script), and devops-ish stuff. My main focus right now is <a href="https://metamorf.us">Metamorfus</a>.  </p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>

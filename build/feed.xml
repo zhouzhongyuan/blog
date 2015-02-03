@@ -5,9 +5,86 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Sun, 25 Jan 2015 17:00:00 -0700</pubDate>
+    <pubDate>Sun, 01 Feb 2015 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>A Game Made With Reagent</title>
+      <link>http://mattgreer.org/articles/a-game-made-with-reagent/</link>
+      <pubDate>Sun, 01 Feb 2015 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/a-game-made-with-reagent/</guid>
+      <author></author>
+      <description>&lt;p&gt;Mostly for the heck of it, I built Breakout using ClojureScript and Reagent. I was pretty pleased with the results.
+&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;I based it off of the &lt;a href=&quot;http://www.jsbreakouts.org&quot;&gt;Breakouts project&lt;/a&gt; that I started a while back.&lt;/p&gt;
+&lt;div class=&quot;center diagram&quot;&gt;
+  &lt;img src=&quot;img/reagent-breakout.png&quot; alt=&quot;screenshot of breakout&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;You can play it &lt;a href=&quot;http://city41.github.io/reagent-breakout&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&quot;the-reagent-components&quot;&gt;The Reagent Components&lt;/h2&gt;
+&lt;p&gt;The components such as the ball and bricks are dead simple, there’s pretty much nothing to them. Here is the ball&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;ns&lt;/span&gt;&lt;/span&gt; breakout.cmp.ball)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; cmp &lt;span class=&quot;collection&quot;&gt;[pos size]&lt;/span&gt;
+  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.ball&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:style&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:background-image&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;url(img/tiles.png)&quot;&lt;/span&gt;
+                      &lt;span class=&quot;attribute&quot;&gt;:position&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;absolute&quot;&lt;/span&gt;
+                      &lt;span class=&quot;attribute&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:width&lt;/span&gt; size)&lt;/span&gt;
+                      &lt;span class=&quot;attribute&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:height&lt;/span&gt; size)&lt;/span&gt;
+                      &lt;span class=&quot;attribute&quot;&gt;:top&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:y&lt;/span&gt; pos)&lt;/span&gt;
+                      &lt;span class=&quot;attribute&quot;&gt;:left&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:x&lt;/span&gt; pos)&lt;/span&gt;}&lt;/span&gt;}&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;All of the animation is accomplished with &lt;a href=&quot;https://github.com/city41/reagent-breakout/blob/master/resources/public/css/site.css&quot;&gt;CSS&lt;/a&gt;, which helped make everything that much more simple. Small lesson learned, even on a tiny project like this I should have used a CSS generation tool. CSS, why are you so tedious?&lt;/p&gt;
+&lt;h3 id=&quot;using-react-s-csstransitiongroup-for-the-bricks&quot;&gt;Using React’s CSSTransitionGroup for the bricks&lt;/h3&gt;
+&lt;p&gt;Whenever a brick is hit, it fades out using a CSS animation. React’s &lt;a href=&quot;http://facebook.github.io/react/docs/animation.html&quot;&gt;CSSTransitionGroup&lt;/a&gt; is perfect for this, and easy to get going in Reagent. Just add it as one of your components, and underneath it place all the components that need animation&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; ctg &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;aget&lt;/span&gt; js/React &lt;span class=&quot;string&quot;&gt;&quot;addons&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;CSSTransitionGroup&quot;&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;comment&quot;&gt;;; ...&lt;/span&gt;
+
+&lt;span class=&quot;collection&quot;&gt;[ctg &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:transitionName&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;spawn&quot;&lt;/span&gt;}&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;for&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[brick @bricks]&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;^{:key brick}&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[brick/cmp brick]&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I was really happy how seamlessly CSSTransitionGroup dropped right in.&lt;/p&gt;
+&lt;h2 id=&quot;the-game-logic&quot;&gt;The Game Logic&lt;/h2&gt;
+&lt;p&gt;By far the beefiest file is &lt;a href=&quot;https://github.com/city41/reagent-breakout/blob/master/src/cljs/breakout/engine/level.cljs&quot;&gt;level.cljs&lt;/a&gt;. Weighing in at 184 lines of code, it manages everything related to playing the game.&lt;/p&gt;
+&lt;p&gt;The hit detection could still use some work, but 184 lines to whip up a Breakout game from scratch isn’t bad at all. I have no game engine helping me out, and needed to pretty much roll everything myself. The entire game from head to toe is 403 lines of code.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;level.cljs&lt;/code&gt; calls &lt;code&gt;requestAnimationFrame&lt;/code&gt; in order to accomplish its game loop, and from there it just updates a lot of atoms that represent the current state of the game. From there the Reagent components just render that state, with almost no logic at all of their own. This worked out well, but I think &lt;code&gt;level&lt;/code&gt; could probably still be cleaner and simpler.&lt;/p&gt;
+&lt;h3 id=&quot;multimethods-and-watching-atoms&quot;&gt;multimethods and watching atoms&lt;/h3&gt;
+&lt;p&gt;When playing the game there are two phases&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;the countdown phase: where the player waits for numbers to count down before beginning, giving them a chance to get ready&lt;/li&gt;
+&lt;li&gt;the play phase: standard breakout gameplay&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;I was able to separate out these phases using multimethods, which made the code cleaner.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; update! &lt;span class=&quot;collection&quot;&gt;[ts]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;when&lt;/span&gt;&lt;/span&gt; @running
+    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[delta &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;-&lt;/span&gt;&lt;/span&gt; ts &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;or&lt;/span&gt;&lt;/span&gt; @last-ts ts)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
+      &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; last-ts ts)&lt;/span&gt;
+      &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;update-phase!&lt;/span&gt; delta @phase)&lt;/span&gt;)&lt;/span&gt;
+    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;.&lt;/span&gt;&lt;/span&gt; js/window &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;requestAnimationFrame&lt;/span&gt; update!)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here &lt;code&gt;update-phase!&lt;/code&gt; will end up calling the appropriate function for the current phase, for example here is what the countdown phase does&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defmethod&lt;/span&gt;&lt;/span&gt; update-phase! &lt;span class=&quot;attribute&quot;&gt;:countdown&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[delta _]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; countdown-duration - delta)&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;when&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;&amp;lt;=&lt;/span&gt;&lt;/span&gt; @countdown-duration &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;)&lt;/span&gt;
+    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; phase &lt;span class=&quot;attribute&quot;&gt;:gameplay&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;By adding a watch to the &lt;code&gt;phase&lt;/code&gt; atom, it was really easy to set up a tiny little state machine in the game&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;add-watch&lt;/span&gt;&lt;/span&gt; phase &lt;span class=&quot;attribute&quot;&gt;:scene-phase&lt;/span&gt;
+           &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;fn&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[key r old-phase new-phase]&lt;/span&gt;
+             &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;when&lt;/span&gt;&lt;/span&gt; new-phase
+               &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;init-phase!&lt;/span&gt; new-phase)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Whenever switching phases, this watch handler kicks in and asks the new phase to do any initialization it needs (such as placing the ball back to its starting location). Again multimethods helped to separate the initialization of the phases into separate methods.&lt;/p&gt;
+&lt;h2 id=&quot;performance&quot;&gt;Performance&lt;/h2&gt;
+&lt;p&gt;Granted this is a very simple game, but my computer has no problem running it at 60fps. And despite creating a &lt;em&gt;ton&lt;/em&gt; of objects, the memory never gets out of control nor do I see any garbage collection hiccups. It seems like modern JavaScript engines can handle ClojureScripts immutable approach pretty well.&lt;/p&gt;
+&lt;h2 id=&quot;figwheel&quot;&gt;Figwheel&lt;/h2&gt;
+&lt;p&gt;I’m digging &lt;a href=&quot;https://github.com/bhauman/lein-figwheel&quot;&gt;Figwheel&lt;/a&gt;. It creates a connection between your dev environment and the browser, and pushes changes as they happen. This is great for tweaking CSS and Reagent components in real time. I found with a game Figwheel can get a little confused and thus a hard refresh is occasionally needed, &lt;code&gt;requestAnimationFrame&lt;/code&gt; and the loads of game state seem to foil it. Or maybe I just need to explore the tool some more.&lt;/p&gt;
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Not the most practical project I’ve ever taken on, but it was fun. I’m impressed with how far DOM manipulation performance has come, especially with React’s virtual DOM.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>ClojureScript Internals - Vectors</title>
       <link>http://mattgreer.org/articles/clojurescript-internals-vectors/</link>

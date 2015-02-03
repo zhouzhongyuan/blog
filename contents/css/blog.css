@@ -8,7 +8,7 @@ pre{margin:20px 0}
 .date{font-family:'Lato',sans-serif;font-weight:300;font-style:italic;font-size:10px;color:#204c57;margin-bottom:10px}
 code{color:#55a;background-color:#f3f3f9}
 .center{text-align:center;max-width:600px}
-img.diagram{margin:30px auto}
+.diagram img{margin:30px auto}
 @media (max-width: 768px){img,iframe{width:100%}
 }header{margin:0;padding:0;width:100%;background-color:#fff;}
 header .title{margin:0 0 4px 40px;}
