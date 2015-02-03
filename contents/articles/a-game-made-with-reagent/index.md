@@ -97,7 +97,7 @@ Whenever switching phases, this watch handler kicks in and asks the new phase to
 
 ## Performance
 
-Granted this is a very simple game, but my computer has no problem running it at 60fps. And despite creating a *ton* of objects, the memory never gets out of control nor do I see any garbage collection hiccups. It seems like modern JavaScript engines can handle ClojureScripts immutable approach pretty well.
+Granted this is a very simple game, but my computer has no problem running it at 60fps. And despite creating a *ton* of objects, the memory never gets out of control nor do I see any garbage collection hiccups. It seems like modern JavaScript engines can handle ClojureScript's immutable approach pretty well.
 
 ## Figwheel
 

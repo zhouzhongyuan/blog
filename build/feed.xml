@@ -78,7 +78,7 @@
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Whenever switching phases, this watch handler kicks in and asks the new phase to do any initialization it needs (such as placing the ball back to its starting location). Again multimethods helped to separate the initialization of the phases into separate methods.&lt;/p&gt;
 &lt;h2 id=&quot;performance&quot;&gt;Performance&lt;/h2&gt;
-&lt;p&gt;Granted this is a very simple game, but my computer has no problem running it at 60fps. And despite creating a &lt;em&gt;ton&lt;/em&gt; of objects, the memory never gets out of control nor do I see any garbage collection hiccups. It seems like modern JavaScript engines can handle ClojureScripts immutable approach pretty well.&lt;/p&gt;
+&lt;p&gt;Granted this is a very simple game, but my computer has no problem running it at 60fps. And despite creating a &lt;em&gt;ton&lt;/em&gt; of objects, the memory never gets out of control nor do I see any garbage collection hiccups. It seems like modern JavaScript engines can handle ClojureScript’s immutable approach pretty well.&lt;/p&gt;
 &lt;h2 id=&quot;figwheel&quot;&gt;Figwheel&lt;/h2&gt;
 &lt;p&gt;I’m digging &lt;a href=&quot;https://github.com/bhauman/lein-figwheel&quot;&gt;Figwheel&lt;/a&gt;. It creates a connection between your dev environment and the browser, and pushes changes as they happen. This is great for tweaking CSS and Reagent components in real time. I found with a game Figwheel can get a little confused and thus a hard refresh is occasionally needed, &lt;code&gt;requestAnimationFrame&lt;/code&gt; and the loads of game state seem to foil it. Or maybe I just need to explore the tool some more.&lt;/p&gt;
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
