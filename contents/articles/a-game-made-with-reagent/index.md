@@ -13,7 +13,7 @@ I based it off of the [Breakouts project](http://www.jsbreakouts.org) that I sta
   <img src="img/reagent-breakout.png" alt="screenshot of breakout" />
 </div>
 
-You can play it [here](http://city41.github.io/reagent-breakout).
+You can play it [here](http://city41.github.io/reagent-breakout), and the repo is [here](https://github.com/city41/reagent-breakout).
 
 ## The Reagent Components
 
