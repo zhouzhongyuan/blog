@@ -1,7 +1,7 @@
 ---
 title: A Game Made With Reagent
 author: Matt
-date: 2015-02-02
+date: 2015-02-03
 template: article.jade
 ---
 Mostly for the heck of it, I built Breakout using ClojureScript and Reagent. I was pretty pleased with the results.
