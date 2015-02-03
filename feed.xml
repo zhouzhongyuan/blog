@@ -21,7 +21,7 @@
   &lt;img src=&quot;img/reagent-breakout.png&quot; alt=&quot;screenshot of breakout&quot; /&gt;
 &lt;/div&gt;
 
-&lt;p&gt;You can play it &lt;a href=&quot;http://city41.github.io/reagent-breakout&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;You can play it &lt;a href=&quot;http://city41.github.io/reagent-breakout&quot;&gt;here&lt;/a&gt;, and the repo is &lt;a href=&quot;https://github.com/city41/reagent-breakout&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 id=&quot;the-reagent-components&quot;&gt;The Reagent Components&lt;/h2&gt;
 &lt;p&gt;The components such as the ball and bricks are dead simple, there’s pretty much nothing to them. Here is the ball&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;ns&lt;/span&gt;&lt;/span&gt; breakout.cmp.ball)&lt;/span&gt;
