@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Embedding SVG into a Reagent Component - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>Embedding SVG into a Reagent Component</h1>
+            <div class="date"><span>09 February 2015</span></div>
+            <article class="article">
+              <section class="content"><p>SVG is still a pretty strange beast in browsers. I’m intrigued by it, but still haven’t found a truly killer way to bend it to my will. I’ve used D3 and other libraries in the past and enjoyed them, but I feel like SVG’s potential still has yet to be really unlocked. Can Clojure macros and Reagent be helpful with SVG?</p>
+<p><span class="more"></span></p>
+<h2 id="react-and-reagent-s-svg-support">React and Reagent’s SVG support</h2>
+<p>React supports SVG pretty well, you can directly place SVG in your React components, and that is true of Reagent as well</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> some-svg-component <span class="collection">[]</span>
+  <span class="collection">[<span class="attribute">:svg</span> <span class="collection">{<span class="attribute">:x</span> <span class="number">0</span> <span class="attribute">:y</span> <span class="number">0</span> <span class="attribute">:width</span> <span class="number">50</span> <span class="attribute">:height</span> <span class="number">50</span>}</span>
+    <span class="collection">[<span class="attribute">:rect</span> <span class="collection">{<span class="attribute">:x</span> <span class="number">10</span> <span class="attribute">:y</span> <span class="number">10</span> <span class="attribute">:width</span> <span class="number">10</span> <span class="attribute">:height</span> <span class="number">10</span>}</span>]</span>]</span>)</span>
+</code></pre>
+<p>but man, how often do you want to write out SVG by hand?</p>
+<h2 id="embedding-svg-directly-into-a-reagent-component">Embedding SVG directly into a Reagent component</h2>
+<p>With macros and <a href="https://github.com/nathell/clj-tagsoup">clj-tagsoup</a> in hand, it’s super easy to embed an SVG file right into your Reagent code</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">ns</span></span> embed.svg
+  <span class="list">(<span class="attribute">:require</span> <span class="collection">[pl.danieljanus.tagsoup <span class="attribute">:as</span> ts]</span>)</span>)</span>
+
+<span class="list">(<span class="keyword"><span class="built_in">defmacro</span></span> embed-svg <span class="collection">[svg-file]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[hiccup <span class="list">(<span class="keyword">ts/parse-string</span> <span class="list">(<span class="keyword"><span class="built_in">slurp</span></span> svg-file)</span>)</span>]</span>
+    `~hiccup)</span>)</span>
+</code></pre>
+<p>and then in the component</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> some-svg-component <span class="collection">[]</span>
+  <span class="list">(<span class="keyword">embed-svg</span> <span class="string">"cool-svg-image.svg"</span>)</span>)</span>
+</code></pre>
+<p>This works perfectly well. The output from <code>clj-tagsoup</code> is perfectly compatible with Reagent (so great the Clojure community has largely agreed on <a href="https://github.com/weavejester/hiccup">hiccup</a> syntax!)</p>
+<h2 id="taking-it-further-">Taking It Further?</h2>
+<p>The above doesn’t buy you much, you’re better off including the svg in an <code>img</code> tag. So can we do more? I’m not sure yet …</p>
+<p>I have one SVG diagram that I want users to be able to click on different parts of. From there, the page focuses on that part of the diagram. I was able to do this with macros</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> assoc-click-handler <span class="collection">[m]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">assoc</span></span> m <span class="attribute">:class</span> `<span class="list">(<span class="keyword"><span class="built_in">if</span></span> <span class="list">(<span class="keyword"><span class="built_in">=</span></span> ~'focused-id ~<span class="list">(<span class="attribute">:id</span> m)</span>)</span> <span class="string">"focused"</span> <span class="string">""</span>)</span>
+           <span class="attribute">:on-click</span>
+           `<span class="list">(<span class="keyword"><span class="built_in">fn</span></span> <span class="collection">[]</span> <span class="list">(<span class="keyword">history/go-to</span> <span class="list">(<span class="keyword"><span class="built_in">str</span></span> <span class="string">"/basics/rink/"</span> ~<span class="list">(<span class="attribute">:id</span> m)</span>)</span>)</span>)</span>)</span>)</span>
+
+<span class="list">(<span class="keyword"><span class="built_in">declare</span></span> create-click-handlers)</span>
+
+<span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> add-click-handlers-for-ids <span class="collection">[obj]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">cond</span></span>
+    <span class="list">(<span class="keyword"><span class="built_in">vector?</span></span> obj)</span> <span class="list">(<span class="keyword">create-click-handlers</span> obj)</span>
+    <span class="list">(<span class="keyword"><span class="built_in">and</span></span> <span class="list">(<span class="keyword"><span class="built_in">map?</span></span> obj)</span> <span class="list">(<span class="keyword"><span class="built_in">contains?</span></span> obj <span class="attribute">:id</span>)</span>)</span> <span class="list">(<span class="keyword">assoc-click-handler</span> obj)</span>
+    <span class="attribute">:else</span> obj)</span>)</span>
+
+<span class="list">(<span class="keyword"><span class="built_in">defn</span></span> create-click-handlers <span class="collection">[tags]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">apply</span></span> vector <span class="list">(<span class="keyword"><span class="built_in">map</span></span> add-click-handlers-for-ids tags)</span>)</span>)</span>
+
+<span class="list">(<span class="keyword"><span class="built_in">defmacro</span></span> embed-clickable <span class="collection">[svg-file]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[hiccup <span class="list">(<span class="keyword"><span class="built_in">-&gt;</span></span> <span class="list">(<span class="keyword"><span class="built_in">slurp</span></span> svg-file)</span>
+                   <span class="list">(<span class="keyword">ts/parse-string</span>)</span>
+                   <span class="list">(<span class="keyword">create-click-handlers</span>)</span>)</span>]</span>
+  `~hiccup)</span>)</span>
+</code></pre>
+<p>Doing just about the same thing as before, but for any map inside of clj-tagsoup’s output that has an <code>id</code> in it (in other words, the SVG element has an id), I also swoop in and throw a click handler on it. It’s bad practice that <code>assoc-click-handler</code> makes assumption about its environment (<code>focused-id</code> and <code>(history/go-to)</code> live in the same file as where I call the macro), but I’m ok with that, at least for now.</p>
+<p>Any elements in my SVG that have ids will be “focusable” by the user clicking on them. So I am free to build a very complicated SVG in a vector editor, and still get interactivity out of it pretty painlessly.</p>
+<h2 id="more-">More?</h2>
+<p>I’m still exploring macros+SVG. I’m not convinced there’s all that much here, but if I stumble upon anything super cool I’ll definitely put up a new post here.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer based out of Denver, CO. I am mostly interested in web related technology,
+but also dabble in games, Clojure(Script), and devops-ish stuff. My main focus right now is <a href="https://metamorf.us">Metamorfus</a>.  </p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>

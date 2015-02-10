@@ -5,9 +5,69 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Mon, 02 Feb 2015 17:00:00 -0700</pubDate>
+    <pubDate>Sun, 08 Feb 2015 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Embedding SVG into a Reagent Component</title>
+      <link>http://mattgreer.org/articles/embedding-svg-into-a-reagent-component/</link>
+      <pubDate>Sun, 08 Feb 2015 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/embedding-svg-into-a-reagent-component/</guid>
+      <author></author>
+      <description>&lt;p&gt;SVG is still a pretty strange beast in browsers. I’m intrigued by it, but still haven’t found a truly killer way to bend it to my will. I’ve used D3 and other libraries in the past and enjoyed them, but I feel like SVG’s potential still has yet to be really unlocked. Can Clojure macros and Reagent be helpful with SVG?&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&quot;react-and-reagent-s-svg-support&quot;&gt;React and Reagent’s SVG support&lt;/h2&gt;
+&lt;p&gt;React supports SVG pretty well, you can directly place SVG in your React components, and that is true of Reagent as well&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; some-svg-component &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:svg&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:x&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:y&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt;}&lt;/span&gt;
+    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:rect&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:x&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:y&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt;}&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;but man, how often do you want to write out SVG by hand?&lt;/p&gt;
+&lt;h2 id=&quot;embedding-svg-directly-into-a-reagent-component&quot;&gt;Embedding SVG directly into a Reagent component&lt;/h2&gt;
+&lt;p&gt;With macros and &lt;a href=&quot;https://github.com/nathell/clj-tagsoup&quot;&gt;clj-tagsoup&lt;/a&gt; in hand, it’s super easy to embed an SVG file right into your Reagent code&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;ns&lt;/span&gt;&lt;/span&gt; embed.svg
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:require&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[pl.danieljanus.tagsoup &lt;span class=&quot;attribute&quot;&gt;:as&lt;/span&gt; ts]&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defmacro&lt;/span&gt;&lt;/span&gt; embed-svg &lt;span class=&quot;collection&quot;&gt;[svg-file]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[hiccup &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;ts/parse-string&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;slurp&lt;/span&gt;&lt;/span&gt; svg-file)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
+    `~hiccup)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and then in the component&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; some-svg-component &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;embed-svg&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;cool-svg-image.svg&quot;&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This works perfectly well. The output from &lt;code&gt;clj-tagsoup&lt;/code&gt; is perfectly compatible with Reagent (so great the Clojure community has largely agreed on &lt;a href=&quot;https://github.com/weavejester/hiccup&quot;&gt;hiccup&lt;/a&gt; syntax!)&lt;/p&gt;
+&lt;h2 id=&quot;taking-it-further-&quot;&gt;Taking It Further?&lt;/h2&gt;
+&lt;p&gt;The above doesn’t buy you much, you’re better off including the svg in an &lt;code&gt;img&lt;/code&gt; tag. So can we do more? I’m not sure yet …&lt;/p&gt;
+&lt;p&gt;I have one SVG diagram that I want users to be able to click on different parts of. From there, the page focuses on that part of the diagram. I was able to do this with macros&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; assoc-click-handler &lt;span class=&quot;collection&quot;&gt;[m]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;assoc&lt;/span&gt;&lt;/span&gt; m &lt;span class=&quot;attribute&quot;&gt;:class&lt;/span&gt; `&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;=&lt;/span&gt;&lt;/span&gt; ~'focused-id ~&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:id&lt;/span&gt; m)&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;focused&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;&quot;&lt;/span&gt;)&lt;/span&gt;
+           &lt;span class=&quot;attribute&quot;&gt;:on-click&lt;/span&gt;
+           `&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;fn&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;history/go-to&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;str&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;/basics/rink/&quot;&lt;/span&gt; ~&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:id&lt;/span&gt; m)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;declare&lt;/span&gt;&lt;/span&gt; create-click-handlers)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; add-click-handlers-for-ids &lt;span class=&quot;collection&quot;&gt;[obj]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;cond&lt;/span&gt;&lt;/span&gt;
+    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;vector?&lt;/span&gt;&lt;/span&gt; obj)&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;create-click-handlers&lt;/span&gt; obj)&lt;/span&gt;
+    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;and&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;map?&lt;/span&gt;&lt;/span&gt; obj)&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;contains?&lt;/span&gt;&lt;/span&gt; obj &lt;span class=&quot;attribute&quot;&gt;:id&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;assoc-click-handler&lt;/span&gt; obj)&lt;/span&gt;
+    &lt;span class=&quot;attribute&quot;&gt;:else&lt;/span&gt; obj)&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; create-click-handlers &lt;span class=&quot;collection&quot;&gt;[tags]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;map&lt;/span&gt;&lt;/span&gt; add-click-handlers-for-ids tags)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defmacro&lt;/span&gt;&lt;/span&gt; embed-clickable &lt;span class=&quot;collection&quot;&gt;[svg-file]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[hiccup &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;slurp&lt;/span&gt;&lt;/span&gt; svg-file)&lt;/span&gt;
+                   &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;ts/parse-string&lt;/span&gt;)&lt;/span&gt;
+                   &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;create-click-handlers&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
+  `~hiccup)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Doing just about the same thing as before, but for any map inside of clj-tagsoup’s output that has an &lt;code&gt;id&lt;/code&gt; in it (in other words, the SVG element has an id), I also swoop in and throw a click handler on it. It’s bad practice that &lt;code&gt;assoc-click-handler&lt;/code&gt; makes assumption about its environment (&lt;code&gt;focused-id&lt;/code&gt; and &lt;code&gt;(history/go-to)&lt;/code&gt; live in the same file as where I call the macro), but I’m ok with that, at least for now.&lt;/p&gt;
+&lt;p&gt;Any elements in my SVG that have ids will be “focusable” by the user clicking on them. So I am free to build a very complicated SVG in a vector editor, and still get interactivity out of it pretty painlessly.&lt;/p&gt;
+&lt;h2 id=&quot;more-&quot;&gt;More?&lt;/h2&gt;
+&lt;p&gt;I’m still exploring macros+SVG. I’m not convinced there’s all that much here, but if I stumble upon anything super cool I’ll definitely put up a new post here.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>A Game Made With Reagent</title>
       <link>http://mattgreer.org/articles/a-game-made-with-reagent/</link>
