@@ -5,13 +5,13 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Sun, 08 Feb 2015 17:00:00 -0700</pubDate>
+    <pubDate>Sun, 08 Feb 2015 18:00:00 -0600</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
     <item>
       <title>Embedding SVG into a Reagent Component</title>
       <link>http://mattgreer.org/articles/embedding-svg-into-a-reagent-component/</link>
-      <pubDate>Sun, 08 Feb 2015 17:00:00 -0700</pubDate>
+      <pubDate>Sun, 08 Feb 2015 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/embedding-svg-into-a-reagent-component/</guid>
       <author></author>
       <description>&lt;p&gt;SVG is still a pretty strange beast in browsers. I’m intrigued by it, but still haven’t found a truly killer way to bend it to my will. I’ve used D3 and other libraries in the past and enjoyed them, but I feel like SVG’s potential still has yet to be really unlocked. Can Clojure macros and Reagent be helpful with SVG?&lt;/p&gt;
@@ -71,7 +71,7 @@
     <item>
       <title>A Game Made With Reagent</title>
       <link>http://mattgreer.org/articles/a-game-made-with-reagent/</link>
-      <pubDate>Mon, 02 Feb 2015 17:00:00 -0700</pubDate>
+      <pubDate>Mon, 02 Feb 2015 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/a-game-made-with-reagent/</guid>
       <author></author>
       <description>&lt;p&gt;Mostly for the heck of it, I built Breakout using ClojureScript and Reagent. I was pretty pleased with the results.
@@ -148,7 +148,7 @@
     <item>
       <title>ClojureScript Internals - Vectors</title>
       <link>http://mattgreer.org/articles/clojurescript-internals-vectors/</link>
-      <pubDate>Sun, 25 Jan 2015 17:00:00 -0700</pubDate>
+      <pubDate>Sun, 25 Jan 2015 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/clojurescript-internals-vectors/</guid>
       <author></author>
       <description>&lt;p&gt;Today we’re taking a look at how vectors are implemented in ClojureScript. We’ll explore some of the trade offs made between performance and immutability, and we’ll get a feel for how a language like Clojure gets mapped into a language like JavaScript.&lt;/p&gt;
@@ -413,7 +413,7 @@ else
     <item>
       <title>Reagent Rocks!</title>
       <link>http://mattgreer.org/articles/reagent-rocks/</link>
-      <pubDate>Fri, 23 Jan 2015 17:00:00 -0700</pubDate>
+      <pubDate>Fri, 23 Jan 2015 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/reagent-rocks/</guid>
       <author></author>
       <description>&lt;p&gt;Lately all of my front end work has been in &lt;a href=&quot;http://holmsand.github.io/reagent/&quot;&gt;Reagent&lt;/a&gt;, a &lt;a href=&quot;https://github.com/clojure/clojurescript&quot;&gt;ClojureScript&lt;/a&gt; interface to Facebook’s &lt;a href=&quot;http://facebook.github.io/react/&quot;&gt;React&lt;/a&gt;. I’m really enjoying working with Reagent, this post attempts to shed some light on why.&lt;/p&gt;
@@ -580,7 +580,7 @@ And again, this is super glossed over
     <item>
       <title>Creating a Pegdown Plugin</title>
       <link>http://mattgreer.org/articles/creating-a-pegdown-plugin/</link>
-      <pubDate>Thu, 25 Dec 2014 17:00:00 -0700</pubDate>
+      <pubDate>Thu, 25 Dec 2014 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/creating-a-pegdown-plugin/</guid>
       <author></author>
       <description>&lt;p&gt;I recently found myself needing to create a &lt;a href=&quot;http://pegdown.org&quot;&gt;Pegdown&lt;/a&gt; plugin. The documentation was a bit all over the place on this, so I figured I’d dump my end-to-end experience into a blog post for Google to consume.&lt;/p&gt;
@@ -876,7 +876,7 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
     <item>
       <title>Node sql-fixtures (a new module)</title>
       <link>http://mattgreer.org/articles/node-sql-fixtures/</link>
-      <pubDate>Wed, 15 Oct 2014 18:00:00 -0600</pubDate>
+      <pubDate>Wed, 15 Oct 2014 19:00:00 -0500</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/node-sql-fixtures/</guid>
       <author></author>
       <description>&lt;p&gt;I don’t think a fixture generator for PostgreSQL exists in NPM. If one does, I could not find it. So I went ahead and &lt;a href=&quot;https://github.com/city41/node-sql-fixtures&quot;&gt;made one&lt;/a&gt;. Added bonus, it works with MySQL, MariaDB and sqlite as well.&lt;/p&gt;
@@ -945,7 +945,7 @@ sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&
     <item>
       <title>Traceur, Gulp, Browserify and ES6</title>
       <link>http://mattgreer.org/articles/traceur-gulp-browserify-es6/</link>
-      <pubDate>Fri, 19 Sep 2014 18:00:00 -0600</pubDate>
+      <pubDate>Fri, 19 Sep 2014 19:00:00 -0500</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/traceur-gulp-browserify-es6/</guid>
       <author></author>
       <description>&lt;p&gt;Here’s a brain dump of my experience getting these recent-ish techs up and running together on a small project …&lt;/p&gt;
@@ -1083,7 +1083,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
     <item>
       <title>Pair Programming Is Not a Panacea</title>
       <link>http://mattgreer.org/articles/pair-programming-is-not-a-panacea/</link>
-      <pubDate>Tue, 26  Aug 2014 18:00:00 -0600</pubDate>
+      <pubDate>Tue, 26  Aug 2014 19:00:00 -0500</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/pair-programming-is-not-a-panacea/</guid>
       <author></author>
       <description>&lt;p&gt;For the past 3 years, I have almost exclusively pair programmed at my job. I have paired with many people in many situations and learned a lot about this practice. I have found pairing can be effective, but it can also be ineffective and costly. Pair programming seems to be gaining traction, which concerns me a little bit. Some of us really don’t like to pair, and I feel it’s important to recognize that and maintain a balance here. Pairing is just a tool like anything else; it definitely should not be your company’s default mode of work.&lt;/p&gt;
@@ -1137,7 +1137,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
     <item>
       <title>JavaScript Promises ... In Wicked Detail</title>
       <link>http://mattgreer.org/articles/promises-in-wicked-detail/</link>
-      <pubDate>Sat, 08 Feb 2014 17:00:00 -0700</pubDate>
+      <pubDate>Sat, 08 Feb 2014 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/promises-in-wicked-detail/</guid>
       <author></author>
       <description>&lt;p&gt;I’ve been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn’t fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises well too.&lt;/p&gt;
@@ -1482,18 +1482,18 @@ doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;k
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h3 id=&quot;returning-promises-inside-the-chain&quot;&gt;Returning Promises Inside the Chain&lt;/h3&gt;
 &lt;p&gt;Our chaining implementation is a bit naive. It’s blindly passing the resolved values down the line. What if one of the resolved values is a promise? For example&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(result) {
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// doSomethingElse returns a promise&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; doSomethingElse(result)
-}.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(finalResult)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; doSomethingElse(result);
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(finalResult)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;the final result is&quot;&lt;/span&gt;, finalResult);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;As it stands now, the above won’t do what we want. &lt;code&gt;finalResult&lt;/code&gt; won’t actually be a fully resolved value, it will instead be a promise. To get the intended result, we’d need to do&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(result) {
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// doSomethingElse returns a promise&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; doSomethingElse(result)
-}.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(anotherPromise)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; doSomethingElse(result);
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(anotherPromise)&lt;/span&gt; &lt;/span&gt;{
   anotherPromise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(finalResult)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;the final result is&quot;&lt;/span&gt;, finalResult);
   });
@@ -1553,7 +1553,7 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
   });
 }
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Inside the promise implementation, we need to account for rejection. &lt;/p&gt;
+&lt;p&gt;Inside the promise implementation, we need to account for rejection.&lt;/p&gt;
 &lt;p&gt;Let’s see the full promise implementation again, this time with rejection support added&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; state = &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;;
@@ -1795,7 +1795,7 @@ Promises always require at least one more iteration of the event loop to resolve
     <item>
       <title>CoffeeScript's Time is Waning For Me</title>
       <link>http://mattgreer.org/articles/coffeescripts-time-is-waning/</link>
-      <pubDate>Sat, 11 Jan 2014 17:00:00 -0700</pubDate>
+      <pubDate>Sat, 11 Jan 2014 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/coffeescripts-time-is-waning/</guid>
       <author></author>
       <description>&lt;p&gt;CoffeeScript was a welcome addition when it first arrived. Nowadays though, I am
@@ -1856,7 +1856,7 @@ still very welcome. &lt;/p&gt;
     <item>
       <title>Dynamic Lighting and Shadows in my 2d Game</title>
       <link>http://mattgreer.org/articles/dynamic-lighting-and-shadows/</link>
-      <pubDate>Tue, 16 Oct 2012 18:00:00 -0600</pubDate>
+      <pubDate>Tue, 16 Oct 2012 19:00:00 -0500</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/dynamic-lighting-and-shadows/</guid>
       <author></author>
       <description>&lt;p&gt;I’m working on a stealth action game where shadows will play a big role in the gameplay. Using WebGL shaders, I implemented dynamic lighting and shadows. This post is the blog post I wish existed before I started :) Gritty details on how I implemented these below…&lt;/p&gt;
@@ -2028,7 +2028,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
     <item>
       <title>Still Waking up at 5am to Code?</title>
       <link>http://mattgreer.org/articles/still-waking-up-at-5am/</link>
-      <pubDate>Sun, 26  Aug 2012 18:00:00 -0600</pubDate>
+      <pubDate>Sun, 26  Aug 2012 19:00:00 -0500</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/still-waking-up-at-5am/</guid>
       <author></author>
       <description>&lt;p&gt;Back in January I posted an article about &lt;a href=&quot;http://mattgreer.org/articles/waking-up-at-5am-to-code/&quot;&gt;waking up at 5am to code&lt;/a&gt;. It seemed to really strike a chord with a lot of people. Lately I’ve been getting a handful of emails asking me if I still do this and where I’m at with it now. So I thought I’d post a quick follow up.&lt;/p&gt;
@@ -2046,7 +2046,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
     <item>
       <title>Waking Up at 5am to Code</title>
       <link>http://mattgreer.org/articles/waking-up-at-5am-to-code/</link>
-      <pubDate>Sun, 22 Jan 2012 17:00:00 -0700</pubDate>
+      <pubDate>Sun, 22 Jan 2012 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/waking-up-at-5am-to-code/</guid>
       <author></author>
       <description>&lt;p&gt;I’m currently experimenting with waking up at 5am to work on personal projects before heading to work.&lt;/p&gt;
@@ -2090,7 +2090,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
     <item>
       <title>Yokul - Google Charts Reimplemented in a Local JS Canvas</title>
       <link>http://mattgreer.org/articles/yokul/</link>
-      <pubDate>Sat, 04 Jun 2011 18:00:00 -0600</pubDate>
+      <pubDate>Sat, 04 Jun 2011 19:00:00 -0500</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/yokul/</guid>
       <author></author>
       <description>&lt;p&gt;&lt;a href=&quot;https://github.com/city41/yokul&quot;&gt;Yokul&lt;/a&gt; is a little JavaScript experiment I’ve been playing with in my free time. Using the same query string you’d normally send to the &lt;a href=&quot;http://code.google.com/apis/chart/image/&quot;&gt;Google Image Chart API&lt;/a&gt; a local chart is created on the client using an HTML5 canvas.&lt;/p&gt;

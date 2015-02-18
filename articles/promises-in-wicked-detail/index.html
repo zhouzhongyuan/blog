@@ -376,18 +376,18 @@ doSomething().then(<span class="function"><span class="keyword">function</span><
 </code></pre>
 <h3 id="returning-promises-inside-the-chain">Returning Promises Inside the Chain</h3>
 <p>Our chaining implementation is a bit naive. It’s blindly passing the resolved values down the line. What if one of the resolved values is a promise? For example</p>
-<pre><code class="lang-javascript">doSomething().then(result) {
+<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
   <span class="comment">// doSomethingElse returns a promise</span>
-  <span class="keyword">return</span> doSomethingElse(result)
-}.then(<span class="function"><span class="keyword">function</span><span class="params">(finalResult)</span> </span>{
+  <span class="keyword">return</span> doSomethingElse(result);
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(finalResult)</span> </span>{
   <span class="built_in">console</span>.log(<span class="string">"the final result is"</span>, finalResult);
 });
 </code></pre>
 <p>As it stands now, the above won’t do what we want. <code>finalResult</code> won’t actually be a fully resolved value, it will instead be a promise. To get the intended result, we’d need to do</p>
-<pre><code class="lang-javascript">doSomething().then(result) {
+<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
   <span class="comment">// doSomethingElse returns a promise</span>
-  <span class="keyword">return</span> doSomethingElse(result)
-}.then(<span class="function"><span class="keyword">function</span><span class="params">(anotherPromise)</span> </span>{
+  <span class="keyword">return</span> doSomethingElse(result);
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(anotherPromise)</span> </span>{
   anotherPromise.then(<span class="function"><span class="keyword">function</span><span class="params">(finalResult)</span> </span>{
     <span class="built_in">console</span>.log(<span class="string">"the final result is"</span>, finalResult);
   });
@@ -447,7 +447,7 @@ As mentioned earlier, the promise will transition from <strong>pending</strong> 
   });
 }
 </code></pre>
-<p>Inside the promise implementation, we need to account for rejection. </p>
+<p>Inside the promise implementation, we need to account for rejection.</p>
 <p>Let’s see the full promise implementation again, this time with rejection support added</p>
 <pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> </span>{
   <span class="keyword">var</span> state = <span class="string">'pending'</span>;
