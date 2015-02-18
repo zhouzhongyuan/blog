@@ -430,10 +430,10 @@ if(!handler.onResolved) {
 Our chaining implementation is a bit naive. It's blindly passing the resolved values down the line. What if one of the resolved values is a promise? For example
 
 ```javascript
-doSomething().then(result) {
+doSomething().then(function(result) {
   // doSomethingElse returns a promise
-  return doSomethingElse(result)
-}.then(function(finalResult) {
+  return doSomethingElse(result);
+}).then(function(finalResult) {
   console.log("the final result is", finalResult);
 });
 ```
@@ -441,10 +441,10 @@ doSomething().then(result) {
 As it stands now, the above won't do what we want. `finalResult` won't actually be a fully resolved value, it will instead be a promise. To get the intended result, we'd need to do
 
 ```javascript
-doSomething().then(result) {
+doSomething().then(function(result) {
   // doSomethingElse returns a promise
-  return doSomethingElse(result)
-}.then(function(anotherPromise) {
+  return doSomethingElse(result);
+}).then(function(anotherPromise) {
   anotherPromise.then(function(finalResult) {
     console.log("the final result is", finalResult);
   });
@@ -518,7 +518,7 @@ function doSomething() {
 }
 ```
 
-Inside the promise implementation, we need to account for rejection. 
+Inside the promise implementation, we need to account for rejection.
 
 Let's see the full promise implementation again, this time with rejection support added
 
