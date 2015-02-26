@@ -5,13 +5,101 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Sun, 08 Feb 2015 18:00:00 -0600</pubDate>
+    <pubDate>Wed, 25 Feb 2015 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
     <item>
+      <title>Scrolling Animations With Reagent</title>
+      <link>http://mattgreer.org/articles/scrolling-animations-with-reagent/</link>
+      <pubDate>Wed, 25 Feb 2015 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/scrolling-animations-with-reagent/</guid>
+      <author></author>
+      <description>&lt;p&gt;Here is a small demo of one of those gimmicky “scroll to animate” pages built with Reagent (which is based on React.js) and ClojureScript.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&quot;demo&quot;&gt;Demo&lt;/h2&gt;
+&lt;p&gt;You can see the demo &lt;a href=&quot;http://mattgreer.org/reagent-scroll-demo&quot;&gt;here&lt;/a&gt; and its GitHub repo is &lt;a href=&quot;https://github.com/city41/reagent-scroll-demo&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Here’s a quick rundown on how the system works.&lt;/p&gt;
+&lt;h2 id=&quot;grabbing-window-scroll-events-with-core-async&quot;&gt;Grabbing Window Scroll Events with core.async&lt;/h2&gt;
+&lt;p&gt;The animation engine itself is completely separate from window scroll events. You could just as easily feed the engine via time, a slider on the page, button presses, etc. But using the window’s scroll position is a common approach, so that’s what I did in the demo.&lt;/p&gt;
+&lt;p&gt;Listening for the window scroll with &lt;code&gt;core.async&lt;/code&gt; is really simple:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; get-scroll &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;dom/getDocumentScroll&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-y&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; events-&amp;gt;chan &lt;span class=&quot;collection&quot;&gt;[el event-type c]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;events/listen&lt;/span&gt; el event-type #&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;put!&lt;/span&gt; c %)&lt;/span&gt;)&lt;/span&gt;
+  c)&lt;/span&gt;
+
+&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; scroll-chan &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;events-&amp;gt;chan&lt;/span&gt; js/window EventType/SCROLL &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;chan&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;map&lt;/span&gt;&lt;/span&gt; get-scroll)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Every time the window produces a scroll event, we’ll jam it into a channel. The event object itself has no real scroll position information, so we throw it away and instead just query the document for its current position. That’s what’s happening with &lt;code&gt;(chan 1 (map get-scroll))&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+This is all a very simple application of core.async and transducers. If this is new territory, I recommend checking out &lt;a href=&quot;http://go.cognitect.com/core_async_webinar_recording&quot;&gt;David Nolen’s webinar&lt;/a&gt; on the subject. He does a great job explaining all of this and will likely make you a fan of core.async in the process.
+&lt;/div&gt;
+
+&lt;p&gt;Now with the channel code in hand, the main file of the demo sets up a channel and pulls from it&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; listen! &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[chan &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;scroll-chan&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
+    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;go-loop&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+             &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[new-y &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&amp;lt;!&lt;/span&gt; chan)&lt;/span&gt;]&lt;/span&gt;
+               &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; prev-scroll-y @cur-scroll-y)&lt;/span&gt;
+               &lt;span class=&quot;comment&quot;&gt;;; not interested in negative values&lt;/span&gt;
+               &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; cur-scroll-y &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;max&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; new-y)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+               &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;recur&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;With one call to &lt;code&gt;(listen!)&lt;/code&gt;, the app will receive the new scroll position of the window and store it in &lt;code&gt;cur-scroll-y&lt;/code&gt;, and push the previous one over into &lt;code&gt;prev-scroll-y&lt;/code&gt;. These two values together are fed into the animation engine and allow the magic to happen.&lt;/p&gt;
+&lt;h2 id=&quot;declarative-animations&quot;&gt;Declarative Animations&lt;/h2&gt;
+&lt;p&gt;The animation system has an &lt;code&gt;animation-container&lt;/code&gt; component that takes two things: the actual Reagent component that should get animated, and an animation config that describes how the animations should occur.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; page &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
+  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.page&lt;/span&gt;
+   &lt;span class=&quot;collection&quot;&gt;[animation-container
+    @prev-scroll-y
+    @cur-scroll-y
+    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;I'm going to move across the screen&quot;&lt;/span&gt;]&lt;/span&gt;
+    &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:style&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:top&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;100&lt;/span&gt;
+             &lt;span class=&quot;attribute&quot;&gt;:left&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;100&lt;/span&gt;
+             &lt;span class=&quot;attribute&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt;
+             &lt;span class=&quot;attribute&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt;}&lt;/span&gt;
+     &lt;span class=&quot;attribute&quot;&gt;:animations&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1000&lt;/span&gt;]&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:left&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;100&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;500&lt;/span&gt;]&lt;/span&gt;
+                            &lt;span class=&quot;attribute&quot;&gt;:opacity&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;]&lt;/span&gt;}&lt;/span&gt;}&lt;/span&gt;}&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here we have a page component which contains an animation-container which contains a simple little div. That little div will be what gets animated.&lt;/p&gt;
+&lt;p&gt;The key bit here is &lt;code&gt;:animations {[0 1000] {:left [100 500] :opacity [1 0]}}&lt;/code&gt;. The &lt;code&gt;animations&lt;/code&gt; map has vector keys that indicate the scroll range of the window. Then the values are the animations that should occur. In this case we’re saying &lt;em&gt;“as the window scrolls from a y of 0 to 1000, move this element from 100px to 500px, and fade its opacity from 1 to 0 too.”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;The ability to create maps in ClojureScript that have anything at all as their keys is really awesome.&lt;/p&gt;
+&lt;p&gt;You can add more animations to the map, to allow the element to do all kinds of things. I was really pleased with the simple syntax that ClojureScript allowed me.&lt;/p&gt;
+&lt;h2 id=&quot;the-animation-engine&quot;&gt;The Animation Engine&lt;/h2&gt;
+&lt;p&gt;The goal of the engine is to take the animation definition and properly tween elements as the window scrolls. So if an animation wants to be active from scroll values 0 to 1000, and the user has scrolled from 0 to 20, the engine needs to figure out where on the page things should be considering the animation is only 2% done.&lt;/p&gt;
+&lt;p&gt;There isn’t &lt;a href=&quot;https://github.com/city41/reagent-scroll-demo/blob/master/src/cljs/scroll_demo/scroll_engine.cljs&quot;&gt;that much code&lt;/a&gt; for the engine itself, but accounting for smooth scrolling made it a tad complicated.&lt;/p&gt;
+&lt;p&gt;By “smooth scrolling” I mean keeping the animations moving smoothly forward even if the user forces the window to scroll really far at once. You can see this in the &lt;a href=&quot;http://mattgreer.org/reagent-scroll-demo&quot;&gt;demo&lt;/a&gt; by clicking in the brower’s scrollbar. This causes the scroll to jump forward, and the boxes respond by still smoothly proceeding, instead of jumping instantly to the new spot.&lt;/p&gt;
+&lt;p&gt;This requires the engine to keep track of how an element’s animations are progressing and adjust them as needed whenever new scroll values come in. An element could be moving from 100px to 110px and made it to 104px when the user scrolls some more. Now the element needs to move from say 104px to 120px.&lt;/p&gt;
+&lt;p&gt;This is what the call to &lt;a href=&quot;https://github.com/city41/reagent-scroll-demo/blob/31a2b5f997f3c907f971dab79b3e8f4bcb521329/src/cljs/scroll_demo/scroll_engine.cljs#L117&quot;&gt;animate!&lt;/a&gt; is doing. Whenever new scroll values come in, it’s up to &lt;code&gt;animate!&lt;/code&gt; to figure out where the element should go next. The new animation goals really get figured out in &lt;code&gt;update-tween-props&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; update-tween-props
+  &lt;span class=&quot;string&quot;&gt;&quot;Given a tween object and the new state of the world, updates
+  the tween so it can now progress towards the new goal. Takes into
+  account how far the tween already progressed when deciding the tweens new goals.&quot;&lt;/span&gt;
+  &lt;span class=&quot;collection&quot;&gt;[tween pv cv duration ani]&lt;/span&gt;
+  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[current &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:current&lt;/span&gt; tween pv)&lt;/span&gt;
+        remaining &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:remaining&lt;/span&gt; tween &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;)&lt;/span&gt;
+        new-duration &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;+&lt;/span&gt;&lt;/span&gt; duration remaining)&lt;/span&gt;]&lt;/span&gt;
+    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;assoc&lt;/span&gt;&lt;/span&gt; tween
+           &lt;span class=&quot;attribute&quot;&gt;:ani&lt;/span&gt; ani
+           &lt;span class=&quot;attribute&quot;&gt;:slice&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[current cv]&lt;/span&gt;
+           &lt;span class=&quot;attribute&quot;&gt;:duration&lt;/span&gt; new-duration
+           &lt;span class=&quot;attribute&quot;&gt;:remaining&lt;/span&gt; new-duration
+           &lt;span class=&quot;attribute&quot;&gt;:current&lt;/span&gt; current)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Each animating component has a &lt;code&gt;tween&lt;/code&gt; map that keeps track of its current animation state. This method is inspecting that map, and using the new scroll position (&lt;code&gt;pv&lt;/code&gt; for previous value and &lt;code&gt;cv&lt;/code&gt; for current value) as well as how long the new animation should take. From there the tween takes the remainder of its current animation, adds it onto the new needed animation, and then it’s all set.&lt;/p&gt;
+&lt;p&gt;The other piece of the puzzle is &lt;a href=&quot;https://github.com/city41/reagent-scroll-demo/blob/31a2b5f997f3c907f971dab79b3e8f4bcb521329/src/cljs/scroll_demo/scroll_engine.cljs#L112&quot;&gt;(start-loop!)&lt;/a&gt;. This part is a bit simpler. Whenever an animation-container is created, it calls &lt;code&gt;start-loop!&lt;/code&gt; to kick off a &lt;code&gt;requestAnimationFrame&lt;/code&gt; rendering loop. Inside the &lt;code&gt;requestAnimationFrame&lt;/code&gt; callback, that same tween object is told to tween itself, and move the CSS properties the appropriate amount to accomplish the animation.&lt;/p&gt;
+&lt;p&gt;Both &lt;code&gt;start-loop!&lt;/code&gt; and &lt;code&gt;animate!&lt;/code&gt; make use of the same tween map (which is stored in an atom). So at the end of the day, &lt;code&gt;start-loop!&lt;/code&gt; continually marches the animation towards its current goal, and &lt;code&gt;animate!&lt;/code&gt; continually updates what the goal is based on new window scroll information.&lt;/p&gt;
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;I’m reasonably happy with this setup so far, but I’ll be tweaking and improving things as well. The code is demo quality at best and there’s a few improvements needed right off the bat, for example &lt;code&gt;requestAnimationFrame&lt;/code&gt; is always called no matter what, even if no animation is currently needed.&lt;/p&gt;
+&lt;p&gt;I’m building one of those gimmicky scrolling pages now, so thought I’d have a little fun with my own engine. I’ll be improving things as the page progresses. I’ll be sure to update my blog when I have anything interesting to share.&lt;/p&gt;
+</description>
+    </item>
+    <item>
       <title>Embedding SVG into a Reagent Component</title>
       <link>http://mattgreer.org/articles/embedding-svg-into-a-reagent-component/</link>
-      <pubDate>Sun, 08 Feb 2015 18:00:00 -0600</pubDate>
+      <pubDate>Sun, 08 Feb 2015 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/embedding-svg-into-a-reagent-component/</guid>
       <author></author>
       <description>&lt;p&gt;SVG is still a pretty strange beast in browsers. I’m intrigued by it, but still haven’t found a truly killer way to bend it to my will. I’ve used D3 and other libraries in the past and enjoyed them, but I feel like SVG’s potential still has yet to be really unlocked. Can Clojure macros and Reagent be helpful with SVG?&lt;/p&gt;
@@ -71,7 +159,7 @@
     <item>
       <title>A Game Made With Reagent</title>
       <link>http://mattgreer.org/articles/a-game-made-with-reagent/</link>
-      <pubDate>Mon, 02 Feb 2015 18:00:00 -0600</pubDate>
+      <pubDate>Mon, 02 Feb 2015 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/a-game-made-with-reagent/</guid>
       <author></author>
       <description>&lt;p&gt;Mostly for the heck of it, I built Breakout using ClojureScript and Reagent. I was pretty pleased with the results.
@@ -148,7 +236,7 @@
     <item>
       <title>ClojureScript Internals - Vectors</title>
       <link>http://mattgreer.org/articles/clojurescript-internals-vectors/</link>
-      <pubDate>Sun, 25 Jan 2015 18:00:00 -0600</pubDate>
+      <pubDate>Sun, 25 Jan 2015 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/clojurescript-internals-vectors/</guid>
       <author></author>
       <description>&lt;p&gt;Today we’re taking a look at how vectors are implemented in ClojureScript. We’ll explore some of the trade offs made between performance and immutability, and we’ll get a feel for how a language like Clojure gets mapped into a language like JavaScript.&lt;/p&gt;
@@ -413,7 +501,7 @@ else
     <item>
       <title>Reagent Rocks!</title>
       <link>http://mattgreer.org/articles/reagent-rocks/</link>
-      <pubDate>Fri, 23 Jan 2015 18:00:00 -0600</pubDate>
+      <pubDate>Fri, 23 Jan 2015 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/reagent-rocks/</guid>
       <author></author>
       <description>&lt;p&gt;Lately all of my front end work has been in &lt;a href=&quot;http://holmsand.github.io/reagent/&quot;&gt;Reagent&lt;/a&gt;, a &lt;a href=&quot;https://github.com/clojure/clojurescript&quot;&gt;ClojureScript&lt;/a&gt; interface to Facebook’s &lt;a href=&quot;http://facebook.github.io/react/&quot;&gt;React&lt;/a&gt;. I’m really enjoying working with Reagent, this post attempts to shed some light on why.&lt;/p&gt;
@@ -580,7 +668,7 @@ And again, this is super glossed over
     <item>
       <title>Creating a Pegdown Plugin</title>
       <link>http://mattgreer.org/articles/creating-a-pegdown-plugin/</link>
-      <pubDate>Thu, 25 Dec 2014 18:00:00 -0600</pubDate>
+      <pubDate>Thu, 25 Dec 2014 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/creating-a-pegdown-plugin/</guid>
       <author></author>
       <description>&lt;p&gt;I recently found myself needing to create a &lt;a href=&quot;http://pegdown.org&quot;&gt;Pegdown&lt;/a&gt; plugin. The documentation was a bit all over the place on this, so I figured I’d dump my end-to-end experience into a blog post for Google to consume.&lt;/p&gt;
@@ -876,7 +964,7 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
     <item>
       <title>Node sql-fixtures (a new module)</title>
       <link>http://mattgreer.org/articles/node-sql-fixtures/</link>
-      <pubDate>Wed, 15 Oct 2014 19:00:00 -0500</pubDate>
+      <pubDate>Wed, 15 Oct 2014 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/node-sql-fixtures/</guid>
       <author></author>
       <description>&lt;p&gt;I don’t think a fixture generator for PostgreSQL exists in NPM. If one does, I could not find it. So I went ahead and &lt;a href=&quot;https://github.com/city41/node-sql-fixtures&quot;&gt;made one&lt;/a&gt;. Added bonus, it works with MySQL, MariaDB and sqlite as well.&lt;/p&gt;
@@ -945,7 +1033,7 @@ sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&
     <item>
       <title>Traceur, Gulp, Browserify and ES6</title>
       <link>http://mattgreer.org/articles/traceur-gulp-browserify-es6/</link>
-      <pubDate>Fri, 19 Sep 2014 19:00:00 -0500</pubDate>
+      <pubDate>Fri, 19 Sep 2014 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/traceur-gulp-browserify-es6/</guid>
       <author></author>
       <description>&lt;p&gt;Here’s a brain dump of my experience getting these recent-ish techs up and running together on a small project …&lt;/p&gt;
@@ -1083,7 +1171,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
     <item>
       <title>Pair Programming Is Not a Panacea</title>
       <link>http://mattgreer.org/articles/pair-programming-is-not-a-panacea/</link>
-      <pubDate>Tue, 26  Aug 2014 19:00:00 -0500</pubDate>
+      <pubDate>Tue, 26  Aug 2014 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/pair-programming-is-not-a-panacea/</guid>
       <author></author>
       <description>&lt;p&gt;For the past 3 years, I have almost exclusively pair programmed at my job. I have paired with many people in many situations and learned a lot about this practice. I have found pairing can be effective, but it can also be ineffective and costly. Pair programming seems to be gaining traction, which concerns me a little bit. Some of us really don’t like to pair, and I feel it’s important to recognize that and maintain a balance here. Pairing is just a tool like anything else; it definitely should not be your company’s default mode of work.&lt;/p&gt;
@@ -1137,7 +1225,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
     <item>
       <title>JavaScript Promises ... In Wicked Detail</title>
       <link>http://mattgreer.org/articles/promises-in-wicked-detail/</link>
-      <pubDate>Sat, 08 Feb 2014 18:00:00 -0600</pubDate>
+      <pubDate>Sat, 08 Feb 2014 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/promises-in-wicked-detail/</guid>
       <author></author>
       <description>&lt;p&gt;I’ve been using promises in my JavaScript code for a while now. They can be a little brain bending at first. I now use them pretty effectively, but when it came down to it, I didn’t fully understand how they work. This article is my resolution to that. If you stick around until the end, you should understand promises well too.&lt;/p&gt;
@@ -1795,7 +1883,7 @@ Promises always require at least one more iteration of the event loop to resolve
     <item>
       <title>CoffeeScript's Time is Waning For Me</title>
       <link>http://mattgreer.org/articles/coffeescripts-time-is-waning/</link>
-      <pubDate>Sat, 11 Jan 2014 18:00:00 -0600</pubDate>
+      <pubDate>Sat, 11 Jan 2014 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/coffeescripts-time-is-waning/</guid>
       <author></author>
       <description>&lt;p&gt;CoffeeScript was a welcome addition when it first arrived. Nowadays though, I am
@@ -1856,7 +1944,7 @@ still very welcome. &lt;/p&gt;
     <item>
       <title>Dynamic Lighting and Shadows in my 2d Game</title>
       <link>http://mattgreer.org/articles/dynamic-lighting-and-shadows/</link>
-      <pubDate>Tue, 16 Oct 2012 19:00:00 -0500</pubDate>
+      <pubDate>Tue, 16 Oct 2012 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/dynamic-lighting-and-shadows/</guid>
       <author></author>
       <description>&lt;p&gt;I’m working on a stealth action game where shadows will play a big role in the gameplay. Using WebGL shaders, I implemented dynamic lighting and shadows. This post is the blog post I wish existed before I started :) Gritty details on how I implemented these below…&lt;/p&gt;
@@ -2028,7 +2116,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
     <item>
       <title>Still Waking up at 5am to Code?</title>
       <link>http://mattgreer.org/articles/still-waking-up-at-5am/</link>
-      <pubDate>Sun, 26  Aug 2012 19:00:00 -0500</pubDate>
+      <pubDate>Sun, 26  Aug 2012 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/still-waking-up-at-5am/</guid>
       <author></author>
       <description>&lt;p&gt;Back in January I posted an article about &lt;a href=&quot;http://mattgreer.org/articles/waking-up-at-5am-to-code/&quot;&gt;waking up at 5am to code&lt;/a&gt;. It seemed to really strike a chord with a lot of people. Lately I’ve been getting a handful of emails asking me if I still do this and where I’m at with it now. So I thought I’d post a quick follow up.&lt;/p&gt;
@@ -2046,7 +2134,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
     <item>
       <title>Waking Up at 5am to Code</title>
       <link>http://mattgreer.org/articles/waking-up-at-5am-to-code/</link>
-      <pubDate>Sun, 22 Jan 2012 18:00:00 -0600</pubDate>
+      <pubDate>Sun, 22 Jan 2012 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/waking-up-at-5am-to-code/</guid>
       <author></author>
       <description>&lt;p&gt;I’m currently experimenting with waking up at 5am to work on personal projects before heading to work.&lt;/p&gt;
@@ -2090,7 +2178,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
     <item>
       <title>Yokul - Google Charts Reimplemented in a Local JS Canvas</title>
       <link>http://mattgreer.org/articles/yokul/</link>
-      <pubDate>Sat, 04 Jun 2011 19:00:00 -0500</pubDate>
+      <pubDate>Sat, 04 Jun 2011 18:00:00 -0600</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/yokul/</guid>
       <author></author>
       <description>&lt;p&gt;&lt;a href=&quot;https://github.com/city41/yokul&quot;&gt;Yokul&lt;/a&gt; is a little JavaScript experiment I’ve been playing with in my free time. Using the same query string you’d normally send to the &lt;a href=&quot;http://code.google.com/apis/chart/image/&quot;&gt;Google Image Chart API&lt;/a&gt; a local chart is created on the client using an HTML5 canvas.&lt;/p&gt;

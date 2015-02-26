@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Scrolling Animations With Reagent - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>Scrolling Animations With Reagent</h1>
+            <div class="date"><span>26 February 2015</span></div>
+            <article class="article">
+              <section class="content"><p>Here is a small demo of one of those gimmicky “scroll to animate” pages built with Reagent (which is based on React.js) and ClojureScript.</p>
+<p><span class="more"></span></p>
+<h2 id="demo">Demo</h2>
+<p>You can see the demo <a href="/reagent-scroll-demo">here</a> and its GitHub repo is <a href="https://github.com/city41/reagent-scroll-demo">here</a>.</p>
+<p>Here’s a quick rundown on how the system works.</p>
+<h2 id="grabbing-window-scroll-events-with-core-async">Grabbing Window Scroll Events with core.async</h2>
+<p>The animation engine itself is completely separate from window scroll events. You could just as easily feed the engine via time, a slider on the page, button presses, etc. But using the window’s scroll position is a common approach, so that’s what I did in the demo.</p>
+<p>Listening for the window scroll with <code>core.async</code> is really simple:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> get-scroll <span class="collection">[]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">-&gt;</span></span> <span class="list">(<span class="keyword">dom/getDocumentScroll</span>)</span> <span class="list">(<span class="keyword">.-y</span>)</span>)</span>)</span>
+
+<span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> events-&gt;chan <span class="collection">[el event-type c]</span>
+  <span class="list">(<span class="keyword">events/listen</span> el event-type #<span class="list">(<span class="keyword">put!</span> c %)</span>)</span>
+  c)</span>
+
+<span class="list">(<span class="keyword"><span class="built_in">defn</span></span> scroll-chan <span class="collection">[]</span>
+  <span class="list">(<span class="keyword">events-&gt;chan</span> js/window EventType/SCROLL <span class="list">(<span class="keyword">chan</span> <span class="number">1</span> <span class="list">(<span class="keyword"><span class="built_in">map</span></span> get-scroll)</span>)</span>)</span>)</span>
+</code></pre>
+<p>Every time the window produces a scroll event, we’ll jam it into a channel. The event object itself has no real scroll position information, so we throw it away and instead just query the document for its current position. That’s what’s happening with <code>(chan 1 (map get-scroll))</code></p>
+<div class="callout wisdom">
+This is all a very simple application of core.async and transducers. If this is new territory, I recommend checking out <a href="http://go.cognitect.com/core_async_webinar_recording">David Nolen’s webinar</a> on the subject. He does a great job explaining all of this and will likely make you a fan of core.async in the process.
+</div>
+
+<p>Now with the channel code in hand, the main file of the demo sets up a channel and pulls from it</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> listen! <span class="collection">[]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[chan <span class="list">(<span class="keyword">scroll-chan</span>)</span>]</span>
+    <span class="list">(<span class="keyword">go-loop</span> <span class="collection">[]</span>
+             <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[new-y <span class="list">(<span class="keyword">&lt;!</span> chan)</span>]</span>
+               <span class="list">(<span class="keyword"><span class="built_in">reset!</span></span> prev-scroll-y @cur-scroll-y)</span>
+               <span class="comment">;; not interested in negative values</span>
+               <span class="list">(<span class="keyword"><span class="built_in">reset!</span></span> cur-scroll-y <span class="list">(<span class="keyword"><span class="built_in">max</span></span> <span class="number">0</span> new-y)</span>)</span>)</span>
+               <span class="list">(<span class="keyword"><span class="built_in">recur</span></span>)</span>)</span>)</span>)</span>
+</code></pre>
+<p>With one call to <code>(listen!)</code>, the app will receive the new scroll position of the window and store it in <code>cur-scroll-y</code>, and push the previous one over into <code>prev-scroll-y</code>. These two values together are fed into the animation engine and allow the magic to happen.</p>
+<h2 id="declarative-animations">Declarative Animations</h2>
+<p>The animation system has an <code>animation-container</code> component that takes two things: the actual Reagent component that should get animated, and an animation config that describes how the animations should occur.</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> page <span class="collection">[]</span>
+  <span class="collection">[<span class="attribute">:div.page</span>
+   <span class="collection">[animation-container
+    @prev-scroll-y
+    @cur-scroll-y
+    <span class="collection">[<span class="attribute">:div</span> <span class="string">"I'm going to move across the screen"</span>]</span>
+    <span class="collection">{<span class="attribute">:style</span> <span class="collection">{<span class="attribute">:top</span> <span class="number">100</span>
+             <span class="attribute">:left</span> <span class="number">100</span>
+             <span class="attribute">:width</span> <span class="number">50</span>
+             <span class="attribute">:height</span> <span class="number">50</span>}</span>
+     <span class="attribute">:animations</span> <span class="collection">{<span class="collection">[<span class="number">0</span> <span class="number">1000</span>]</span> <span class="collection">{<span class="attribute">:left</span> <span class="collection">[<span class="number">100</span> <span class="number">500</span>]</span>
+                            <span class="attribute">:opacity</span> <span class="collection">[<span class="number">1</span> <span class="number">0</span>]</span>}</span>}</span>}</span>]</span>]</span>)</span>
+</code></pre>
+<p>Here we have a page component which contains an animation-container which contains a simple little div. That little div will be what gets animated.</p>
+<p>The key bit here is <code>:animations {[0 1000] {:left [100 500] :opacity [1 0]}}</code>. The <code>animations</code> map has vector keys that indicate the scroll range of the window. Then the values are the animations that should occur. In this case we’re saying <em>“as the window scrolls from a y of 0 to 1000, move this element from 100px to 500px, and fade its opacity from 1 to 0 too.”</em></p>
+<p>The ability to create maps in ClojureScript that have anything at all as their keys is really awesome.</p>
+<p>You can add more animations to the map, to allow the element to do all kinds of things. I was really pleased with the simple syntax that ClojureScript allowed me.</p>
+<h2 id="the-animation-engine">The Animation Engine</h2>
+<p>The goal of the engine is to take the animation definition and properly tween elements as the window scrolls. So if an animation wants to be active from scroll values 0 to 1000, and the user has scrolled from 0 to 20, the engine needs to figure out where on the page things should be considering the animation is only 2% done.</p>
+<p>There isn’t <a href="https://github.com/city41/reagent-scroll-demo/blob/master/src/cljs/scroll_demo/scroll_engine.cljs">that much code</a> for the engine itself, but accounting for smooth scrolling made it a tad complicated.</p>
+<p>By “smooth scrolling” I mean keeping the animations moving smoothly forward even if the user forces the window to scroll really far at once. You can see this in the <a href="/reagent-scroll-demo">demo</a> by clicking in the brower’s scrollbar. This causes the scroll to jump forward, and the boxes respond by still smoothly proceeding, instead of jumping instantly to the new spot.</p>
+<p>This requires the engine to keep track of how an element’s animations are progressing and adjust them as needed whenever new scroll values come in. An element could be moving from 100px to 110px and made it to 104px when the user scrolls some more. Now the element needs to move from say 104px to 120px.</p>
+<p>This is what the call to <a href="https://github.com/city41/reagent-scroll-demo/blob/31a2b5f997f3c907f971dab79b3e8f4bcb521329/src/cljs/scroll_demo/scroll_engine.cljs#L117">animate!</a> is doing. Whenever new scroll values come in, it’s up to <code>animate!</code> to figure out where the element should go next. The new animation goals really get figured out in <code>update-tween-props</code></p>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> update-tween-props
+  <span class="string">"Given a tween object and the new state of the world, updates
+  the tween so it can now progress towards the new goal. Takes into
+  account how far the tween already progressed when deciding the tweens new goals."</span>
+  <span class="collection">[tween pv cv duration ani]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[current <span class="list">(<span class="attribute">:current</span> tween pv)</span>
+        remaining <span class="list">(<span class="attribute">:remaining</span> tween <span class="number">0</span>)</span>
+        new-duration <span class="list">(<span class="keyword"><span class="built_in">+</span></span> duration remaining)</span>]</span>
+    <span class="list">(<span class="keyword"><span class="built_in">assoc</span></span> tween
+           <span class="attribute">:ani</span> ani
+           <span class="attribute">:slice</span> <span class="collection">[current cv]</span>
+           <span class="attribute">:duration</span> new-duration
+           <span class="attribute">:remaining</span> new-duration
+           <span class="attribute">:current</span> current)</span>)</span>)</span>
+</code></pre>
+<p>Each animating component has a <code>tween</code> map that keeps track of its current animation state. This method is inspecting that map, and using the new scroll position (<code>pv</code> for previous value and <code>cv</code> for current value) as well as how long the new animation should take. From there the tween takes the remainder of its current animation, adds it onto the new needed animation, and then it’s all set.</p>
+<p>The other piece of the puzzle is <a href="https://github.com/city41/reagent-scroll-demo/blob/31a2b5f997f3c907f971dab79b3e8f4bcb521329/src/cljs/scroll_demo/scroll_engine.cljs#L112">(start-loop!)</a>. This part is a bit simpler. Whenever an animation-container is created, it calls <code>start-loop!</code> to kick off a <code>requestAnimationFrame</code> rendering loop. Inside the <code>requestAnimationFrame</code> callback, that same tween object is told to tween itself, and move the CSS properties the appropriate amount to accomplish the animation.</p>
+<p>Both <code>start-loop!</code> and <code>animate!</code> make use of the same tween map (which is stored in an atom). So at the end of the day, <code>start-loop!</code> continually marches the animation towards its current goal, and <code>animate!</code> continually updates what the goal is based on new window scroll information.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>I’m reasonably happy with this setup so far, but I’ll be tweaking and improving things as well. The code is demo quality at best and there’s a few improvements needed right off the bat, for example <code>requestAnimationFrame</code> is always called no matter what, even if no animation is currently needed.</p>
+<p>I’m building one of those gimmicky scrolling pages now, so thought I’d have a little fun with my own engine. I’ll be improving things as the page progresses. I’ll be sure to update my blog when I have anything interesting to share.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer based out of Denver, CO. I am mostly interested in web related technology,
+but also dabble in games, Clojure(Script), and devops-ish stuff. My main focus right now is <a href="https://metamorf.us">Metamorfus</a>.  </p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>
