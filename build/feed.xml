@@ -21,7 +21,7 @@
 &lt;p&gt;Here’s a quick rundown on how the system works.&lt;/p&gt;
 &lt;h2 id=&quot;grabbing-window-scroll-events-with-core-async&quot;&gt;Grabbing Window Scroll Events with core.async&lt;/h2&gt;
 &lt;p&gt;The animation engine itself is completely separate from window scroll events. You could just as easily feed the engine via time, a slider on the page, button presses, etc. But using the window’s scroll position is a common approach, so that’s what I did in the demo.&lt;/p&gt;
-&lt;p&gt;Listening for the window scroll with &lt;code&gt;core.async&lt;/code&gt; is really simple:&lt;/p&gt;
+&lt;p&gt;Listening for the window scroll with &lt;code&gt;core.async&lt;/code&gt; is &lt;a href=&quot;https://github.com/city41/reagent-scroll-demo/blob/master/src/cljs/scroll_demo/scroll_chan.cljs&quot;&gt;really simple&lt;/a&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; get-scroll &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
   &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;dom/getDocumentScroll&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-y&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
 

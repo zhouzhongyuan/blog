@@ -41,7 +41,7 @@
 <p>Here’s a quick rundown on how the system works.</p>
 <h2 id="grabbing-window-scroll-events-with-core-async">Grabbing Window Scroll Events with core.async</h2>
 <p>The animation engine itself is completely separate from window scroll events. You could just as easily feed the engine via time, a slider on the page, button presses, etc. But using the window’s scroll position is a common approach, so that’s what I did in the demo.</p>
-<p>Listening for the window scroll with <code>core.async</code> is really simple:</p>
+<p>Listening for the window scroll with <code>core.async</code> is <a href="https://github.com/city41/reagent-scroll-demo/blob/master/src/cljs/scroll_demo/scroll_chan.cljs">really simple</a></p>
 <pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> get-scroll <span class="collection">[]</span>
   <span class="list">(<span class="keyword"><span class="built_in">-&gt;</span></span> <span class="list">(<span class="keyword">dom/getDocumentScroll</span>)</span> <span class="list">(<span class="keyword">.-y</span>)</span>)</span>)</span>
 

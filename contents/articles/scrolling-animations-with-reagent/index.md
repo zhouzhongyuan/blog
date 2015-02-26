@@ -18,7 +18,7 @@ Here's a quick rundown on how the system works.
 
 The animation engine itself is completely separate from window scroll events. You could just as easily feed the engine via time, a slider on the page, button presses, etc. But using the window's scroll position is a common approach, so that's what I did in the demo.
 
-Listening for the window scroll with `core.async` is really simple:
+Listening for the window scroll with `core.async` is [really simple](https://github.com/city41/reagent-scroll-demo/blob/master/src/cljs/scroll_demo/scroll_chan.cljs)
 
 ```clojure
 (defn- get-scroll []
