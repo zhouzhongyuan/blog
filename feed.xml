@@ -5,9 +5,101 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Wed, 25 Feb 2015 17:00:00 -0700</pubDate>
+    <pubDate>Mon, 02 Mar 2015 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>JavaScript is a Pass by Value Language</title>
+      <link>http://mattgreer.org/articles/javascript-is-a-pass-by-value-language/</link>
+      <pubDate>Mon, 02 Mar 2015 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/javascript-is-a-pass-by-value-language/</guid>
+      <author></author>
+      <description>&lt;p&gt;A common misconception about JavaScript is that it supports both &lt;em&gt;pass by value&lt;/em&gt; and &lt;em&gt;pass by reference&lt;/em&gt; when calling functions. In actuality, JavaScript always passes by value.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/more&gt;&lt;/p&gt;
+&lt;h2 id=&quot;pass-by-wha-&quot;&gt;Pass by wha?&lt;/h2&gt;
+&lt;p&gt;What are you talking about?&lt;/p&gt;
+&lt;p&gt;Let’s look at this example&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;clamp&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value, valueMax, valueMin)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Math&lt;/span&gt;.min(valueMax, &lt;span class=&quot;built_in&quot;&gt;Math&lt;/span&gt;.max(value, valueMin));
+}
+
+clamp(&lt;span class=&quot;number&quot;&gt;200&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;What happens when we pass &lt;code&gt;valueMin&lt;/code&gt; from clamp into max? Do they both have the same &lt;code&gt;valueMin&lt;/code&gt;? In other words, do they both get access to the same chunk of memory? That depends. In JavaScript clamp and max are each given their own copy of &lt;code&gt;valueMin&lt;/code&gt;. No matter what, clamp’s &lt;code&gt;valueMin&lt;/code&gt; will never interfere with max’s &lt;code&gt;valueMin&lt;/code&gt; as they are two completely different chunks of memory. This is know as “pass by value”.&lt;/p&gt;
+&lt;h2 id=&quot;pass-by-reference&quot;&gt;Pass by reference&lt;/h2&gt;
+&lt;p&gt;It’s possible for functions to share parameters amongst each other. This is the opposite of pass by value and is known as “pass by reference”. When passing by reference, the functions involve are all privy to the same chunk of memory, and so can see each other’s changes. Many languages don’t offer this feature. JavaScript does not, but C# does.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-csharp&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// this is C#&lt;/span&gt;
+
+&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyProgram&lt;/span&gt; {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mutate&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;ref&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; a)&lt;/span&gt; &lt;/span&gt;{
+    a = &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;;
+  }
+
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;string&lt;/span&gt;[] args)&lt;/span&gt; &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; myA = &lt;span class=&quot;number&quot;&gt;12&lt;/span&gt;;
+    mutate(&lt;span class=&quot;keyword&quot;&gt;ref&lt;/span&gt; myA);
+
+    &lt;span class=&quot;comment&quot;&gt;// prints 5  &lt;/span&gt;
+    Console.WriteLine(myA);
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Notice the &lt;code&gt;ref&lt;/code&gt; keywords? These are the indicators that will let the compiler know to do pass by reference whenever &lt;code&gt;mutate&lt;/code&gt; is called.&lt;/p&gt;
+&lt;h2 id=&quot;objects-and-references-in-javascript&quot;&gt;Objects and references in JavaScript&lt;/h2&gt;
+&lt;p&gt;This is where it gets a little confusing.&lt;/p&gt;
+&lt;p&gt;In JavaScript — like most object oriented languages — objects are created on the heap (and in actuality primitives are too due to closures. &lt;a href=&quot;http://stackoverflow.com/a/3691209/194940&quot;&gt;This StackOverflow answer&lt;/a&gt; explains it nicely). You don’t have direct access to the heap, instead whenever working with an object you are doing so through a reference. A reference is like a pointer in C, it stores the address of the object on the heap. But unlike pointers, that’s really all they do, you can’t really do fancy things with references like you can pointers. They are simply a calling card that lets you get at your object.&lt;/p&gt;
+&lt;p&gt;So what does this mean with objects and function calls?&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mutateObject&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(obj)&lt;/span&gt; &lt;/span&gt;{
+  obj.foo = &lt;span class=&quot;string&quot;&gt;&quot;changed!&quot;&lt;/span&gt;;
+}
+
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; myObj = {
+  foo: &lt;span class=&quot;string&quot;&gt;&quot;original value&quot;&lt;/span&gt;
+};
+
+mutateObject(myObj);
+
+&lt;span class=&quot;comment&quot;&gt;// prints &quot;changed!&quot;&lt;/span&gt;
+&lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(myObj.foo);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;isn’t that pass by reference? It actually is still pass by value. The tricky bit here is the value that got passed is a reference. Unfortunately the naming conventions are confusing. A reference in JavaScript is a chunk of memory that stores an address. &lt;code&gt;obj&lt;/code&gt; inside mutateObject and &lt;code&gt;myObj&lt;/code&gt; outside of mutate object are both references that “point” at the object. But just like up above with &lt;code&gt;valueMax&lt;/code&gt;, they are two distinct chunks of memory, both of which contain the same address.&lt;/p&gt;
+&lt;p&gt;It is true that with objects in JavaScript you get some of the features that true pass by reference gives you. But you don’t get all of them.&lt;/p&gt;
+&lt;h2 id=&quot;passing-object-references-by-reference&quot;&gt;Passing object references by reference&lt;/h2&gt;
+&lt;p&gt;Yo dawg…&lt;/p&gt;
+&lt;p&gt;Let’s head back to C# for a second.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-csharp&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyObject&lt;/span&gt; {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyObject&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;string&lt;/span&gt; a)&lt;/span&gt; &lt;/span&gt;{
+    A = a;
+  }
+
+  &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;string&lt;/span&gt; A { &lt;span class=&quot;keyword&quot;&gt;get&lt;/span&gt;; &lt;span class=&quot;keyword&quot;&gt;set&lt;/span&gt;; }
+}
+
+&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyProgram&lt;/span&gt; {
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Mutate&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;ref&lt;/span&gt; MyObject obj)&lt;/span&gt; &lt;/span&gt;{
+    obj = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; MyObject(&lt;span class=&quot;string&quot;&gt;&quot;assigning a new object&quot;&lt;/span&gt;);
+  }
+
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;string&lt;/span&gt;[] args)&lt;/span&gt; &lt;/span&gt;{
+    MyObject myObj = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; MyObject(&lt;span class=&quot;string&quot;&gt;&quot;original object&quot;&lt;/span&gt;);
+    MyObject anotherRefToMyObj = myObj;
+    Mutate(&lt;span class=&quot;keyword&quot;&gt;ref&lt;/span&gt; myObj);
+
+    &lt;span class=&quot;comment&quot;&gt;// prints false&lt;/span&gt;
+    Console.WriteLine(Object.Equals(myObj, anotherRefToMyObj));
+
+    &lt;span class=&quot;comment&quot;&gt;// prints &quot;assigning a new object&quot;&lt;/span&gt;
+    Console.WriteLine(myObj.A);
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;A pretty contrived example, but the key difference here compared to JavaScript is we are able to completely reassign &lt;code&gt;myObj&lt;/code&gt; to a new object. That’s because &lt;code&gt;myObj&lt;/code&gt; in Main and &lt;code&gt;obj&lt;/code&gt; in Mutate are both the same reference. When doing &lt;code&gt;obj = new MyObject(...)&lt;/code&gt; inside Mutate, the effect is placing the address of the new object into the reference that both Main and Mutate share.&lt;/p&gt;
+&lt;p&gt;Look at &lt;code&gt;anotherRefToMyObj&lt;/code&gt;, that’s not a new object, it’s a new reference. We assigned that reference the same address as &lt;code&gt;myObj&lt;/code&gt;, so before the call to Mutate, both &lt;code&gt;myObj&lt;/code&gt; and &lt;code&gt;anotherRefToMyObj&lt;/code&gt; both point at the same object. Then after Mutate(), &lt;code&gt;myObj&lt;/code&gt; now points to a different object.&lt;/p&gt;
+&lt;p&gt;This is not possible in JavaScript.&lt;/p&gt;
+&lt;h2 id=&quot;a-lil-pedantic&quot;&gt;A lil pedantic&lt;/h2&gt;
+&lt;p&gt;True, this is pretty nitpicky stuff. But that last example of passing objects by ref in C# can come in handy at times.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>Scrolling Animations With Reagent</title>
       <link>http://mattgreer.org/articles/scrolling-animations-with-reagent/</link>
