@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>JavaScript is a Pass by Value Language - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>JavaScript is a Pass by Value Language</h1>
+            <div class="date"><span>03 March 2015</span></div>
+            <article class="article">
+              <section class="content"><p>A common misconception about JavaScript is that it supports both <em>pass by value</em> and <em>pass by reference</em> when calling functions. In actuality, JavaScript always passes by value.</p>
+<p><span class="more"></more></p>
+<h2 id="pass-by-wha-">Pass by wha?</h2>
+<p>What are you talking about?</p>
+<p>Let’s look at this example</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">clamp</span><span class="params">(value, valueMax, valueMin)</span> </span>{
+  <span class="keyword">return</span> <span class="built_in">Math</span>.min(valueMax, <span class="built_in">Math</span>.max(value, valueMin));
+}
+
+clamp(<span class="number">200</span>, <span class="number">1</span>, <span class="number">50</span>);
+</code></pre>
+<p>What happens when we pass <code>valueMin</code> from clamp into max? Do they both have the same <code>valueMin</code>? In other words, do they both get access to the same chunk of memory? That depends. In JavaScript clamp and max are each given their own copy of <code>valueMin</code>. No matter what, clamp’s <code>valueMin</code> will never interfere with max’s <code>valueMin</code> as they are two completely different chunks of memory. This is know as “pass by value”.</p>
+<h2 id="pass-by-reference">Pass by reference</h2>
+<p>It’s possible for functions to share parameters amongst each other. This is the opposite of pass by value and is known as “pass by reference”. When passing by reference, the functions involve are all privy to the same chunk of memory, and so can see each other’s changes. Many languages don’t offer this feature. JavaScript does not, but C# does.</p>
+<pre><code class="lang-csharp"><span class="comment">// this is C#</span>
+
+<span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyProgram</span> {
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mutate</span><span class="params">(<span class="keyword">ref</span> <span class="keyword">int</span> a)</span> </span>{
+    a = <span class="number">5</span>;
+  }
+
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span><span class="params">(<span class="keyword">string</span>[] args)</span> </span>{
+    <span class="keyword">int</span> myA = <span class="number">12</span>;
+    mutate(<span class="keyword">ref</span> myA);
+
+    <span class="comment">// prints 5  </span>
+    Console.WriteLine(myA);
+  }
+}
+</code></pre>
+<p>Notice the <code>ref</code> keywords? These are the indicators that will let the compiler know to do pass by reference whenever <code>mutate</code> is called.</p>
+<h2 id="objects-and-references-in-javascript">Objects and references in JavaScript</h2>
+<p>This is where it gets a little confusing.</p>
+<p>In JavaScript — like most object oriented languages — objects are created on the heap (and in actuality primitives are too due to closures. <a href="http://stackoverflow.com/a/3691209/194940">This StackOverflow answer</a> explains it nicely). You don’t have direct access to the heap, instead whenever working with an object you are doing so through a reference. A reference is like a pointer in C, it stores the address of the object on the heap. But unlike pointers, that’s really all they do, you can’t really do fancy things with references like you can pointers. They are simply a calling card that lets you get at your object.</p>
+<p>So what does this mean with objects and function calls?</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">mutateObject</span><span class="params">(obj)</span> </span>{
+  obj.foo = <span class="string">"changed!"</span>;
+}
+
+<span class="keyword">var</span> myObj = {
+  foo: <span class="string">"original value"</span>
+};
+
+mutateObject(myObj);
+
+<span class="comment">// prints "changed!"</span>
+<span class="built_in">console</span>.log(myObj.foo);
+</code></pre>
+<p>isn’t that pass by reference? It actually is still pass by value. The tricky bit here is the value that got passed is a reference. Unfortunately the naming conventions are confusing. A reference in JavaScript is a chunk of memory that stores an address. <code>obj</code> inside mutateObject and <code>myObj</code> outside of mutate object are both references that “point” at the object. But just like up above with <code>valueMax</code>, they are two distinct chunks of memory, both of which contain the same address.</p>
+<p>It is true that with objects in JavaScript you get some of the features that true pass by reference gives you. But you don’t get all of them.</p>
+<h2 id="passing-object-references-by-reference">Passing object references by reference</h2>
+<p>Yo dawg…</p>
+<p>Let’s head back to C# for a second.</p>
+<pre><code class="lang-csharp"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyObject</span> {
+  <span class="function"><span class="keyword">public</span> <span class="title">MyObject</span><span class="params">(<span class="keyword">string</span> a)</span> </span>{
+    A = a;
+  }
+
+  <span class="keyword">public</span> <span class="keyword">string</span> A { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+}
+
+<span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyProgram</span> {
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Mutate</span><span class="params">(<span class="keyword">ref</span> MyObject obj)</span> </span>{
+    obj = <span class="keyword">new</span> MyObject(<span class="string">"assigning a new object"</span>);
+  }
+
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span><span class="params">(<span class="keyword">string</span>[] args)</span> </span>{
+    MyObject myObj = <span class="keyword">new</span> MyObject(<span class="string">"original object"</span>);
+    MyObject anotherRefToMyObj = myObj;
+    Mutate(<span class="keyword">ref</span> myObj);
+
+    <span class="comment">// prints false</span>
+    Console.WriteLine(Object.Equals(myObj, anotherRefToMyObj));
+
+    <span class="comment">// prints "assigning a new object"</span>
+    Console.WriteLine(myObj.A);
+  }
+}
+</code></pre>
+<p>A pretty contrived example, but the key difference here compared to JavaScript is we are able to completely reassign <code>myObj</code> to a new object. That’s because <code>myObj</code> in Main and <code>obj</code> in Mutate are both the same reference. When doing <code>obj = new MyObject(...)</code> inside Mutate, the effect is placing the address of the new object into the reference that both Main and Mutate share.</p>
+<p>Look at <code>anotherRefToMyObj</code>, that’s not a new object, it’s a new reference. We assigned that reference the same address as <code>myObj</code>, so before the call to Mutate, both <code>myObj</code> and <code>anotherRefToMyObj</code> both point at the same object. Then after Mutate(), <code>myObj</code> now points to a different object.</p>
+<p>This is not possible in JavaScript.</p>
+<h2 id="a-lil-pedantic">A lil pedantic</h2>
+<p>True, this is pretty nitpicky stuff. But that last example of passing objects by ref in C# can come in handy at times.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer based out of Denver, CO. I am mostly interested in web related technology,
+but also dabble in games, Clojure(Script), and devops-ish stuff. My main focus right now is <a href="https://metamorf.us">Metamorfus</a>.  </p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>
