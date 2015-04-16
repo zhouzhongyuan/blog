@@ -69,7 +69,7 @@ export <span class="keyword">default</span> RectEntity;
 <p>In the ES6 world, this all works just fine and as you’d expect. Traceur, however, does not quite turn this into a CommonJS module in the way I wanted.</p>
 <p>Traceur will define the export from above as</p>
 <pre><code class="lang-javascript"><span class="built_in">Object</span>.defineProperties(exports, {
-  <span class="keyword">default</span>: {get: <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  <span class="keyword">default</span>: {get: <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
       <span class="keyword">return</span> $__default;
     }},
   __esModule: {value: <span class="literal">true</span>}
@@ -89,7 +89,7 @@ export <span class="keyword">default</span> RectEntity;
 </code></pre>
 <p>That long line of generated code basically boils down to — in CommonJS speak — <code>var BaseEntity = require(&#39;./base-entity&#39;).default</code></p>
 <p>This meant my <code>index.js</code> ended up looking like this</p>
-<pre><code class="lang-javascript"><span class="built_in">module</span>.exports = {
+<pre><code class="lang-javascript">module.exports = {
   Engine: <span class="built_in">require</span>(<span class="string">'./lib/engine'</span>).default,
   RectEntity: <span class="built_in">require</span>(<span class="string">'./lib/rect-entity'</span>).default
 };
@@ -101,7 +101,7 @@ export <span class="keyword">default</span> RectEntity;
 <p>This seems the cleanest to me. Install traceur as a dependency (<code>npm install --save traceur</code>), then in <code>index.js</code>, require the runtime</p>
 <pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'traceur/bin/traceur-runtime'</span>);
 
-<span class="built_in">module</span>.exports = {
+module.exports = {
   Engine: <span class="built_in">require</span>(<span class="string">'./lib/engine'</span>).default,
   RectEntity: <span class="built_in">require</span>(<span class="string">'./lib/rect-entity'</span>).default
 };
@@ -109,14 +109,14 @@ export <span class="keyword">default</span> RectEntity;
 <p>It will define the runtime on <code>global</code> and from there the rest of your transpiled code will be happy. Pretty simple.</p>
 <h3 id="approach-two-pull-it-in-with-gulp-traceur">Approach two: pull it in with gulp-traceur</h3>
 <p>I am transpiling from ES6-&gt;ES5 using <a href="https://github.com/sindresorhus/gulp-traceur">gulp-traceur</a></p>
-<pre><code class="lang-javascript">gulp.task(<span class="string">'build:lib'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+<pre><code class="lang-javascript">gulp.task(<span class="string">'build:lib'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
   <span class="keyword">return</span> gulp.src(<span class="string">'src/**/*.js'</span>)
     .pipe(traceur({modules:<span class="string">'commonjs'</span>}))
     .pipe(gulp.dest(<span class="string">'./lib'</span>));
 });
 </code></pre>
 <p>the above will transpile the code but not include the runtime. gulp-traceur makes it available at <code>traceur.RUNTIME_PATH</code>, so you can just do</p>
-<pre><code class="lang-javascript">gulp.task(<span class="string">'build:lib'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+<pre><code class="lang-javascript">gulp.task(<span class="string">'build:lib'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
   <span class="keyword">return</span> gulp.src([traceur.RUNTIME_PATH, <span class="string">'src/**/*.js'</span>])
     .pipe(traceur({modules:<span class="string">'commonjs'</span>}))
     .pipe(gulp.dest(<span class="string">'./lib'</span>));
@@ -140,7 +140,7 @@ gulp.task(&#39;build:lib&#39;, [&#39;traceur:runtime&#39;], function() {
 <h3 id="approach-three-punt-on-it-and-let-browserify-bring-the-runtime">Approach Three: punt on it and let Browserify bring the runtime</h3>
 <p>Browserify and ES6 get along great thanks to <a href="https://github.com/thlorenz/es6ify">es6ify</a>. es6ify can bring the runtime in too, and for some scenarios this is the way to go. For me it’s not, as it leaves my core NPM module dead in the water unless whoever consumes it knows they need to provide the runtime. Which is pretty lame.</p>
 <p>With gulp, browserify and es6ify, it looks like this:</p>
-<pre><code class="lang-javascript">gulp.task(<span class="string">'browserify:sandbox'</span>, [<span class="string">'build:lib'</span>], <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+<pre><code class="lang-javascript">gulp.task(<span class="string">'browserify:sandbox'</span>, [<span class="string">'build:lib'</span>], <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
   <span class="keyword">return</span> browserify()
     .add(es6ify.runtime)
     .transform(es6ify)
@@ -152,7 +152,7 @@ gulp.task(&#39;build:lib&#39;, [&#39;traceur:runtime&#39;], function() {
 </code></pre>
 <p>Notice the strange call to Browserify’s require? This is because you must include the runtime first. Otherwise your code will come first and it will be without its runtime and crap out.</p>
 <p>An alternative way is this, which I actually prefer:</p>
-<pre><code class="lang-javascript">gulp.task(<span class="string">'browserify:sandbox'</span>, [<span class="string">'build:lib'</span>], <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+<pre><code class="lang-javascript">gulp.task(<span class="string">'browserify:sandbox'</span>, [<span class="string">'build:lib'</span>], <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
   <span class="keyword">return</span> browserify(es6ify.runtime)
     .transform(es6ify)
     .add(<span class="string">'./sandbox/sandbox.js'</span>)
@@ -177,8 +177,7 @@ gulp.task(&#39;build:lib&#39;, [&#39;traceur:runtime&#39;], function() {
             <div class="wave hidden-xs hidden-sm"></div>
           </div>
           <div class="col-md-5">
-            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer based out of Denver, CO. I am mostly interested in web related technology,
-but also dabble in games, Clojure(Script), and devops-ish stuff. My main focus right now is <a href="https://metamorf.us">Metamorfus</a>.  </p>
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area, working for Netflix. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. </p>
 <p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
 
             </div>
