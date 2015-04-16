@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" width="460.234" height="274.5" viewBox="0, 0, 460.234, 274.5">
+  <g id="Layer_1" transform="translate(-67, -144)">
+    <path d="M278.25,198 L527.234,198 L527.234,412.5 L278.25,412.5 L278.25,198 z" fill="#BFE1CB"/>
+    <path d="M67,198 L278.25,198 L278.25,412.5 L67,412.5 L67,198 z" fill="#C3BFE1"/>
+    <text transform="matrix(1, 0, 0, 1, 299.617, 390)">
+      <tspan x="-198.602" y="-7.5" font-family="LucidaGrande" font-size="22" fill="#000000">(my-namespace/my-function</tspan>
+      <tspan x="117.369" y="-7.5" font-family="FontAwesome" font-size="22" fill="#000000"> </tspan>
+      <tspan x="122.869" y="-7.5" font-family="LucidaGrande" font-size="22" fill="#000000">"hello")</tspan>
+    </text>
+    <g>
+      <path d="M278.75,343.375 L278.75,198.5" fill="#C3BFE1"/>
+      <g>
+        <path d="M278.75,297.575 L278.75,198.5" fill-opacity="0" stroke="#363250" stroke-width="17"/>
+        <path d="M266.15,297.575 L278.75,331.175 L291.35,297.575 z" fill="#363250" fill-opacity="1" stroke="#363250" stroke-width="17" stroke-opacity="1"/>
+      </g>
+    </g>
+    <text transform="matrix(1, 0, 0, 1, 174.667, 290)">
+      <tspan x="-52.654" y="-47.5" font-family="LucidaGrande" font-size="19" fill="#363250">Namespace</tspan>
+      <tspan x="-42.676" y="-25.5" font-family="LucidaGrande" font-size="19" fill="#363250">over</tspan>
+      <tspan x="-2.811" y="-25.5" font-family="FontAwesome" font-size="19" fill="#363250"> </tspan>
+      <tspan x="1.939" y="-25.5" font-family="LucidaGrande" font-size="19" fill="#363250">here</tspan>
+    </text>
+    <text transform="matrix(1, 0, 0, 1, 404.333, 290)">
+      <tspan x="-79.006" y="-47.5" font-family="LucidaGrande" font-size="19" fill="#457255">Something</tspan>
+      <tspan x="19.25" y="-47.5" font-family="FontAwesome" font-size="19" fill="#457255"> </tspan>
+      <tspan x="24" y="-47.5" font-family="LucidaGrande" font-size="19" fill="#457255">inside</tspan>
+      <tspan x="-72.155" y="-25.5" font-family="LucidaGrande" font-size="19" fill="#457255">that</tspan>
+      <tspan x="-35.657" y="-25.5" font-family="FontAwesome" font-size="19" fill="#457255"> </tspan>
+      <tspan x="-30.907" y="-25.5" font-family="LucidaGrande" font-size="19" fill="#457255">namespace</tspan>
+      <tspan x="-42.676" y="-3.5" font-family="LucidaGrande" font-size="19" fill="#457255">over</tspan>
+      <tspan x="-2.811" y="-3.5" font-family="FontAwesome" font-size="19" fill="#457255"> </tspan>
+      <tspan x="1.939" y="-3.5" font-family="LucidaGrande" font-size="19" fill="#457255">here</tspan>
+    </text>
+  </g>
+</svg>
