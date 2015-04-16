@@ -42,15 +42,15 @@
 <h2 id="grabbing-window-scroll-events-with-core-async">Grabbing Window Scroll Events with core.async</h2>
 <p>The animation engine itself is completely separate from window scroll events. You could just as easily feed the engine via time, a slider on the page, button presses, etc. But using the window’s scroll position is a common approach, so that’s what I did in the demo.</p>
 <p>Listening for the window scroll with <code>core.async</code> is <a href="https://github.com/city41/reagent-scroll-demo/blob/master/src/cljs/scroll_demo/scroll_chan.cljs">really simple</a></p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> get-scroll <span class="collection">[]</span>
-  <span class="list">(<span class="keyword"><span class="built_in">-&gt;</span></span> <span class="list">(<span class="keyword">dom/getDocumentScroll</span>)</span> <span class="list">(<span class="keyword">.-y</span>)</span>)</span>)</span>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">defn-</span></span> get-scroll <span class="collection">[]</span>
+  <span class="list">(<span class="title">-&gt;</span> <span class="list">(<span class="title">dom/getDocumentScroll</span>)</span> <span class="list">(<span class="title">.-y</span>)</span>)</span>)</span>
 
-<span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> events-&gt;chan <span class="collection">[el event-type c]</span>
-  <span class="list">(<span class="keyword">events/listen</span> el event-type #<span class="list">(<span class="keyword">put!</span> c %)</span>)</span>
+<span class="list">(<span class="title"><span class="built_in">defn-</span></span> events-&gt;chan <span class="collection">[el event-type c]</span>
+  <span class="list">(<span class="title">events/listen</span> el event-type #<span class="list">(<span class="title">put!</span> c %)</span>)</span>
   c)</span>
 
-<span class="list">(<span class="keyword"><span class="built_in">defn</span></span> scroll-chan <span class="collection">[]</span>
-  <span class="list">(<span class="keyword">events-&gt;chan</span> js/window EventType/SCROLL <span class="list">(<span class="keyword">chan</span> <span class="number">1</span> <span class="list">(<span class="keyword"><span class="built_in">map</span></span> get-scroll)</span>)</span>)</span>)</span>
+<span class="list">(<span class="title"><span class="built_in">defn</span></span> scroll-chan <span class="collection">[]</span>
+  <span class="list">(<span class="title">events-&gt;chan</span> js/window EventType/SCROLL <span class="list">(<span class="title">chan</span><span class="number"> 1</span> <span class="list">(<span class="title"><span class="built_in">map</span></span> get-scroll)</span>)</span>)</span>)</span>
 </code></pre>
 <p>Every time the window produces a scroll event, we’ll jam it into a channel. The event object itself has no real scroll position information, so we throw it away and instead just query the document for its current position. That’s what’s happening with <code>(chan 1 (map get-scroll))</code></p>
 <div class="callout wisdom">
@@ -58,30 +58,30 @@ This is all a very simple application of core.async and transducers. If this is 
 </div>
 
 <p>Now with the channel code in hand, the main file of the demo sets up a channel and pulls from it</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> listen! <span class="collection">[]</span>
-  <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[chan <span class="list">(<span class="keyword">scroll-chan</span>)</span>]</span>
-    <span class="list">(<span class="keyword">go-loop</span> <span class="collection">[]</span>
-             <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[new-y <span class="list">(<span class="keyword">&lt;!</span> chan)</span>]</span>
-               <span class="list">(<span class="keyword"><span class="built_in">reset!</span></span> prev-scroll-y @cur-scroll-y)</span>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">defn</span></span> listen! <span class="collection">[]</span>
+  <span class="list">(<span class="title"><span class="built_in">let</span></span> <span class="collection">[chan <span class="list">(<span class="title">scroll-chan</span>)</span>]</span>
+    <span class="list">(<span class="title">go-loop</span> <span class="collection">[]</span>
+             <span class="list">(<span class="title"><span class="built_in">let</span></span> <span class="collection">[new-y <span class="list">(<span class="title">&lt;!</span> chan)</span>]</span>
+               <span class="list">(<span class="title"><span class="built_in">reset!</span></span> prev-scroll-y @cur-scroll-y)</span>
                <span class="comment">;; not interested in negative values</span>
-               <span class="list">(<span class="keyword"><span class="built_in">reset!</span></span> cur-scroll-y <span class="list">(<span class="keyword"><span class="built_in">max</span></span> <span class="number">0</span> new-y)</span>)</span>)</span>
-               <span class="list">(<span class="keyword"><span class="built_in">recur</span></span>)</span>)</span>)</span>)</span>
+               <span class="list">(<span class="title"><span class="built_in">reset!</span></span> cur-scroll-y <span class="list">(<span class="title"><span class="built_in">max</span></span><span class="number"> 0</span> new-y)</span>)</span>)</span>
+               <span class="list">(<span class="title"><span class="built_in">recur</span></span>)</span>)</span>)</span>)</span>
 </code></pre>
 <p>With one call to <code>(listen!)</code>, the app will receive the new scroll position of the window and store it in <code>cur-scroll-y</code>, and push the previous one over into <code>prev-scroll-y</code>. These two values together are fed into the animation engine and allow the magic to happen.</p>
 <h2 id="declarative-animations">Declarative Animations</h2>
 <p>The animation system has an <code>animation-container</code> component that takes two things: the actual Reagent component that should get animated, and an animation config that describes how the animations should occur.</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> page <span class="collection">[]</span>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">defn</span></span> page <span class="collection">[]</span>
   <span class="collection">[<span class="attribute">:div.page</span>
    <span class="collection">[animation-container
     @prev-scroll-y
     @cur-scroll-y
     <span class="collection">[<span class="attribute">:div</span> <span class="string">"I'm going to move across the screen"</span>]</span>
-    <span class="collection">{<span class="attribute">:style</span> <span class="collection">{<span class="attribute">:top</span> <span class="number">100</span>
-             <span class="attribute">:left</span> <span class="number">100</span>
-             <span class="attribute">:width</span> <span class="number">50</span>
-             <span class="attribute">:height</span> <span class="number">50</span>}</span>
-     <span class="attribute">:animations</span> <span class="collection">{<span class="collection">[<span class="number">0</span> <span class="number">1000</span>]</span> <span class="collection">{<span class="attribute">:left</span> <span class="collection">[<span class="number">100</span> <span class="number">500</span>]</span>
-                            <span class="attribute">:opacity</span> <span class="collection">[<span class="number">1</span> <span class="number">0</span>]</span>}</span>}</span>}</span>]</span>]</span>)</span>
+    <span class="collection">{<span class="attribute">:style</span> <span class="collection">{<span class="attribute">:top</span><span class="number"> 100</span>
+             <span class="attribute">:left</span><span class="number"> 100</span>
+             <span class="attribute">:width</span><span class="number"> 50</span>
+             <span class="attribute">:height</span><span class="number"> 50</span>}</span>
+     <span class="attribute">:animations</span> <span class="collection">{<span class="collection">[0<span class="number"> 1000</span>]</span> <span class="collection">{<span class="attribute">:left</span> <span class="collection">[100<span class="number"> 500</span>]</span>
+                            <span class="attribute">:opacity</span> <span class="collection">[1<span class="number"> 0</span>]</span>}</span>}</span>}</span>]</span>]</span>)</span>
 </code></pre>
 <p>Here we have a page component which contains an animation-container which contains a simple little div. That little div will be what gets animated.</p>
 <p>The key bit here is <code>:animations {[0 1000] {:left [100 500] :opacity [1 0]}}</code>. The <code>animations</code> map has vector keys that indicate the scroll range of the window. Then the values are the animations that should occur. In this case we’re saying <em>“as the window scrolls from a y of 0 to 1000, move this element from 100px to 500px, and fade its opacity from 1 to 0 too.”</em></p>
@@ -93,15 +93,15 @@ This is all a very simple application of core.async and transducers. If this is 
 <p>By “smooth scrolling” I mean keeping the animations moving smoothly forward even if the user forces the window to scroll really far at once. You can see this in the <a href="/reagent-scroll-demo">demo</a> by clicking in the brower’s scrollbar. This causes the scroll to jump forward, and the boxes respond by still smoothly proceeding, instead of jumping instantly to the new spot.</p>
 <p>This requires the engine to keep track of how an element’s animations are progressing and adjust them as needed whenever new scroll values come in. An element could be moving from 100px to 110px and made it to 104px when the user scrolls some more. Now the element needs to move from say 104px to 120px.</p>
 <p>This is what the call to <a href="https://github.com/city41/reagent-scroll-demo/blob/31a2b5f997f3c907f971dab79b3e8f4bcb521329/src/cljs/scroll_demo/scroll_engine.cljs#L117">animate!</a> is doing. Whenever new scroll values come in, it’s up to <code>animate!</code> to figure out where the element should go next. The new animation goals really get figured out in <code>update-tween-props</code></p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> update-tween-props
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">defn</span></span> update-tween-props
   <span class="string">"Given a tween object and the new state of the world, updates
   the tween so it can now progress towards the new goal. Takes into
   account how far the tween already progressed when deciding the tweens new goals."</span>
   <span class="collection">[tween pv cv duration ani]</span>
-  <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[current <span class="list">(<span class="attribute">:current</span> tween pv)</span>
-        remaining <span class="list">(<span class="attribute">:remaining</span> tween <span class="number">0</span>)</span>
-        new-duration <span class="list">(<span class="keyword"><span class="built_in">+</span></span> duration remaining)</span>]</span>
-    <span class="list">(<span class="keyword"><span class="built_in">assoc</span></span> tween
+  <span class="list">(<span class="title"><span class="built_in">let</span></span> <span class="collection">[current <span class="list">(<span class="attribute">:current</span> tween pv)</span>
+        remaining <span class="list">(<span class="attribute">:remaining</span> tween<span class="number"> 0</span>)</span>
+        new-duration <span class="list">(<span class="title"><span class="built_in">+</span></span> duration remaining)</span>]</span>
+    <span class="list">(<span class="title"><span class="built_in">assoc</span></span> tween
            <span class="attribute">:ani</span> ani
            <span class="attribute">:slice</span> <span class="collection">[current cv]</span>
            <span class="attribute">:duration</span> new-duration
@@ -127,8 +127,7 @@ This is all a very simple application of core.async and transducers. If this is 
             <div class="wave hidden-xs hidden-sm"></div>
           </div>
           <div class="col-md-5">
-            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer based out of Denver, CO. I am mostly interested in web related technology,
-but also dabble in games, Clojure(Script), and devops-ish stuff. My main focus right now is <a href="https://metamorf.us">Metamorfus</a>.  </p>
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area, working for Netflix. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. </p>
 <p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
 
             </div>
