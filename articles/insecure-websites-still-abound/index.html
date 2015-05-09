@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Insecure Websites Still Abound - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>Insecure Websites Still Abound</h1>
+            <div class="date"><span>09 May 2015</span></div>
+            <article class="article">
+              <section class="content"><p>It’s 2015, why is web security <em>still</em> so hit and miss?</p>
+<p><span class="more"></span></p>
+<p>I recently bought a Mini Cooper. Fun little car! When my first statement came, I wanted to sign up to do my payments online.  </p>
+<p>Whenever I sign up for a new website that will hold any kind of sensitive information I always kick the tires of the site a bit to get a sense of how well it is implemented. The first step is to follow the “forgot password?” procedure and see what they do.</p>
+<p>In the case of the <a href="https://ol.miniusa.com/">Mini Cooper Owner’s Lounge</a> the forgot password procedure simply asks for your usename, zip code, date of birth and the last four digits of your social security number.</p>
+<p><img class="diagram" alt="mini password reset screenshot" src="miniPasswordReset.png" /></p>
+<p>At first I figured surely they’d send me a password reset email after this. Nope, that’s it! You can then proceed to change your password right then and there. So in the case of Mini USA, the only thing between my bank account and <em>anyone at all</em> is the last four digits of my SSN. Anger, such anger!</p>
+<p>A lot of people know my SSN. As much as I hate that fact, it’s true for all of us. And ff someone really wanted to figure out my last four digits, it’s pretty darn doable. Hell, I wouldn’t be surprised at all if the Mini website has no measures to prevent brute force attacks, and there’s only 10,000 possibilities …</p>
+<p>I contacted Mini USA and they insist their website is secure. So I will be mailing my payments in the old fashioned way, which sucks.</p>
+<h2 id="let-s-get-past-this-">Let’s Get Past This!</h2>
+<p>Ugh, it is 2015 everybody! Why is this still an issue? Why are there still so many websites out there that get this <em>so</em> wrong? Why are software developers seemingly the only people that care about this?</p>
+<h2 id="when-making-a-website">When Making a Website</h2>
+<p>If you’re making a website, your best course of action is to avoid sensitive information and security as much as possible. Leave it to the experts. Don’t store bank account info or credit card numbers, let vetted companies do it for you.</p>
+<p>Don’t roll your own authentication system, learn a little bit about encryption, use <a href="http://www.google.com/landing/2step/?utm_campaign=en&amp;utm_source=en-ha-na-us-sk&amp;utm_medium=ha">2 step verification</a> (Google makes it so easy!)</p>
+<p>Don’t store passwords in plaintext or in a way that makes them easily recoverable. Try really hard to just not store passwords at all!</p>
+<p>And for the love of all things that are holy, do not add “security” questions!</p>
+<h2 id="when-using-websites">When Using Websites</h2>
+<p>I highly recommend using a password manager that will enable you to easily have a different long, difficult password for all of your sites.  </p>
+<p>If a website has “security” questions, treat them like additional passwords. I have my password manager generate passwords as answers to these questions, and store them in the manager. Sorry websites, figuring out the color of my first car is not that hard!</p>
+<p>I also memorize my credit card number I realize that’s a little on the hardcore side, but I never have to store my number at a site.</p>
+<h2 id="phew">Phew</h2>
+<p>This is a huge pet peeve of mine. So thanks for reading through my rant. Maybe we’ll figure this out within the next decade or so …</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area, working for Netflix. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. </p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>

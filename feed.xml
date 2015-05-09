@@ -5,9 +5,39 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Mon, 02 Mar 2015 16:00:00 -0800</pubDate>
+    <pubDate>Fri, 08 May 2015 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Insecure Websites Still Abound</title>
+      <link>http://mattgreer.org/articles/insecure-websites-still-abound/</link>
+      <pubDate>Fri, 08 May 2015 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/insecure-websites-still-abound/</guid>
+      <author></author>
+      <description>&lt;p&gt;It’s 2015, why is web security &lt;em&gt;still&lt;/em&gt; so hit and miss?&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;I recently bought a Mini Cooper. Fun little car! When my first statement came, I wanted to sign up to do my payments online.  &lt;/p&gt;
+&lt;p&gt;Whenever I sign up for a new website that will hold any kind of sensitive information I always kick the tires of the site a bit to get a sense of how well it is implemented. The first step is to follow the “forgot password?” procedure and see what they do.&lt;/p&gt;
+&lt;p&gt;In the case of the &lt;a href=&quot;https://ol.miniusa.com/&quot;&gt;Mini Cooper Owner’s Lounge&lt;/a&gt; the forgot password procedure simply asks for your usename, zip code, date of birth and the last four digits of your social security number.&lt;/p&gt;
+&lt;p&gt;&lt;img class=&quot;diagram&quot; alt=&quot;mini password reset screenshot&quot; src=&quot;miniPasswordReset.png&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;At first I figured surely they’d send me a password reset email after this. Nope, that’s it! You can then proceed to change your password right then and there. So in the case of Mini USA, the only thing between my bank account and &lt;em&gt;anyone at all&lt;/em&gt; is the last four digits of my SSN. Anger, such anger!&lt;/p&gt;
+&lt;p&gt;A lot of people know my SSN. As much as I hate that fact, it’s true for all of us. And ff someone really wanted to figure out my last four digits, it’s pretty darn doable. Hell, I wouldn’t be surprised at all if the Mini website has no measures to prevent brute force attacks, and there’s only 10,000 possibilities …&lt;/p&gt;
+&lt;p&gt;I contacted Mini USA and they insist their website is secure. So I will be mailing my payments in the old fashioned way, which sucks.&lt;/p&gt;
+&lt;h2 id=&quot;let-s-get-past-this-&quot;&gt;Let’s Get Past This!&lt;/h2&gt;
+&lt;p&gt;Ugh, it is 2015 everybody! Why is this still an issue? Why are there still so many websites out there that get this &lt;em&gt;so&lt;/em&gt; wrong? Why are software developers seemingly the only people that care about this?&lt;/p&gt;
+&lt;h2 id=&quot;when-making-a-website&quot;&gt;When Making a Website&lt;/h2&gt;
+&lt;p&gt;If you’re making a website, your best course of action is to avoid sensitive information and security as much as possible. Leave it to the experts. Don’t store bank account info or credit card numbers, let vetted companies do it for you.&lt;/p&gt;
+&lt;p&gt;Don’t roll your own authentication system, learn a little bit about encryption, use &lt;a href=&quot;http://www.google.com/landing/2step/?utm_campaign=en&amp;amp;utm_source=en-ha-na-us-sk&amp;amp;utm_medium=ha&quot;&gt;2 step verification&lt;/a&gt; (Google makes it so easy!)&lt;/p&gt;
+&lt;p&gt;Don’t store passwords in plaintext or in a way that makes them easily recoverable. Try really hard to just not store passwords at all!&lt;/p&gt;
+&lt;p&gt;And for the love of all things that are holy, do not add “security” questions!&lt;/p&gt;
+&lt;h2 id=&quot;when-using-websites&quot;&gt;When Using Websites&lt;/h2&gt;
+&lt;p&gt;I highly recommend using a password manager that will enable you to easily have a different long, difficult password for all of your sites.  &lt;/p&gt;
+&lt;p&gt;If a website has “security” questions, treat them like additional passwords. I have my password manager generate passwords as answers to these questions, and store them in the manager. Sorry websites, figuring out the color of my first car is not that hard!&lt;/p&gt;
+&lt;p&gt;I also memorize my credit card number I realize that’s a little on the hardcore side, but I never have to store my number at a site.&lt;/p&gt;
+&lt;h2 id=&quot;phew&quot;&gt;Phew&lt;/h2&gt;
+&lt;p&gt;This is a huge pet peeve of mine. So thanks for reading through my rant. Maybe we’ll figure this out within the next decade or so …&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>JavaScript is a Pass by Value Language</title>
       <link>http://mattgreer.org/articles/javascript-is-a-pass-by-value-language/</link>
