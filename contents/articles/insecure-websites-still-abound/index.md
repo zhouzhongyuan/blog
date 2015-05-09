@@ -17,7 +17,7 @@ In the case of the [Mini Cooper Owner's Lounge](https://ol.miniusa.com/) the for
 
 <img class="diagram" alt="mini password reset screenshot" src="miniPasswordReset.png" />
 
-At first I figured surely they'd send me a password reset email after this. Nope, that's it! You can then proceed to change your password right then and there. So in the case of Mini USA, the only thing between my bank account and *anyone at all* is the last four digits of my SSN. Anger, such anger!
+At first I figured surely they'd send me a password reset email after this. Nope, that's it! You can then proceed to change your password right then and there. So in the case of Mini USA, the only thing between my bank account and *anyone at all* is the last four digits of my SSN.
 
 A lot of people know my SSN. As much as I hate that fact, it's true for all of us. And ff someone really wanted to figure out my last four digits, it's pretty darn doable. Hell, I wouldn't be surprised at all if the Mini website has no measures to prevent brute force attacks, and there's only 10,000 possibilities ...
 
