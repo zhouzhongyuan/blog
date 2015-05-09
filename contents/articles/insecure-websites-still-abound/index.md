@@ -31,7 +31,7 @@ Ugh, it is 2015 everybody! Why is this still an issue? Why are there still so ma
 
 If you're making a website, your best course of action is to avoid sensitive information and security as much as possible. Leave it to the experts. Don't store bank account info or credit card numbers, let vetted companies do it for you. And if you really must do it, hire someone who knows their stuff and will do it right.
 
-Don't roll your own authentication system, learn a little bit about encryption, and offer [2 step verification](http://www.google.com/landing/2step/?utm_campaign=en&utm_source=en-ha-na-us-sk&utm_medium=ha) (Google makes it so easy!)
+Don't roll your own authentication system, learn a little bit about encryption, and offer [2 step verification](http://www.brool.com/index.php/using-google-authenticator-for-your-website) (Google makes it so easy!)
 
 Don't store passwords in plaintext or in a way that makes them easily recoverable. Try really hard to just not store passwords at all!
 
