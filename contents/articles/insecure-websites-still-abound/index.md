@@ -19,7 +19,7 @@ In the case of the [Mini Cooper Owner's Lounge](https://ol.miniusa.com/) the for
 
 At first I figured surely they'd send me a password reset email after this. Nope, that's it! You can then proceed to change your password right then and there. So in the case of Mini USA, the only thing between my bank account and *anyone at all* is the last four digits of my SSN.
 
-A lot of people know my SSN. As much as I hate that fact, it's true for all of us. And ff someone really wanted to figure out my last four digits, it's pretty darn doable. Hell, I wouldn't be surprised at all if the Mini website has no measures to prevent brute force attacks, and there's only 10,000 possibilities ...
+A lot of people know my SSN. As much as I hate that fact, it's true for all of us. And if someone really wanted to figure out my last four digits, it's pretty darn doable. Hell, I wouldn't be surprised at all if the Mini website has no measures to prevent brute force attacks, and there's only 10,000 possibilities.
 
 I contacted Mini USA and they insist their website is secure. So I will be mailing my payments in the old fashioned way, which sucks.
 
@@ -29,9 +29,9 @@ Ugh, it is 2015 everybody! Why is this still an issue? Why are there still so ma
 
 ## When Making a Website
 
-If you're making a website, your best course of action is to avoid sensitive information and security as much as possible. Leave it to the experts. Don't store bank account info or credit card numbers, let vetted companies do it for you.
+If you're making a website, your best course of action is to avoid sensitive information and security as much as possible. Leave it to the experts. Don't store bank account info or credit card numbers, let vetted companies do it for you. And if you really must do it, hire someone who knows their stuff and will do it right.
 
-Don't roll your own authentication system, learn a little bit about encryption, use [2 step verification](http://www.google.com/landing/2step/?utm_campaign=en&utm_source=en-ha-na-us-sk&utm_medium=ha) (Google makes it so easy!)
+Don't roll your own authentication system, learn a little bit about encryption, and offer [2 step verification](http://www.google.com/landing/2step/?utm_campaign=en&utm_source=en-ha-na-us-sk&utm_medium=ha) (Google makes it so easy!)
 
 Don't store passwords in plaintext or in a way that makes them easily recoverable. Try really hard to just not store passwords at all!
 
