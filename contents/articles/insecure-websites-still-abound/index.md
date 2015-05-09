@@ -43,7 +43,7 @@ I highly recommend using a password manager that will enable you to easily have 
 
 If a website has "security" questions, treat them like additional passwords. I have my password manager generate passwords as answers to these questions, and store them in the manager. Sorry websites, figuring out the color of my first car is not that hard!
 
-I also memorize my credit card number I realize that's a little on the hardcore side, but I never have to store my number at a site.
+I also memorize my credit card number. I realize that's a little on the hardcore side, but I never have to have websites store it, and that's a nice added level of comfort for paranoid ol' me.
 
 ## Phew
 
