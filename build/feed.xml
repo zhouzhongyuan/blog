@@ -30,6 +30,7 @@
 &lt;p&gt;Don’t roll your own authentication system, learn a little bit about encryption, and offer &lt;a href=&quot;http://www.google.com/landing/2step/?utm_campaign=en&amp;amp;utm_source=en-ha-na-us-sk&amp;amp;utm_medium=ha&quot;&gt;2 step verification&lt;/a&gt; (Google makes it so easy!)&lt;/p&gt;
 &lt;p&gt;Don’t store passwords in plaintext or in a way that makes them easily recoverable. Try really hard to just not store passwords at all!&lt;/p&gt;
 &lt;p&gt;And for the love of all things that are holy, do not add “security” questions!&lt;/p&gt;
+&lt;p&gt;Oh and one more thing, please consider running your entire site over TLS (aka SSL, https).&lt;/p&gt;
 &lt;h2 id=&quot;when-using-websites&quot;&gt;When Using Websites&lt;/h2&gt;
 &lt;p&gt;I highly recommend using a password manager that will enable you to easily have a different long, difficult password for all of your sites.  &lt;/p&gt;
 &lt;p&gt;If a website has “security” questions, treat them like additional passwords. I have my password manager generate passwords as answers to these questions, and store them in the manager. Sorry websites, figuring out the color of my first car is not that hard!&lt;/p&gt;

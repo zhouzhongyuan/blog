@@ -37,6 +37,8 @@ Don't store passwords in plaintext or in a way that makes them easily recoverabl
 
 And for the love of all things that are holy, do not add "security" questions!
 
+Oh and one more thing, please consider running your entire site over TLS (aka SSL, https).
+
 ## When Using Websites
 
 I highly recommend using a password manager that will enable you to easily have a different long, difficult password for all of your sites.  
