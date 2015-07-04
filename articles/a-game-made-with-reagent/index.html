@@ -44,9 +44,9 @@
 <p>You can play it <a href="http://city41.github.io/reagent-breakout">here</a>, and the repo is <a href="https://github.com/city41/reagent-breakout">here</a>.</p>
 <h2 id="the-reagent-components">The Reagent Components</h2>
 <p>The components such as the ball and bricks are dead simple, there’s pretty much nothing to them. Here is the ball</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">ns</span></span> breakout.cmp.ball)</span>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">ns</span></span> breakout.cmp.ball)</span>
 
-<span class="list">(<span class="title"><span class="built_in">defn</span></span> cmp <span class="collection">[pos size]</span>
+<span class="list">(<span class="keyword"><span class="built_in">defn</span></span> cmp <span class="collection">[pos size]</span>
   <span class="collection">[<span class="attribute">:div.ball</span> <span class="collection">{<span class="attribute">:style</span> <span class="collection">{<span class="attribute">:background-image</span> <span class="string">"url(img/tiles.png)"</span>
                       <span class="attribute">:position</span> <span class="string">"absolute"</span>
                       <span class="attribute">:width</span> <span class="list">(<span class="attribute">:width</span> size)</span>
@@ -57,13 +57,13 @@
 <p>All of the animation is accomplished with <a href="https://github.com/city41/reagent-breakout/blob/master/resources/public/css/site.css">CSS</a>, which helped make everything that much more simple. Small lesson learned, even on a tiny project like this I should have used a CSS generation tool. CSS, why are you so tedious?</p>
 <h3 id="using-react-s-csstransitiongroup-for-the-bricks">Using React’s CSSTransitionGroup for the bricks</h3>
 <p>Whenever a brick is hit, it fades out using a CSS animation. React’s <a href="http://facebook.github.io/react/docs/animation.html">CSSTransitionGroup</a> is perfect for this, and easy to get going in Reagent. Just add it as one of your components, and underneath it place all the components that need animation</p>
-<pre><code class="lang-clojure">(def ctg (aget js/React &quot;addons&quot; &quot;CSSTransitionGroup&quot;))
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> ctg <span class="list">(<span class="keyword">aget</span> js/React <span class="string">"addons"</span> <span class="string">"CSSTransitionGroup"</span>)</span>)</span>
 
-;; ...
+<span class="comment">;; ...</span>
 
-[ctg {:transitionName &quot;spawn&quot;}
-  (for [brick @bricks]
-    ^{:key brick} [brick/cmp brick])]
+<span class="collection">[ctg <span class="collection">{<span class="attribute">:transitionName</span> <span class="string">"spawn"</span>}</span>
+  <span class="list">(<span class="keyword"><span class="built_in">for</span></span> <span class="collection">[brick @bricks]</span>
+    <span class="comment">^{:key brick}</span> <span class="collection">[brick/cmp brick]</span>)</span>]</span>
 </code></pre>
 <p>I was really happy how seamlessly CSSTransitionGroup dropped right in.</p>
 <h2 id="the-game-logic">The Game Logic</h2>
@@ -77,24 +77,24 @@
 <li>the play phase: standard breakout gameplay</li>
 </ol>
 <p>I was able to separate out these phases using multimethods, which made the code cleaner.</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">defn-</span></span> update! <span class="collection">[ts]</span>
-  <span class="list">(<span class="title"><span class="built_in">when</span></span> @running
-    <span class="list">(<span class="title"><span class="built_in">let</span></span> <span class="collection">[delta <span class="list">(<span class="title"><span class="built_in">-</span></span> ts <span class="list">(<span class="title"><span class="built_in">or</span></span> @last-ts ts)</span>)</span>]</span>
-      <span class="list">(<span class="title"><span class="built_in">reset!</span></span> last-ts ts)</span>
-      <span class="list">(<span class="title">update-phase!</span> delta @phase)</span>)</span>
-    <span class="list">(<span class="title"><span class="built_in">.</span></span> js/window <span class="list">(<span class="title">requestAnimationFrame</span> update!)</span>)</span>)</span>)</span>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> update! <span class="collection">[ts]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">when</span></span> @running
+    <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[delta <span class="list">(<span class="keyword"><span class="built_in">-</span></span> ts <span class="list">(<span class="keyword"><span class="built_in">or</span></span> @last-ts ts)</span>)</span>]</span>
+      <span class="list">(<span class="keyword"><span class="built_in">reset!</span></span> last-ts ts)</span>
+      <span class="list">(<span class="keyword">update-phase!</span> delta @phase)</span>)</span>
+    <span class="list">(<span class="keyword"><span class="built_in">.</span></span> js/window <span class="list">(<span class="keyword">requestAnimationFrame</span> update!)</span>)</span>)</span>)</span>
 </code></pre>
 <p>Here <code>update-phase!</code> will end up calling the appropriate function for the current phase, for example here is what the countdown phase does</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">defmethod</span></span> update-phase! <span class="attribute">:countdown</span> <span class="collection">[delta _]</span>
-  <span class="list">(<span class="title"><span class="built_in">swap!</span></span> countdown-duration - delta)</span>
-  <span class="list">(<span class="title"><span class="built_in">when</span></span> <span class="list">(<span class="title"><span class="built_in">&lt;=</span></span> @countdown-duration<span class="number"> 0</span>)</span>
-    <span class="list">(<span class="title"><span class="built_in">reset!</span></span> phase <span class="attribute">:gameplay</span>)</span>)</span>)</span>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defmethod</span></span> update-phase! <span class="attribute">:countdown</span> <span class="collection">[delta _]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">swap!</span></span> countdown-duration - delta)</span>
+  <span class="list">(<span class="keyword"><span class="built_in">when</span></span> <span class="list">(<span class="keyword"><span class="built_in">&lt;=</span></span> @countdown-duration <span class="number">0</span>)</span>
+    <span class="list">(<span class="keyword"><span class="built_in">reset!</span></span> phase <span class="attribute">:gameplay</span>)</span>)</span>)</span>
 </code></pre>
 <p>By adding a watch to the <code>phase</code> atom, it was really easy to set up a tiny little state machine in the game</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">add-watch</span></span> phase <span class="attribute">:scene-phase</span>
-           <span class="list">(<span class="title"><span class="built_in">fn</span></span> <span class="collection">[key r old-phase new-phase]</span>
-             <span class="list">(<span class="title"><span class="built_in">when</span></span> new-phase
-               <span class="list">(<span class="title">init-phase!</span> new-phase)</span>)</span>)</span>)</span>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">add-watch</span></span> phase <span class="attribute">:scene-phase</span>
+           <span class="list">(<span class="keyword"><span class="built_in">fn</span></span> <span class="collection">[key r old-phase new-phase]</span>
+             <span class="list">(<span class="keyword"><span class="built_in">when</span></span> new-phase
+               <span class="list">(<span class="keyword">init-phase!</span> new-phase)</span>)</span>)</span>)</span>
 </code></pre>
 <p>Whenever switching phases, this watch handler kicks in and asks the new phase to do any initialization it needs (such as placing the ball back to its starting location). Again multimethods helped to separate the initialization of the phases into separate methods.</p>
 <h2 id="performance">Performance</h2>

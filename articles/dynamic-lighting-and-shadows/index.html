@@ -51,14 +51,14 @@
 <p>With our normals in tow, we’re ready to have the graphics card do its magic. My game is using <a href="http://www.impactjs.com">ImpactJS</a>, which is very compatibile with <a href="https://github.com/gameclosure/webgl-2d">WebGL2D</a> Using WebGL2D, it was easy to add an additional fragment shader to implement the lighting:</p>
 <pre><code class="lang-c"><span class="preprocessor">#ifdef GL_ES</span>
   precision highp <span class="keyword">float</span>;
-<span class="preprocessor">#endif</span>
+<span class="preprocessor">#<span class="keyword">endif</span></span>
 
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
 uniform vec3 lightDirection;
 uniform vec4 lightColor;
 
-<span class="keyword">void</span> main(<span class="keyword">void</span>) {
+<span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>{
   <span class="comment">// pull the normal vector out of the texture</span>
   vec4 rawNormal = texture2D(uSampler, vTextureCoord);
 
@@ -97,7 +97,7 @@ is because lighting the pixels up makes them looked washed out. There are ways t
 <p><img src="/articles/dynamic-lighting-and-shadows/zAngle.gif" alt="z angle"></p>
 <p>If it is tall enough, we are done, this pixel is in the shade. Otherwise we keep going. Eventually we give up and declare the pixel to be in the sun (currently I have that hard coded to 100 steps, which so far is working well)</p>
 <p>Here is the code for the shader in simplified/pseudo form</p>
-<pre><code class="lang-c"><span class="keyword">void</span> main(<span class="keyword">void</span>) {
+<pre><code class="lang-c"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>{
   <span class="keyword">float</span> alpha = <span class="number">0.0</span>;
 
   <span class="keyword">if</span>(isInShadow()) {
@@ -106,7 +106,7 @@ is because lighting the pixels up makes them looked washed out. There are ways t
   gl_FragColor = vec4(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, alpha);
 }
 
-<span class="keyword">bool</span> isInShadow() {
+<span class="function"><span class="keyword">bool</span> <span class="title">isInShadow</span><span class="params">()</span> </span>{
   <span class="keyword">float</span> height = getHeight(currentPixel);
   <span class="keyword">float</span> distance = <span class="number">0</span>;
 
@@ -129,28 +129,28 @@ is because lighting the pixels up makes them looked washed out. There are ways t
 <p>And here is the whole shebang:</p>
 <pre><code class="lang-c"><span class="preprocessor">#ifdef GL_ES</span>
   precision highp <span class="keyword">float</span>;
-<span class="preprocessor">#endif</span>
+<span class="preprocessor">#<span class="keyword">endif</span></span>
 
-vec2 extrude(vec2 other, <span class="keyword">float</span> angle, <span class="keyword">float</span> length) {
+<span class="function">vec2 <span class="title">extrude</span><span class="params">(vec2 other, <span class="keyword">float</span> angle, <span class="keyword">float</span> length)</span> </span>{
   <span class="keyword">float</span> x = length * <span class="built_in">cos</span>(angle);
   <span class="keyword">float</span> y = length * <span class="built_in">sin</span>(angle);
 
   <span class="keyword">return</span> vec2(other.x + x, other.y + y);
 }
 
-<span class="keyword">float</span> getHeightAt(vec2 texCoord, <span class="keyword">float</span> xyAngle, <span class="keyword">float</span> distance,
-    sampler2D heightMap) {
+<span class="function"><span class="keyword">float</span> <span class="title">getHeightAt</span><span class="params">(vec2 texCoord, <span class="keyword">float</span> xyAngle, <span class="keyword">float</span> distance,
+    sampler2D heightMap)</span> </span>{
 
   vec2 newTexCoord = extrude(texCoord, xyAngle, distance);
   <span class="keyword">return</span> texture2D(heightMap, newTexCoord).r;
 }
 
-<span class="keyword">float</span> getTraceHeight(<span class="keyword">float</span> height, <span class="keyword">float</span> zAngle, <span class="keyword">float</span> distance) {
+<span class="function"><span class="keyword">float</span> <span class="title">getTraceHeight</span><span class="params">(<span class="keyword">float</span> height, <span class="keyword">float</span> zAngle, <span class="keyword">float</span> distance)</span> </span>{
   <span class="keyword">return</span> distance * <span class="built_in">tan</span>(zAngle) + height;
 }
 
-<span class="keyword">bool</span> isInShadow(<span class="keyword">float</span> xyAngle, <span class="keyword">float</span> zAngle, sampler2D heightMap,
-    vec2 texCoord, <span class="keyword">float</span> step) {
+<span class="function"><span class="keyword">bool</span> <span class="title">isInShadow</span><span class="params">(<span class="keyword">float</span> xyAngle, <span class="keyword">float</span> zAngle, sampler2D heightMap,
+    vec2 texCoord, <span class="keyword">float</span> step)</span> </span>{
 
   <span class="keyword">float</span> distance;
   <span class="keyword">float</span> height;
@@ -181,7 +181,7 @@ uniform <span class="keyword">float</span> uZAngle;
 uniform <span class="keyword">int</span> uMaxShadowSteps;
 uniform <span class="keyword">float</span> uTexStep;
 
-<span class="keyword">void</span> main(<span class="keyword">void</span>) {
+<span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>{
   <span class="keyword">float</span> alpha = <span class="number">0.0</span>;
 
   <span class="keyword">if</span>(isInShadow(uXYAngle, uZAngle, uHeightMap, uMaxShadowSteps,

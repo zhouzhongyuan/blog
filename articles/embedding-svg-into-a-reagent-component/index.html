@@ -38,48 +38,48 @@
 <p><span class="more"></span></p>
 <h2 id="react-and-reagent-s-svg-support">React and Reagent’s SVG support</h2>
 <p>React supports SVG pretty well, you can directly place SVG in your React components, and that is true of Reagent as well</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">defn</span></span> some-svg-component <span class="collection">[]</span>
-  <span class="collection">[<span class="attribute">:svg</span> <span class="collection">{<span class="attribute">:x</span><span class="number"> 0</span> <span class="attribute">:y</span><span class="number"> 0</span> <span class="attribute">:width</span><span class="number"> 50</span> <span class="attribute">:height</span><span class="number"> 50</span>}</span>
-    <span class="collection">[<span class="attribute">:rect</span> <span class="collection">{<span class="attribute">:x</span><span class="number"> 10</span> <span class="attribute">:y</span><span class="number"> 10</span> <span class="attribute">:width</span><span class="number"> 10</span> <span class="attribute">:height</span><span class="number"> 10</span>}</span>]</span>]</span>)</span>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> some-svg-component <span class="collection">[]</span>
+  <span class="collection">[<span class="attribute">:svg</span> <span class="collection">{<span class="attribute">:x</span> <span class="number">0</span> <span class="attribute">:y</span> <span class="number">0</span> <span class="attribute">:width</span> <span class="number">50</span> <span class="attribute">:height</span> <span class="number">50</span>}</span>
+    <span class="collection">[<span class="attribute">:rect</span> <span class="collection">{<span class="attribute">:x</span> <span class="number">10</span> <span class="attribute">:y</span> <span class="number">10</span> <span class="attribute">:width</span> <span class="number">10</span> <span class="attribute">:height</span> <span class="number">10</span>}</span>]</span>]</span>)</span>
 </code></pre>
 <p>but man, how often do you want to write out SVG by hand?</p>
 <h2 id="embedding-svg-directly-into-a-reagent-component">Embedding SVG directly into a Reagent component</h2>
 <p>With macros and <a href="https://github.com/nathell/clj-tagsoup">clj-tagsoup</a> in hand, it’s super easy to embed an SVG file right into your Reagent code</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">ns</span></span> embed.svg
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">ns</span></span> embed.svg
   <span class="list">(<span class="attribute">:require</span> <span class="collection">[pl.danieljanus.tagsoup <span class="attribute">:as</span> ts]</span>)</span>)</span>
 
-<span class="list">(<span class="title"><span class="built_in">defmacro</span></span> embed-svg <span class="collection">[svg-file]</span>
-  <span class="list">(<span class="title"><span class="built_in">let</span></span> <span class="collection">[hiccup <span class="list">(<span class="title">ts/parse-string</span> <span class="list">(<span class="title"><span class="built_in">slurp</span></span> svg-file)</span>)</span>]</span>
+<span class="list">(<span class="keyword"><span class="built_in">defmacro</span></span> embed-svg <span class="collection">[svg-file]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[hiccup <span class="list">(<span class="keyword">ts/parse-string</span> <span class="list">(<span class="keyword"><span class="built_in">slurp</span></span> svg-file)</span>)</span>]</span>
     `~hiccup)</span>)</span>
 </code></pre>
 <p>and then in the component</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">defn</span></span> some-svg-component <span class="collection">[]</span>
-  <span class="list">(<span class="title">embed-svg</span> <span class="string">"cool-svg-image.svg"</span>)</span>)</span>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn</span></span> some-svg-component <span class="collection">[]</span>
+  <span class="list">(<span class="keyword">embed-svg</span> <span class="string">"cool-svg-image.svg"</span>)</span>)</span>
 </code></pre>
 <p>This works perfectly well. The output from <code>clj-tagsoup</code> is perfectly compatible with Reagent (so great the Clojure community has largely agreed on <a href="https://github.com/weavejester/hiccup">hiccup</a> syntax!)</p>
 <h2 id="taking-it-further-">Taking It Further?</h2>
 <p>The above doesn’t buy you much, you’re better off including the svg in an <code>img</code> tag. So can we do more? I’m not sure yet …</p>
 <p>I have one SVG diagram that I want users to be able to click on different parts of. From there, the page focuses on that part of the diagram. I was able to do this with macros</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">defn-</span></span> assoc-click-handler <span class="collection">[m]</span>
-  <span class="list">(<span class="title"><span class="built_in">assoc</span></span> m <span class="attribute">:class</span> `<span class="list">(<span class="title"><span class="built_in">if</span></span> <span class="list">(<span class="title"><span class="built_in">=</span></span> ~'focused-id ~<span class="list">(<span class="attribute">:id</span> m)</span>)</span> <span class="string">"focused"</span> <span class="string">""</span>)</span>
+<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> assoc-click-handler <span class="collection">[m]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">assoc</span></span> m <span class="attribute">:class</span> `<span class="list">(<span class="keyword"><span class="built_in">if</span></span> <span class="list">(<span class="keyword"><span class="built_in">=</span></span> ~'focused-id ~<span class="list">(<span class="attribute">:id</span> m)</span>)</span> <span class="string">"focused"</span> <span class="string">""</span>)</span>
            <span class="attribute">:on-click</span>
-           `<span class="list">(<span class="title"><span class="built_in">fn</span></span> <span class="collection">[]</span> <span class="list">(<span class="title">history/go-to</span> <span class="list">(<span class="title"><span class="built_in">str</span></span> <span class="string">"/basics/rink/"</span> ~<span class="list">(<span class="attribute">:id</span> m)</span>)</span>)</span>)</span>)</span>)</span>
+           `<span class="list">(<span class="keyword"><span class="built_in">fn</span></span> <span class="collection">[]</span> <span class="list">(<span class="keyword">history/go-to</span> <span class="list">(<span class="keyword"><span class="built_in">str</span></span> <span class="string">"/basics/rink/"</span> ~<span class="list">(<span class="attribute">:id</span> m)</span>)</span>)</span>)</span>)</span>)</span>
 
-<span class="list">(<span class="title"><span class="built_in">declare</span></span> create-click-handlers)</span>
+<span class="list">(<span class="keyword"><span class="built_in">declare</span></span> create-click-handlers)</span>
 
-<span class="list">(<span class="title"><span class="built_in">defn-</span></span> add-click-handlers-for-ids <span class="collection">[obj]</span>
-  <span class="list">(<span class="title"><span class="built_in">cond</span></span>
-    <span class="list">(<span class="title"><span class="built_in">vector?</span></span> obj)</span> <span class="list">(<span class="title">create-click-handlers</span> obj)</span>
-    <span class="list">(<span class="title"><span class="built_in">and</span></span> <span class="list">(<span class="title"><span class="built_in">map?</span></span> obj)</span> <span class="list">(<span class="title"><span class="built_in">contains?</span></span> obj <span class="attribute">:id</span>)</span>)</span> <span class="list">(<span class="title">assoc-click-handler</span> obj)</span>
+<span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> add-click-handlers-for-ids <span class="collection">[obj]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">cond</span></span>
+    <span class="list">(<span class="keyword"><span class="built_in">vector?</span></span> obj)</span> <span class="list">(<span class="keyword">create-click-handlers</span> obj)</span>
+    <span class="list">(<span class="keyword"><span class="built_in">and</span></span> <span class="list">(<span class="keyword"><span class="built_in">map?</span></span> obj)</span> <span class="list">(<span class="keyword"><span class="built_in">contains?</span></span> obj <span class="attribute">:id</span>)</span>)</span> <span class="list">(<span class="keyword">assoc-click-handler</span> obj)</span>
     <span class="attribute">:else</span> obj)</span>)</span>
 
-<span class="list">(<span class="title"><span class="built_in">defn</span></span> create-click-handlers <span class="collection">[tags]</span>
-  <span class="list">(<span class="title"><span class="built_in">apply</span></span> vector <span class="list">(<span class="title"><span class="built_in">map</span></span> add-click-handlers-for-ids tags)</span>)</span>)</span>
+<span class="list">(<span class="keyword"><span class="built_in">defn</span></span> create-click-handlers <span class="collection">[tags]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">apply</span></span> vector <span class="list">(<span class="keyword"><span class="built_in">map</span></span> add-click-handlers-for-ids tags)</span>)</span>)</span>
 
-<span class="list">(<span class="title"><span class="built_in">defmacro</span></span> embed-clickable <span class="collection">[svg-file]</span>
-  <span class="list">(<span class="title"><span class="built_in">let</span></span> <span class="collection">[hiccup <span class="list">(<span class="title">-&gt;</span> <span class="list">(<span class="title"><span class="built_in">slurp</span></span> svg-file)</span>
-                   <span class="list">(<span class="title">ts/parse-string</span>)</span>
-                   <span class="list">(<span class="title">create-click-handlers</span>)</span>)</span>]</span>
+<span class="list">(<span class="keyword"><span class="built_in">defmacro</span></span> embed-clickable <span class="collection">[svg-file]</span>
+  <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[hiccup <span class="list">(<span class="keyword"><span class="built_in">-&gt;</span></span> <span class="list">(<span class="keyword"><span class="built_in">slurp</span></span> svg-file)</span>
+                   <span class="list">(<span class="keyword">ts/parse-string</span>)</span>
+                   <span class="list">(<span class="keyword">create-click-handlers</span>)</span>)</span>]</span>
   `~hiccup)</span>)</span>
 </code></pre>
 <p>Doing just about the same thing as before, but for any map inside of clj-tagsoup’s output that has an <code>id</code> in it (in other words, the SVG element has an id), I also swoop in and throw a click handler on it. It’s bad practice that <code>assoc-click-handler</code> makes assumption about its environment (<code>focused-id</code> and <code>(history/go-to)</code> live in the same file as where I call the macro), but I’m ok with that, at least for now.</p>
