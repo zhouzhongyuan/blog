@@ -25,7 +25,7 @@ var brickColors = {
 
 The colors are freely available on the web, such as [here on Brickipedia](http://lego.wikia.com/wiki/Color_Palette), but man, there's a lot of them and it's pretty darn tedious to copy and paste each color's properties over into my editor.
 
-I'll have JavaScript do the work for me ...
+I'll have JavaScript do the work for me, pop open the console and begin with ...
 
 ```javascript
 document.querySelectorAll('tr')
