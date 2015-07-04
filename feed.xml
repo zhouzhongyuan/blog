@@ -30,7 +30,7 @@
 };
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The colors are freely available on the web, such as &lt;a href=&quot;http://lego.wikia.com/wiki/Color_Palette&quot;&gt;here on Brickipedia&lt;/a&gt;, but man, there’s a lot of them and it’s pretty darn tedious to copy and paste each color’s properties over into my editor.&lt;/p&gt;
-&lt;p&gt;I’ll have JavaScript do the work for me …&lt;/p&gt;
+&lt;p&gt;I’ll have JavaScript do the work for me, pop open the console and begin with …&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.querySelectorAll(&lt;span class=&quot;string&quot;&gt;'tr'&lt;/span&gt;)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;is a good start. It grabs all the table rows on the page.&lt;/p&gt;
