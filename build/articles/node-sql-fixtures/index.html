@@ -51,13 +51,13 @@
 
 <span class="keyword">var</span> sqlFixtures = <span class="built_in">require</span>(<span class="string">'sql-fixtures'</span>);
 
-sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
   <span class="comment">// the Users table now has two more rows in it</span>
   <span class="comment">// result returns what got created,</span>
   <span class="comment">// so you can make use of the data in your tests</span>
-  console.log(result.Users[<span class="number">0</span>].username); <span class="comment">// Henry</span>
-  console.log(result.Users[<span class="number">0</span>].id);       <span class="comment">// the id the db generated</span>
-  console.log(result.Users[<span class="number">1</span>].username); <span class="comment">// Catherine</span>
+  <span class="built_in">console</span>.log(result.Users[<span class="number">0</span>].username); <span class="comment">// Henry</span>
+  <span class="built_in">console</span>.log(result.Users[<span class="number">0</span>].id);       <span class="comment">// the id the db generated</span>
+  <span class="built_in">console</span>.log(result.Users[<span class="number">1</span>].username); <span class="comment">// Catherine</span>
 });
 </code></pre>
 <p>The <code>databaseConfig</code> parameter tells sql-fixtures how to connect to your database, more info on that in the <a href="https://github.com/city41/node-sql-fixtures/blob/master/README.md">README</a></p>
@@ -73,8 +73,8 @@ sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span c
   }
 };
 
-sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
-  console.log(result.Purchase[<span class="number">0</span>].userId === result.Users[<span class="number">0</span>].id); <span class="comment">// true</span>
+sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
+  <span class="built_in">console</span>.log(result.Purchase[<span class="number">0</span>].userId === result.Users[<span class="number">0</span>].id); <span class="comment">// true</span>
 });
 </code></pre>
 <p>In the above, sql-fixtures will create the User row first, then circle back and populate <code>Purchase.userId</code> with Henry’s actual id before adding the new row in the Purchase table.</p>

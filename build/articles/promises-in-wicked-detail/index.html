@@ -83,25 +83,25 @@
 <p>Why bother to understand promises to this level of detail? Really understanding how something works can increase your ability to take advantage of it, and debug it more successfully when things go wrong. I was inspired to write this article when a coworker and I got stumped on a tricky promise scenario. Had I known then what I know now, we wouldn’t have gotten stumped.</p>
 <h2 id="the-simplest-use-case">The Simplest Use Case</h2>
 <p>Let’s begin our promise implementation as simple as can be. We want to go from this</p>
-<pre><code class="lang-javascript">doSomething(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> {</span>
-  console.log(<span class="string">'Got a value:'</span> + value);
+<pre><code class="lang-javascript">doSomething(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'Got a value:'</span> + value);
 });
 </code></pre>
 <p>to this</p>
-<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> {</span>
-  console.log(<span class="string">'Got a value:'</span> + value);
+<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'Got a value:'</span> + value);
 });
 </code></pre>
 <p>To do this, we just need to change <code>doSomething()</code> from this</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span><span class="params">(callback)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span><span class="params">(callback)</span> </span>{
   <span class="keyword">var</span> value = <span class="number">42</span>;
   callback(value);
 }
 </code></pre>
 <p>to this “promise” based solution</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span><span class="params">()</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span><span class="params">()</span> </span>{
   <span class="keyword">return</span> {
-    then: <span class="function"><span class="keyword">function</span><span class="params">(callback)</span> {</span>
+    then: <span class="function"><span class="keyword">function</span><span class="params">(callback)</span> </span>{
       <span class="keyword">var</span> value = <span class="number">42</span>;
       callback(value);
     }
@@ -117,13 +117,13 @@ Promises capture the notion of an eventual value into an object
 <p>This is the main reason promises are so interesting. Once the concept of eventuality is captured like this, we can begin to do some very powerful things. We’ll explore this more later on.</p>
 <h3 id="defining-the-promise-type">Defining the Promise type</h3>
 <p>This simple object literal isn’t going to hold up. Let’s define an actual <code>Promise</code> type that we’ll be able to expand upon</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> </span>{
   <span class="keyword">var</span> callback = <span class="literal">null</span>;
-  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span><span class="params">(cb)</span> {</span>
+  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span><span class="params">(cb)</span> </span>{
     callback = cb;
   };
 
-  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(value)</span> {</span>
+  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(value)</span> </span>{
     callback(value);
   }
 
@@ -131,25 +131,25 @@ Promises capture the notion of an eventual value into an object
 }
 </code></pre>
 <p>and reimplement <code>doSomething()</code> to use it</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span><span class="params">()</span> {</span>
-  <span class="keyword">return</span> <span class="keyword">new</span> Promise(<span class="function"><span class="keyword">function</span><span class="params">(resolve)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span><span class="params">()</span> </span>{
+  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span><span class="params">(resolve)</span> </span>{
     <span class="keyword">var</span> value = <span class="number">42</span>;
     resolve(value);
   });
 }
 </code></pre>
 <p>There is a problem here. If you trace through the execution, you’ll see that <code>resolve()</code> gets called before <code>then()</code>, which means <code>callback</code> will be <code>null</code>. Let’s hide this problem in a little hack involving <code>setTimeout</code></p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> </span>{
   <span class="keyword">var</span> callback = <span class="literal">null</span>;
-  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span><span class="params">(cb)</span> {</span>
+  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span><span class="params">(cb)</span> </span>{
     callback = cb;
   };
 
-  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(value)</span> {</span>
+  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(value)</span> </span>{
     <span class="comment">// force callback to be called in the next</span>
     <span class="comment">// iteration of the event loop, giving</span>
     <span class="comment">// callback a chance to be set by then()</span>
-    setTimeout(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    setTimeout(<span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
       callback(value);
     }, <span class="number">1</span>);
   }
@@ -172,12 +172,12 @@ Promises capture the notion of an eventual value into an object
 
 <p><em>(A promise can also be rejected, but we’ll get to error handling later)</em></p>
 <p>Let’s explicitly track the state inside of our implementation, which will allow us to do away with our hack</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> </span>{
   <span class="keyword">var</span> state = <span class="string">'pending'</span>;
   <span class="keyword">var</span> value;
   <span class="keyword">var</span> deferred;
 
-  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(newValue)</span> {</span>
+  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(newValue)</span> </span>{
     value = newValue;
     state = <span class="string">'resolved'</span>;
 
@@ -186,7 +186,7 @@ Promises capture the notion of an eventual value into an object
     }
   }
 
-  <span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(onResolved)</span> {</span>
+  <span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(onResolved)</span> </span>{
     <span class="keyword">if</span>(state === <span class="string">'pending'</span>) {
       deferred = onResolved;
       <span class="keyword">return</span>;
@@ -195,7 +195,7 @@ Promises capture the notion of an eventual value into an object
     onResolved(value);
   }
 
-  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span><span class="params">(onResolved)</span> {</span>
+  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span><span class="params">(onResolved)</span> </span>{
     handle(onResolved);
   };
 
@@ -217,12 +217,12 @@ With promises, the order in which we work with them doesn’t matter. We are fre
 <p>We still have quite a few more things in the spec to implement, but our promises are already pretty powerful. This system allows us to call <code>then()</code> as many times as we want, we will always get the same value back</p>
 <pre><code class="lang-javascript"><span class="keyword">var</span> promise = doSomething();
 
-promise.then(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> {</span>
-  console.log(<span class="string">'Got a value:'</span>, value);
+promise.then(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'Got a value:'</span>, value);
 });
 
-promise.then(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> {</span>
-  console.log(<span class="string">'Got the same value again:'</span>, value);
+promise.then(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'Got the same value again:'</span>, value);
 });
 </code></pre>
 <div class="callout pitfall">
@@ -242,12 +242,12 @@ This is not completely true for the promise implementation in this article. If t
 </div>
 
 <p>Here is our promise type with chaining added in</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> </span>{
   <span class="keyword">var</span> state = <span class="string">'pending'</span>;
   <span class="keyword">var</span> value;
   <span class="keyword">var</span> deferred = <span class="literal">null</span>;
 
-  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(newValue)</span> {</span>
+  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(newValue)</span> </span>{
     value = newValue;
     state = <span class="string">'resolved'</span>;
 
@@ -256,7 +256,7 @@ This is not completely true for the promise implementation in this article. If t
     }
   }
 
-  <span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(handler)</span> {</span>
+  <span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(handler)</span> </span>{
     <span class="keyword">if</span>(state === <span class="string">'pending'</span>) {
       deferred = handler;
       <span class="keyword">return</span>;
@@ -271,8 +271,8 @@ This is not completely true for the promise implementation in this article. If t
     handler.resolve(ret);
   }
 
-  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span><span class="params">(onResolved)</span> {</span>
-    <span class="keyword">return</span> <span class="keyword">new</span> Promise(<span class="function"><span class="keyword">function</span><span class="params">(resolve)</span> {</span>
+  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span><span class="params">(onResolved)</span> </span>{
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span><span class="params">(resolve)</span> </span>{
       handle({
         onResolved: onResolved,
         resolve: resolve
@@ -293,16 +293,16 @@ Since <code>then()</code> always returns a new promise object, there will always
 <pre><code class="lang-javascript"><span class="keyword">var</span> ret = handler.onResolved(value);
 </code></pre>
 <p>In the examples I’ve been using here, <code>handler.onResolved</code> is</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span><span class="params">(value)</span> {</span>
-  console.log(<span class="string">"Got a value:"</span>, value);
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span><span class="params">(value)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">"Got a value:"</span>, value);
 }
 </code></pre>
 <p>in other words, it’s what was passed into the first call to <code>then()</code>. The return value of that first handler is used to resolve the second promise. Thus chaining is accomplished</p>
-<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
-  console.log(<span class="string">'first result'</span>, result);
+<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'first result'</span>, result);
   <span class="keyword">return</span> <span class="number">88</span>;
-}).then(<span class="function"><span class="keyword">function</span><span class="params">(secondResult)</span> {</span>
-  console.log(<span class="string">'second result'</span>, secondResult);
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(secondResult)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'second result'</span>, secondResult);
 });
 
 <span class="comment">// the output is</span>
@@ -311,11 +311,11 @@ Since <code>then()</code> always returns a new promise object, there will always
 <span class="comment">// second result 88</span>
 
 
-doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
-  console.log(<span class="string">'first result'</span>, result);
+doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'first result'</span>, result);
   <span class="comment">// not explicitly returning anything</span>
-}).then(<span class="function"><span class="keyword">function</span><span class="params">(secondResult)</span> {</span>
-  console.log(<span class="string">'second result'</span>, secondResult);
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(secondResult)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'second result'</span>, secondResult);
 });
 
 <span class="comment">// now the output is</span>
@@ -324,29 +324,29 @@ doSomething().then(<span class="function"><span class="keyword">function</span><
 <span class="comment">// second result undefined</span>
 </code></pre>
 <p>Since <code>then()</code> always returns a new promise, this chaining can go as deep as we like</p>
-<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
-  console.log(<span class="string">'first result'</span>, result);
+<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'first result'</span>, result);
   <span class="keyword">return</span> <span class="number">88</span>;
-}).then(<span class="function"><span class="keyword">function</span><span class="params">(secondResult)</span> {</span>
-  console.log(<span class="string">'second result'</span>, secondResult);
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(secondResult)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'second result'</span>, secondResult);
   <span class="keyword">return</span> <span class="number">99</span>;
-}).then(<span class="function"><span class="keyword">function</span><span class="params">(thirdResult)</span> {</span>
-  console.log(<span class="string">'third result'</span>, thirdResult);
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(thirdResult)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'third result'</span>, thirdResult);
   <span class="keyword">return</span> <span class="number">200</span>;
-}).then(<span class="function"><span class="keyword">function</span><span class="params">(fourthResult)</span> {</span>
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(fourthResult)</span> </span>{
   <span class="comment">// on and on...</span>
 });
 </code></pre>
 <p>What if in the above example, we wanted all the results in the end? With chaining, we would need to manually build up the result ourself</p>
-<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
   <span class="keyword">var</span> results = [result];
   results.push(<span class="number">88</span>);
   <span class="keyword">return</span> results;
-}).then(<span class="function"><span class="keyword">function</span><span class="params">(results)</span> {</span>
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(results)</span> </span>{
   results.push(<span class="number">99</span>);
   <span class="keyword">return</span> results;
-}).then(<span class="function"><span class="keyword">function</span><span class="params">(results)</span> {</span>
-  console.log(results.join(<span class="string">', '</span>);
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(results)</span> </span>{
+  <span class="built_in">console</span>.log(results.join(<span class="string">', '</span>);
 });
 
 <span class="comment">// the output is</span>
@@ -360,8 +360,8 @@ doSomething().then(<span class="function"><span class="keyword">function</span><
 <p>A potentially better way is to use a promise library’s <code>all()</code> method or any number of other utility methods that increase the usefulness of promises, which I’ll leave to you to go and discover.</p>
 <h3 id="the-callback-is-optional">The Callback is Optional</h3>
 <p>The callback to <code>then()</code> is not strictly required. If you leave it off, the promise resolves to the same value as the previous promise</p>
-<pre><code class="lang-javascript">doSomething().then().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
-  console.log(<span class="string">'got a result'</span>, result);
+<pre><code class="lang-javascript">doSomething().then().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'got a result'</span>, result);
 });
 
 <span class="comment">// the output is</span>
@@ -376,25 +376,25 @@ doSomething().then(<span class="function"><span class="keyword">function</span><
 </code></pre>
 <h3 id="returning-promises-inside-the-chain">Returning Promises Inside the Chain</h3>
 <p>Our chaining implementation is a bit naive. It’s blindly passing the resolved values down the line. What if one of the resolved values is a promise? For example</p>
-<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
   <span class="comment">// doSomethingElse returns a promise</span>
   <span class="keyword">return</span> doSomethingElse(result);
-}).then(<span class="function"><span class="keyword">function</span><span class="params">(finalResult)</span> {</span>
-  console.log(<span class="string">"the final result is"</span>, finalResult);
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(finalResult)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">"the final result is"</span>, finalResult);
 });
 </code></pre>
 <p>As it stands now, the above won’t do what we want. <code>finalResult</code> won’t actually be a fully resolved value, it will instead be a promise. To get the intended result, we’d need to do</p>
-<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
   <span class="comment">// doSomethingElse returns a promise</span>
   <span class="keyword">return</span> doSomethingElse(result);
-}).then(<span class="function"><span class="keyword">function</span><span class="params">(anotherPromise)</span> {</span>
-  anotherPromise.then(<span class="function"><span class="keyword">function</span><span class="params">(finalResult)</span> {</span>
-    console.log(<span class="string">"the final result is"</span>, finalResult);
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(anotherPromise)</span> </span>{
+  anotherPromise.then(<span class="function"><span class="keyword">function</span><span class="params">(finalResult)</span> </span>{
+    <span class="built_in">console</span>.log(<span class="string">"the final result is"</span>, finalResult);
   });
 });
 </code></pre>
 <p>Who wants that crud in their code? Let’s have the promise implementation seamlessly handle this for us. This is simple to do, inside of <code>resolve()</code> just add a special case if the resolved value is a promise</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(newValue)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(newValue)</span> </span>{
   <span class="keyword">if</span>(newValue &amp;&amp; <span class="keyword">typeof</span> newValue.then === <span class="string">'function'</span>) {
     newValue.then(resolve);
     <span class="keyword">return</span>;
@@ -425,10 +425,10 @@ Different promise implementations can interopt with each other, as long as they 
 <p>With chaining in place, our implementation is pretty complete. But we’ve completely ignored error handling.</p>
 <h2 id="rejecting-promises">Rejecting Promises</h2>
 <p>When something goes wrong during the course of a promise, it needs to be <strong>rejected</strong> with a <em>reason</em>. How does the caller know when this happens? They can find out by passing in a second callback to <code>then()</code></p>
-<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> {</span>
-  console.log(<span class="string">'Success!'</span>, value);
-}, <span class="function"><span class="keyword">function</span><span class="params">(error)</span> {</span>
-  console.log(<span class="string">'Uh oh'</span>, error);
+<pre><code class="lang-javascript">doSomething().then(<span class="function"><span class="keyword">function</span><span class="params">(value)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'Success!'</span>, value);
+}, <span class="function"><span class="keyword">function</span><span class="params">(error)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'Uh oh'</span>, error);
 });
 </code></pre>
 <div class="callout wisdom">
@@ -436,8 +436,8 @@ As mentioned earlier, the promise will transition from <strong>pending</strong> 
 </div>
 
 <p>Promises enable rejection by means of <code>reject()</code>, the evil twin of <code>resolve()</code>. Here is <code>doSomething()</code> with error handling support added</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span><span class="params">()</span> {</span>
-  <span class="keyword">return</span> <span class="keyword">new</span> Promise(<span class="function"><span class="keyword">function</span><span class="params">(resolve, reject)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span><span class="params">()</span> </span>{
+  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span><span class="params">(resolve, reject)</span> </span>{
     <span class="keyword">var</span> result = somehowGetTheValue();
     <span class="keyword">if</span>(result.error) {
       reject(result.error);
@@ -449,12 +449,12 @@ As mentioned earlier, the promise will transition from <strong>pending</strong> 
 </code></pre>
 <p>Inside the promise implementation, we need to account for rejection.</p>
 <p>Let’s see the full promise implementation again, this time with rejection support added</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span><span class="params">(fn)</span> </span>{
   <span class="keyword">var</span> state = <span class="string">'pending'</span>;
   <span class="keyword">var</span> value;
   <span class="keyword">var</span> deferred = <span class="literal">null</span>;
 
-  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(newValue)</span> {</span>
+  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(newValue)</span> </span>{
     <span class="keyword">if</span>(newValue &amp;&amp; <span class="keyword">typeof</span> newValue.then === <span class="string">'function'</span>) {
       newValue.then(resolve, reject);
       <span class="keyword">return</span>;
@@ -467,7 +467,7 @@ As mentioned earlier, the promise will transition from <strong>pending</strong> 
     }
   }
 
-  <span class="function"><span class="keyword">function</span> <span class="title">reject</span><span class="params">(reason)</span> {</span>
+  <span class="function"><span class="keyword">function</span> <span class="title">reject</span><span class="params">(reason)</span> </span>{
     state = <span class="string">'rejected'</span>;
     value = reason;
 
@@ -476,7 +476,7 @@ As mentioned earlier, the promise will transition from <strong>pending</strong> 
     }
   }
 
-  <span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(handler)</span> {</span>
+  <span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(handler)</span> </span>{
     <span class="keyword">if</span>(state === <span class="string">'pending'</span>) {
       deferred = handler;
       <span class="keyword">return</span>;
@@ -504,8 +504,8 @@ As mentioned earlier, the promise will transition from <strong>pending</strong> 
     handler.resolve(ret);
   }
 
-  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span><span class="params">(onResolved, onRejected)</span> {</span>
-    <span class="keyword">return</span> <span class="keyword">new</span> Promise(<span class="function"><span class="keyword">function</span><span class="params">(resolve, reject)</span> {</span>
+  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span><span class="params">(onResolved, onRejected)</span> </span>{
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span><span class="params">(resolve, reject)</span> </span>{
       handle({
         onResolved: onResolved,
         onRejected: onRejected,
@@ -527,7 +527,7 @@ When using promises, it’s very easy to omit the error callback. But if you do,
 <h3 id="unexpected-errors-should-also-lead-to-rejection">Unexpected Errors Should Also Lead to Rejection</h3>
 <p>So far our error handling only accounts for known errors. It’s possible an unhandled exception will happen, completely ruining everything. It’s essential that the promise implementation catch these exceptions and reject accordingly.</p>
 <p>This means that <code>resolve()</code> should get wrapped in a try/catch block</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(newValue)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">resolve</span><span class="params">(newValue)</span> </span>{
   <span class="keyword">try</span> {
     <span class="comment">// ... as before</span>
   } <span class="keyword">catch</span>(e) {
@@ -536,7 +536,7 @@ When using promises, it’s very easy to omit the error callback. But if you do,
 }
 </code></pre>
 <p>It’s also important to make sure the callbacks given to us by the caller don’t throw unhandled exceptions. These callbacks are called in <code>handle()</code>, so we end up with</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(deferred)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(deferred)</span> </span>{
   <span class="comment">// ... as before</span>
 
   <span class="keyword">var</span> ret;
@@ -556,18 +556,18 @@ It’s possible for a misunderstanding of promises to lead to completely swallow
 </div>
 
 <p>Consider this example</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">getSomeJson</span><span class="params">()</span> {</span>
-  <span class="keyword">return</span> <span class="keyword">new</span> Promise(<span class="function"><span class="keyword">function</span><span class="params">(resolve, reject)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">getSomeJson</span><span class="params">()</span> </span>{
+  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span><span class="params">(resolve, reject)</span> </span>{
     <span class="keyword">var</span> badJson = <span class="string">"&lt;div&gt;uh oh, this is not JSON at all!&lt;/div&gt;"</span>;
     resolve(badJson);
   });
 }
 
-getSomeJson().then(<span class="function"><span class="keyword">function</span><span class="params">(json)</span> {</span>
+getSomeJson().then(<span class="function"><span class="keyword">function</span><span class="params">(json)</span> </span>{
   <span class="keyword">var</span> obj = <span class="built_in">JSON</span>.parse(json);
-  console.log(obj);
-}, <span class="function"><span class="keyword">function</span><span class="params">(error)</span> {</span>
-  console.log(<span class="string">'uh oh'</span>, error);
+  <span class="built_in">console</span>.log(obj);
+}, <span class="function"><span class="keyword">function</span><span class="params">(error)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'uh oh'</span>, error);
 });
 </code></pre>
 <p><a class="fiddle" target="_blank" href="http://jsfiddle.net/city41/M7SRM/3/">fiddle</a></p>
@@ -582,11 +582,11 @@ Always remember, inside of <code>then()</code>‘s callback, the promise you are
 </div>
 
 <p>If you want to capture the above error, you need an error callback further downstream</p>
-<pre><code class="lang-javascript">getSomeJson().then(<span class="function"><span class="keyword">function</span><span class="params">(json)</span> {</span>
+<pre><code class="lang-javascript">getSomeJson().then(<span class="function"><span class="keyword">function</span><span class="params">(json)</span> </span>{
   <span class="keyword">var</span> obj = <span class="built_in">JSON</span>.parse(json);
-  console.log(obj);
-}).then(<span class="literal">null</span>, <span class="function"><span class="keyword">function</span><span class="params">(error)</span> {</span>
-  console.log(<span class="string">"an error occured: "</span>, error);
+  <span class="built_in">console</span>.log(obj);
+}).then(<span class="literal">null</span>, <span class="function"><span class="keyword">function</span><span class="params">(error)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">"an error occured: "</span>, error);
 });
 </code></pre>
 <p>Now we will properly log the error.</p>
@@ -597,10 +597,10 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 <h3 id="done-to-the-rescue">done() to the Rescue</h3>
 <p>Most (but not all) promise libraries have a <code>done()</code> method. It’s very similar to <code>then()</code>, except it avoids the above pitfalls of <code>then()</code>.</p>
 <p><code>done()</code> can be called whenever <code>then()</code> can. The key differences are it does not return a promise, and any unhandled exception inside of <code>done()</code> is not captured by the promise implementation. In other words, <code>done()</code> represents when the entire promise chain has fully resolved. Our <code>getSomeJson()</code> example can be more robust using <code>done()</code></p>
-<pre><code class="lang-javascript">getSomeJson().done(<span class="function"><span class="keyword">function</span><span class="params">(json)</span> {</span>
+<pre><code class="lang-javascript">getSomeJson().done(<span class="function"><span class="keyword">function</span><span class="params">(json)</span> </span>{
   <span class="comment">// when this throws, it won't be swallowed</span>
   <span class="keyword">var</span> obj = <span class="built_in">JSON</span>.parse(json);
-  console.log(obj);
+  <span class="built_in">console</span>.log(obj);
 });
 </code></pre>
 <p><code>done()</code> also takes an error callback, <code>done(callback, errback)</code>, just like <code>then()</code> does, and since the entire promise resolution is, well, done, you are assured of being informed of any errors that erupted.</p>
@@ -610,15 +610,15 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 
 <h3 id="recovering-from-rejection">Recovering from Rejection</h3>
 <p>It is possible to recover from a rejected promise. If you pass in an errback to <code>then()</code>, from then on any further promises in this chain will be resolved instead of rejected:</p>
-<pre><code class="lang-javascript">aMethodThatRejects().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+<pre><code class="lang-javascript">aMethodThatRejects().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
   <span class="comment">// won't get here</span>
-}, <span class="function"><span class="keyword">function</span><span class="params">(err)</span> {</span>
+}, <span class="function"><span class="keyword">function</span><span class="params">(err)</span> </span>{
   <span class="comment">// since aMethodThatRejects calls reject()</span>
   <span class="comment">// we end up here in the errback</span>
   <span class="keyword">return</span> <span class="string">"recovered!"</span>;
-}).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
-  console.log(<span class="string">"after recovery: "</span>, result);
-}, <span class="function"><span class="keyword">function</span><span class="params">(err)</span> {</span>
+}).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">"after recovery: "</span>, result);
+}, <span class="function"><span class="keyword">function</span><span class="params">(err)</span> </span>{
   <span class="comment">// we won't actually get here</span>
   <span class="comment">// since the rejected promise had an errback</span>
 });
@@ -628,10 +628,10 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 </code></pre>
 <p>If you don’t pass in an errback, then the rejection propagates to the next promise in the chain:</p>
 <pre><code class="lang-javascript"><span class="comment">// notice the two calls to then()</span>
-aMethodThatRejects().then().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+aMethodThatRejects().then().then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
   <span class="comment">// we won't get here</span>
-}, <span class="function"><span class="keyword">function</span><span class="params">(err)</span> {</span>
-  console.log(<span class="string">"error propagated"</span>);
+}, <span class="function"><span class="keyword">function</span><span class="params">(err)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">"error propagated"</span>);
 });
 
 <span class="comment">// the output is</span>
@@ -639,12 +639,12 @@ aMethodThatRejects().then().then(<span class="function"><span class="keyword">fu
 </code></pre>
 <h2 id="promise-resolution-needs-to-be-async">Promise Resolution Needs to be Async</h2>
 <p>Early in the article we cheated a bit by using <code>setTimeout</code>. Once we fixed that hack, we’ve not used setTimeout since. But the truth is the Promises/A+ spec requires that promise resolution happen asynchronously. Meeting this requirement is simple, we simply need to wrap most of <code>handle()</code>‘s implementation inside of a <code>setTimeout</code> call</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(handler)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(handler)</span> </span>{
   <span class="keyword">if</span>(state === <span class="string">'pending'</span>) {
     deferred = handler;
     <span class="keyword">return</span>;
   }
-  setTimeout(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+  setTimeout(<span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
     <span class="comment">// ... as before</span>
   }, <span class="number">1</span>);
 }

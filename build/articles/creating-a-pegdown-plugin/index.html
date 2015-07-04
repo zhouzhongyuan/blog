@@ -56,19 +56,19 @@ body goes here
 <span class="keyword">import</span> org.pegdown.Parser;
 <span class="keyword">import</span> org.pegdown.plugins.BlockPluginParser;
 
-<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ComponentParser</span> <span class="keyword">extends</span> <span class="title">Parser</span> <span class="keyword">implements</span> <span class="title">BlockPluginParser</span> {</span>
+<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ComponentParser</span> <span class="keyword">extends</span> <span class="title">Parser</span> <span class="keyword">implements</span> <span class="title">BlockPluginParser</span> </span>{
   <span class="keyword">private</span> <span class="keyword">final</span> String TAG = <span class="string">"%%%"</span>;
 
-  <span class="keyword">public</span> <span class="title">ComponentParser</span>() {
-    <span class="keyword">super</span>(ALL, <span class="number">1000</span>l, DefaultParseRunnerProvider);
+  <span class="function"><span class="keyword">public</span> <span class="title">ComponentParser</span><span class="params">()</span> </span>{
+    <span class="keyword">super</span>(ALL, <span class="number">1000l</span>, DefaultParseRunnerProvider);
   }
 
   <span class="annotation">@Override</span>
-  <span class="keyword">public</span> Rule[] <span class="title">blockPluginRules</span>() {
+  <span class="keyword">public</span> Rule[] blockPluginRules() {
     <span class="keyword">return</span> <span class="keyword">new</span> Rule[] { component() };
   }
 
-  <span class="keyword">public</span> Rule <span class="title">component</span>() {
+  <span class="function"><span class="keyword">public</span> Rule <span class="title">component</span><span class="params">()</span> </span>{
 
     <span class="comment">// stack ends up like this:</span>
     <span class="comment">//</span>
@@ -92,7 +92,7 @@ body goes here
    * example:
    * %%% myComponent(foo=bar)
    */</span>
-  <span class="keyword">public</span> Rule <span class="title">open</span>() {
+  <span class="function"><span class="keyword">public</span> Rule <span class="title">open</span><span class="params">()</span> </span>{
     StringBuilderVar componentName = <span class="keyword">new</span> StringBuilderVar();
 
     <span class="keyword">return</span> Sequence(
@@ -120,7 +120,7 @@ body goes here
    * and optionally have whitespace around any tokens
    * foo = bar , baz=boo
    */</span>
-  <span class="keyword">public</span> Rule <span class="title">params</span>() {
+  <span class="function"><span class="keyword">public</span> Rule <span class="title">params</span><span class="params">()</span> </span>{
     ParamVar params = <span class="keyword">new</span> ParamVar();
     StringBuilderVar paramName = <span class="keyword">new</span> StringBuilderVar();
     StringBuilderVar paramValue = <span class="keyword">new</span> StringBuilderVar();
@@ -154,7 +154,7 @@ body goes here
   <span class="comment">/*
    * extracts the body of the component into a raw string
    */</span>
-  <span class="keyword">public</span> Rule <span class="title">body</span>() {
+  <span class="function"><span class="keyword">public</span> Rule <span class="title">body</span><span class="params">()</span> </span>{
     StringBuilderVar rawBody = <span class="keyword">new</span> StringBuilderVar();
 
     <span class="keyword">return</span> Sequence(
@@ -168,11 +168,11 @@ body goes here
   <span class="comment">/*
    * end of the component, ie "%%%"
    */</span>
-  <span class="keyword">public</span> String <span class="title">close</span>() {
+  <span class="function"><span class="keyword">public</span> String <span class="title">close</span><span class="params">()</span> </span>{
     <span class="keyword">return</span> TAG;
   }
 
-  <span class="keyword">public</span> Rule <span class="title">whitespace</span>() {
+  <span class="function"><span class="keyword">public</span> Rule <span class="title">whitespace</span><span class="params">()</span> </span>{
     <span class="keyword">return</span> ZeroOrMore(
              AnyOf(<span class="string">" \t\f"</span>));
   }
@@ -196,7 +196,7 @@ Pegdown has one expectation here: <em>your plugin should finish its job with one
 <pre><code class="lang-markdown">%%% someMethod(someParam=someValue)
 </code></pre>
 <p>here it is, in a slightly simplified form</p>
-<pre><code class="lang-java">  <span class="keyword">public</span> Rule <span class="title">open</span>() {
+<pre><code class="lang-java">  <span class="function"><span class="keyword">public</span> Rule <span class="title">open</span><span class="params">()</span> </span>{
     StringBuilderVar componentName = <span class="keyword">new</span> StringBuilderVar();
 
     <span class="keyword">return</span> Sequence(
@@ -229,7 +229,7 @@ Pegdown has one expectation here: <em>your plugin should finish its job with one
 <p>At this point, you’re pretty much good to go on how parsing plugins work. It’s then mostly a matter of getting a feel for composing primitive Rules together.</p>
 <p>But there is one more funky thing you might have to deal with, Parboiled Vars. Remember that magic that Parboiled does to your Rules methods? This magic means you can’t just use any ol’ Java you want. If you need to work with a data structure, such as a string, then you need to do so with it wrapped up in a <code>Var</code>. Notice in <code>open()</code> the <code>componentName</code> was being added to a <code>StringBuilderVar</code>? That’s just a simple class that wraps a <code>StringBuilder</code>, and does so in such a way that is compatible with Parboiled’s rewrite magic.</p>
 <p>Here is <code>params()</code>, which parses out the parameters to the component:</p>
-<pre><code class="lang-java">  <span class="keyword">public</span> Rule <span class="title">params</span>() {
+<pre><code class="lang-java">  <span class="function"><span class="keyword">public</span> Rule <span class="title">params</span><span class="params">()</span> </span>{
     ParamVar params = <span class="keyword">new</span> ParamVar();
     StringBuilderVar paramName = <span class="keyword">new</span> StringBuilderVar();
     StringBuilderVar paramValue = <span class="keyword">new</span> StringBuilderVar();
@@ -269,24 +269,24 @@ You need to give Pegdown your parser’s <strong>class</strong>, this is key to 
 
 <h2 id="nodes">Nodes</h2>
 <p>Pegdown parses Markdown into a tree of Nodes, where <code>RootNode</code> is the root. In my parser plugin above, I created a <code>ComponentNode</code>, which is my own class. This allows your custom parsing’s results to live in the AST. Here is my <code>ComponentNode</code> class, simplified a bit:</p>
-<pre><code class="lang-java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ComponentNode</span> <span class="keyword">extends</span> <span class="title">AbstractNode</span> {</span>
+<pre><code class="lang-java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ComponentNode</span> <span class="keyword">extends</span> <span class="title">AbstractNode</span> </span>{
   <span class="keyword">private</span> String name;
   <span class="keyword">private</span> Map&lt;String,String&gt; params;
   <span class="keyword">private</span> String body;
 
-  <span class="keyword">public</span> <span class="title">ComponentNode</span>(String name, Map&lt;String,String&gt; params, String body) {
+  <span class="function"><span class="keyword">public</span> <span class="title">ComponentNode</span><span class="params">(String name, Map&lt;String,String&gt; params, String body)</span> </span>{
     <span class="keyword">this</span>.name = name;
     <span class="keyword">this</span>.params = params;
     <span class="keyword">this</span>.body = body;
   }
 
   <span class="annotation">@Override</span>
-  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span>(Visitor visitor) {
+  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(Visitor visitor)</span> </span>{
     visitor.visit((Node) <span class="keyword">this</span>);
   }
 
   <span class="annotation">@Override</span>
-  <span class="keyword">public</span> List&lt;Node&gt; <span class="title">getChildren</span>() {
+  <span class="function"><span class="keyword">public</span> List&lt;Node&gt; <span class="title">getChildren</span><span class="params">()</span> </span>{
     <span class="keyword">return</span> <span class="keyword">null</span>;
   }
   ...
@@ -303,10 +303,10 @@ You need to give Pegdown your parser’s <strong>class</strong>, this is key to 
       .toHtml(ast);
 </code></pre>
 <p>And of course <code>ComponentSerializer</code> is a class I wrote to handle my custom stuff:</p>
-<pre><code class="lang-java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ComponentSerializer</span> <span class="keyword">implements</span> <span class="title">ToHtmlSerializerPlugin</span> {</span>
+<pre><code class="lang-java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ComponentSerializer</span> <span class="keyword">implements</span> <span class="title">ToHtmlSerializerPlugin</span> </span>{
 
   <span class="annotation">@Override</span>
-  <span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">visit</span>(Node node, Visitor visitor, Printer printer) {
+  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">visit</span><span class="params">(Node node, Visitor visitor, Printer printer)</span> </span>{
     <span class="keyword">if</span> (node <span class="keyword">instanceof</span> ComponentNode) {
       ComponentNode cNode = (ComponentNode)node;
 

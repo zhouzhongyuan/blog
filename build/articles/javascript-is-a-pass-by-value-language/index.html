@@ -39,7 +39,7 @@
 <h2 id="pass-by-wha-">Pass by wha?</h2>
 <p>What are you talking about?</p>
 <p>Let’s look at this example</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">clamp</span><span class="params">(value, valueMax, valueMin)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">clamp</span><span class="params">(value, valueMax, valueMin)</span> </span>{
   <span class="keyword">return</span> <span class="built_in">Math</span>.min(valueMax, <span class="built_in">Math</span>.max(value, valueMin));
 }
 
@@ -48,18 +48,18 @@ clamp(<span class="number">200</span>, <span class="number">1</span>, <span clas
 <p>What happens when we pass <code>valueMin</code> from clamp into max? Do they both have the same <code>valueMin</code>? In other words, do they both get access to the same chunk of memory? That depends. In JavaScript clamp and max are each given their own copy of <code>valueMin</code>. No matter what, clamp’s <code>valueMin</code> will never interfere with max’s <code>valueMin</code> as they are two completely different chunks of memory. This is know as “pass by value”.</p>
 <h2 id="pass-by-reference">Pass by reference</h2>
 <p>It’s possible for functions to share parameters amongst each other. This is the opposite of pass by value and is known as “pass by reference”. When passing by reference, the functions involve are all privy to the same chunk of memory, and so can see each other’s changes. Many languages don’t offer this feature. JavaScript does not, but C# does.</p>
-<pre><code class="lang-csharp">// this is C#
+<pre><code class="lang-csharp"><span class="comment">// this is C#</span>
 
-public class MyProgram {
-  static void mutate(ref int a) {
-    a = 5;
+<span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyProgram</span> {
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mutate</span><span class="params">(<span class="keyword">ref</span> <span class="keyword">int</span> a)</span> </span>{
+    a = <span class="number">5</span>;
   }
 
-  static void Main(string[] args) {
-    int myA = 12;
-    mutate(ref myA);
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span><span class="params">(<span class="keyword">string</span>[] args)</span> </span>{
+    <span class="keyword">int</span> myA = <span class="number">12</span>;
+    mutate(<span class="keyword">ref</span> myA);
 
-    // prints 5  
+    <span class="comment">// prints 5  </span>
     Console.WriteLine(myA);
   }
 }
@@ -69,7 +69,7 @@ public class MyProgram {
 <p>This is where it gets a little confusing.</p>
 <p>In JavaScript — like most object oriented languages — objects are created on the heap (and in actuality primitives are too due to closures. <a href="http://stackoverflow.com/a/3691209/194940">This StackOverflow answer</a> explains it nicely). You don’t have direct access to the heap, instead whenever working with an object you are doing so through a reference. A reference is like a pointer in C, it stores the address of the object on the heap. But unlike pointers, that’s really all they do, you can’t really do fancy things with references like you can pointers. They are simply a calling card that lets you get at your object.</p>
 <p>So what does this mean with objects and function calls?</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">mutateObject</span><span class="params">(obj)</span> {</span>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">mutateObject</span><span class="params">(obj)</span> </span>{
   obj.foo = <span class="string">"changed!"</span>;
 }
 
@@ -80,35 +80,35 @@ public class MyProgram {
 mutateObject(myObj);
 
 <span class="comment">// prints "changed!"</span>
-console.log(myObj.foo);
+<span class="built_in">console</span>.log(myObj.foo);
 </code></pre>
 <p>isn’t that pass by reference? It actually is still pass by value. The tricky bit here is the value that got passed is a reference. Unfortunately the naming conventions are confusing. A reference in JavaScript is a chunk of memory that stores an address. <code>obj</code> inside mutateObject and <code>myObj</code> outside of mutate object are both references that “point” at the object. But just like up above with <code>valueMax</code>, they are two distinct chunks of memory, both of which contain the same address.</p>
 <p>It is true that with objects in JavaScript you get some of the features that true pass by reference gives you. But you don’t get all of them.</p>
 <h2 id="passing-object-references-by-reference">Passing object references by reference</h2>
 <p>Yo dawg…</p>
 <p>Let’s head back to C# for a second.</p>
-<pre><code class="lang-csharp">public class MyObject {
-  public MyObject(string a) {
+<pre><code class="lang-csharp"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyObject</span> {
+  <span class="function"><span class="keyword">public</span> <span class="title">MyObject</span><span class="params">(<span class="keyword">string</span> a)</span> </span>{
     A = a;
   }
 
-  public string A { get; set; }
+  <span class="keyword">public</span> <span class="keyword">string</span> A { <span class="keyword">get</span>; <span class="keyword">set</span>; }
 }
 
-public class MyProgram {
-  static void Mutate(ref MyObject obj) {
-    obj = new MyObject(&quot;assigning a new object&quot;);
+<span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyProgram</span> {
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Mutate</span><span class="params">(<span class="keyword">ref</span> MyObject obj)</span> </span>{
+    obj = <span class="keyword">new</span> MyObject(<span class="string">"assigning a new object"</span>);
   }
 
-  static void Main(string[] args) {
-    MyObject myObj = new MyObject(&quot;original object&quot;);
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span><span class="params">(<span class="keyword">string</span>[] args)</span> </span>{
+    MyObject myObj = <span class="keyword">new</span> MyObject(<span class="string">"original object"</span>);
     MyObject anotherRefToMyObj = myObj;
-    Mutate(ref myObj);
+    Mutate(<span class="keyword">ref</span> myObj);
 
-    // prints false
+    <span class="comment">// prints false</span>
     Console.WriteLine(Object.Equals(myObj, anotherRefToMyObj));
 
-    // prints &quot;assigning a new object&quot;
+    <span class="comment">// prints "assigning a new object"</span>
     Console.WriteLine(myObj.A);
   }
 }
