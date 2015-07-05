@@ -93,7 +93,7 @@ Blue&amp;quot;:{&amp;quot;id&amp;quot;:135,&amp;quot;officialName&amp;quot;:&amp
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Then just copy and paste the entire result of the stringify into my code, have my editor format it, and that’s it. Much easier than tediously copying each color over, and a little fun too.&lt;/p&gt;
 &lt;div class=&quot;callout wisdom&quot;&gt;
-You can also have &lt;code&gt;stringify&lt;/code&gt; format the result for you buy making use of the &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#space_argument&quot;&gt;space argument&lt;/a&gt;. &lt;code&gt;JSON.stringify(colors, null, 2)&lt;/code&gt; will format the resulting string nicely.
+You can also have &lt;code&gt;stringify&lt;/code&gt; format the result for you by making use of the &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#space_argument&quot;&gt;space argument&lt;/a&gt;. &lt;code&gt;JSON.stringify(colors, null, 2)&lt;/code&gt; will format the resulting string nicely.
 &lt;/div&gt;
 </description>
     </item>
