@@ -107,3 +107,7 @@ Blue":{"id":135,"officialName":"Sand Blue","color":"rgb(94, 116, 140)"}
 ```
 
 Then just copy and paste the entire result of the stringify into my code, have my editor format it, and that's it. Much easier than tediously copying each color over, and a little fun too.
+
+<div class="callout wisdom">
+You can also have `stringify` format the result for you buy making use of the [space argument](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#space_argument). `JSON.stringify(colors, null, 2)` will format the resulting string nicely.
+</div>
