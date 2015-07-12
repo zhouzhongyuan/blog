@@ -1,5 +1,11 @@
 ---
 things:
+- name: pxtobrx
+  url: http://pxtobrx.com
+  github: https://github.com/city41/pxtobrx
+  thumbnail: /media/img/stuff/pxtobrx.png
+  description: A little React webapp that takes your video game sprites and shows you how to build them out of LEGO.
+
 - name: Metamorfus
   url: http://metamorf.us
   thumbnail: /media/img/stuff/metamorfus.png
