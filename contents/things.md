@@ -6,11 +6,6 @@ things:
   thumbnail: /media/img/stuff/pxtobrx.png
   description: A little React webapp that takes your video game sprites and shows you how to build them out of LEGO.
 
-- name: Metamorfus
-  url: http://metamorf.us
-  thumbnail: /media/img/stuff/metamorfus.png
-  description: Metamorfus is a website aimed at helping people improve their social skills.The site is written in NodeJS using Restify on the backend, and AngularJS on the frontend.
-
 - name: Dragon Plunder
   url: http://www.mattgreer.org/dragon-plunder/
   thumbnail: /media/img/stuff/dragonPlunder.png
