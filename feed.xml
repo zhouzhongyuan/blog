@@ -2196,7 +2196,7 @@ uniform vec4 lightColor;
     rawNormal -= &lt;span class=&quot;number&quot;&gt;0.5&lt;/span&gt;;
 
     &lt;span class=&quot;comment&quot;&gt;// figure out how much the lighting influences this pixel&lt;/span&gt;
-    &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; lightWeight = 
+    &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; lightWeight =
       dot(normalize(rawNormal.xyz), normalize(lightDirection));
 
     lightWeight = max(lightWeight, &lt;span class=&quot;number&quot;&gt;0.0&lt;/span&gt;);
@@ -2323,6 +2323,10 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
 &lt;p&gt;Truth be told there are some minor details I’m leaving out in the above code, but the core idea is definitely there. One major problem with this approach is each pixel in the scene can only have one height. A good example of how this is a limitation is trees. I can tell the engine to cast a really low, long shadow for a tree, but the trunk will never show up in the shadow. This is because the overhang area at the bottom of the leaves is not recorded in the height map.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/shadow1.png&quot; alt=&quot;shadow example 1&quot;&gt;  &lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/shadow2.png&quot; alt=&quot;shadow example 2&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;translations&quot;&gt;Translations&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http://habrahabr.ru/post/272427/&quot;&gt;Russian Translation&lt;/a&gt;, translated by &lt;a href=&quot;https://twitter.com/Fen1kz&quot;&gt;Fen1kz&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     <item>
