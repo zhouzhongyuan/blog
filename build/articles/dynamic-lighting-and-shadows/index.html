@@ -36,20 +36,24 @@
             <article class="article">
               <section class="content"><p>I’m working on a stealth action game where shadows will play a big role in the gameplay. Using WebGL shaders, I implemented dynamic lighting and shadows. This post is the blog post I wish existed before I started :) Gritty details on how I implemented these below…</p>
 <p><span class="more"></span></p>
+<div class="callout pitfall">
+  I never released this game. Partly due to not seeing it through and partly because I never succeeded in making it fun :-/
+</div>
+
 <iframe width="560" height="315" style="margin-top: 3em; margin-bottom: 3em;" src="http://www.youtube.com/embed/ZMyg5erp-vk" frameborder="0" allowfullscreen></iframe>
 
-<h2 id="part-one-dynamic-lighting">Part one: dynamic lighting</h2>
-<p>I was inspired by <a href="http://www.reddit.com/r/gamedev/comments/115f3y/how_to_dynamic_lighting_on_sprites/">this post</a> on Reddit, where aionskull used normal maps in Unity to dynamically light up his sprites. gpillow also posted in the comments how he had done <a href="https://love2d.org/forums/viewtopic.php?f=5&amp;t=11076">something similar</a> in Love2D. <a href="/articles/dynamic-lighting-and-shadows/pixel_shading.gif">Here’s a large gif illustrating gpillow’s results</a>. I’d just include the gif here, but it’s 8 megs. Thanks to jusksmit for making the gif.</p>
+<p>##Part one: dynamic lighting
+I was inspired by <a href="http://www.reddit.com/r/gamedev/comments/115f3y/how_to_dynamic_lighting_on_sprites/">this post</a> on Reddit, where aionskull used normal maps in Unity to dynamically light up his sprites. gpillow also posted in the comments how he had done <a href="https://love2d.org/forums/viewtopic.php?f=5&amp;t=11076">something similar</a> in Love2D. <a href="/articles/dynamic-lighting-and-shadows/pixel_shading.gif">Here’s a large gif illustrating gpillow’s results</a>. I’d just include the gif here, but it’s 8 megs. Thanks to jusksmit for making the gif.</p>
 <p>So, what is dynamic lighting? It’s a 3D graphics technique where a light source lights up objects in the scene. It’s dynamic as the lighting effects update in real time as the light source moves around. This is pretty standard stuff in the 3D world and easy to translate into a 2D environment, assuming you can take advantage of shaders.</p>
 <p>The key is the angle the light hits a surface indicates how much the surface lights up.</p>
 <p><img src="/articles/dynamic-lighting-and-shadows/lighting.gif" alt="lighting diagram"></p>
 <p>and the key to <em>that</em> is the normal vector. A vector which indicates which way a surface is facing. In the above diagram, the arrow sticking out of the center of the panel is the normal vector. You can see that when the light’s rays come in at a shallower angle, the panel is less influenced by the light and not lit up as much. So in the end, the algorithm is quite simple, as that angle increases, have the light source influence less. A simple way to calculate the influence is to calculate the dot product between the light vector and the normal vector.</p>
-<h3 id="dynamic-lighting-in-a-2d-environment">dynamic lighting in a 2d environment</h3>
-<p>That’s all well and good, but how do you have normal vectors in a 2d game? There aren’t any real 3D objects in the traditional sense, but textures can step in to provide the needed info. I created <em>normal maps</em> for the two houses in the above video, and use them to calculate the lighting:</p>
+<p>###dynamic lighting in a 2d environment
+That’s all well and good, but how do you have normal vectors in a 2d game? There aren’t any real 3D objects in the traditional sense, but textures can step in to provide the needed info. I created <em>normal maps</em> for the two houses in the above video, and use them to calculate the lighting:</p>
 <p><img src="/articles/dynamic-lighting-and-shadows/mansionNormals.png" alt="mansion normals"></p>
 <p>For starters, you can see the actual house sprite has no shading drawn into it. Then the normal map encodes the normals for each pixel into a color. A vector needs to be specified with (x,y,z) coordinates, and an image has r,g and b values. So the encoding into the image is easy to do. Take the front face of the house, which is facing due south giving the normal vector values of <code>[x:0, y:0.5, z:0]</code>. RGB values are positive, so need to shift the values up by 0.5 to force everything positive:  <code>[x:0.5, y:1, z:0.5]</code>. And RGB values are normally represented as bytes, so multiply each value by <code>255</code>, yielding (rounded up): <code>[x:128, y:255, z:128]</code>, or in other words, this bright green <span style="display:inline-block; width: 30px; height: 15px; background-color: rgb(128, 255, 128)">&nbsp;</span>, the same green in the normal map image.</p>
 <p>With our normals in tow, we’re ready to have the graphics card do its magic. My game is using <a href="http://www.impactjs.com">ImpactJS</a>, which is very compatibile with <a href="https://github.com/gameclosure/webgl-2d">WebGL2D</a> Using WebGL2D, it was easy to add an additional fragment shader to implement the lighting:</p>
-<pre><code class="lang-c"><span class="preprocessor">#ifdef GL_ES</span>
+<pre><code class="lang-c"><span class="preprocessor">#<span class="keyword">ifdef</span> GL_ES</span>
   precision highp <span class="keyword">float</span>;
 <span class="preprocessor">#<span class="keyword">endif</span></span>
 
@@ -86,8 +90,8 @@ irrelevant in 2D rendering (just 4 vertices to drop the texture into the scene),
 fragment lighting is more accurate anyway. Also this shader is only rendering the light itself. It assumes the main sprite has already been drawn. I have to admit I am cheating a little bit, as I am setting my <code>lightColor</code> to a dark grey, and not sending out light but actually darkness. This
 is because lighting the pixels up makes them looked washed out. There are ways to resolve this, but for now I’m cheating a smidge.</p>
 <p><img src="/articles/dynamic-lighting-and-shadows/lightingExamples.png" alt="lighting examples"></p>
-<h2 id="part-two-casting-shadows">part two: casting shadows</h2>
-<p>Casting shadows in 3D environments is a well solved problem, using techniques like <a href="http://en.wikipedia.org/wiki/Ray_tracing_(graphics">raytracing</a>) or <a href="http://en.wikipedia.org/wiki/Shadow_mapping">shadow mapping</a> casting shadows in the scene is pretty easy to accomplish. I struggled to find an implementation in my 2D environment that I was happy with. I think I came up with a good solution, but for sure it has drawbacks.</p>
+<p>##part two: casting shadows
+Casting shadows in 3D environments is a well solved problem, using techniques like <a href="http://en.wikipedia.org/wiki/Ray_tracing_(graphics">raytracing</a>) or <a href="http://en.wikipedia.org/wiki/Shadow_mapping">shadow mapping</a> casting shadows in the scene is pretty easy to accomplish. I struggled to find an implementation in my 2D environment that I was happy with. I think I came up with a good solution, but for sure it has drawbacks.</p>
 <p>In short, draw a line from a fragment (aka pixel) in the scene to the sun and see if anything gets in the way. if something does, that pixel is in the shade, else it’s in the sun. In the end it’s actually pretty simple.</p>
 <p>The shader will get <code>xyAngle</code> and <code>zAngle</code> passed into it, indicating where the sun is. Since the sun is so far away, these two angles are the same for all pixels, as sunrays are effectively parallel to each other.</p>
 <p>The other key piece of info the shader receives is the <em>height map</em> for the world. This height map indicates how tall everything is, buildings, trees, etc. If a pixel is occupied by a building, then that pixel’s value will be something like 10, to indicate that building is 10 pixels tall.</p>
@@ -119,83 +123,83 @@ is because lighting the pixels up makes them looked washed out. There are ways t
     <span class="keyword">if</span>(otherHeight &gt; height) {
       <span class="keyword">float</span> traceHeight = getTraceHeightAt(distance);
       <span class="keyword">if</span>(traceHeight &lt;= otherHeight) {
-        <span class="keyword">return</span> <span class="keyword">true</span>;
+        <span class="keyword">return</span> <span class="literal">true</span>;
       }
     }
   }
-  <span class="keyword">return</span> <span class="keyword">false</span>;
+  <span class="keyword">return</span> <span class="literal">false</span>;
 }
 </code></pre>
 <p>And here is the whole shebang:</p>
-<pre><code class="lang-c"><span class="preprocessor">#ifdef GL_ES</span>
-  precision highp <span class="keyword">float</span>;
-<span class="preprocessor">#<span class="keyword">endif</span></span>
+<pre><code class="lang-c">#ifdef GL_ES
+  precision highp float;
+#endif
 
-<span class="function">vec2 <span class="title">extrude</span><span class="params">(vec2 other, <span class="keyword">float</span> angle, <span class="keyword">float</span> length)</span> </span>{
-  <span class="keyword">float</span> x = length * <span class="built_in">cos</span>(angle);
-  <span class="keyword">float</span> y = length * <span class="built_in">sin</span>(angle);
+vec2 extrude(vec2 other, float angle, float length) {
+  float x = length * cos(angle);
+  float y = length * sin(angle);
 
-  <span class="keyword">return</span> vec2(other.x + x, other.y + y);
+  return vec2(other.x + x, other.y + y);
 }
 
-<span class="function"><span class="keyword">float</span> <span class="title">getHeightAt</span><span class="params">(vec2 texCoord, <span class="keyword">float</span> xyAngle, <span class="keyword">float</span> distance,
-    sampler2D heightMap)</span> </span>{
+float getHeightAt(vec2 texCoord, float xyAngle, float distance,
+    sampler2D heightMap) {
 
   vec2 newTexCoord = extrude(texCoord, xyAngle, distance);
-  <span class="keyword">return</span> texture2D(heightMap, newTexCoord).r;
+  return texture2D(heightMap, newTexCoord).r;
 }
 
-<span class="function"><span class="keyword">float</span> <span class="title">getTraceHeight</span><span class="params">(<span class="keyword">float</span> height, <span class="keyword">float</span> zAngle, <span class="keyword">float</span> distance)</span> </span>{
-  <span class="keyword">return</span> distance * <span class="built_in">tan</span>(zAngle) + height;
+float getTraceHeight(float height, float zAngle, float distance) {
+  return distance * tan(zAngle) + height;
 }
 
-<span class="function"><span class="keyword">bool</span> <span class="title">isInShadow</span><span class="params">(<span class="keyword">float</span> xyAngle, <span class="keyword">float</span> zAngle, sampler2D heightMap,
-    vec2 texCoord, <span class="keyword">float</span> step)</span> </span>{
+bool isInShadow(float xyAngle, float zAngle, sampler2D heightMap,
+    vec2 texCoord, float step) {
 
-  <span class="keyword">float</span> distance;
-  <span class="keyword">float</span> height;
-  <span class="keyword">float</span> otherHeight;
-  <span class="keyword">float</span> traceHeight;
+  float distance;
+  float height;
+  float otherHeight;
+  float traceHeight;
 
   height = texture2D(heightMap, texCoord).r;
 
-  <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; ++i) {
-    distance = step * <span class="keyword">float</span>(i);
+  for(int i = 0; i &lt; 100; ++i) {
+    distance = step * float(i);
     otherHeight = getHeightAt(texCoord, xyAngle, distance, heightMap);
 
-    <span class="keyword">if</span>(otherHeight &gt; height) {
+    if(otherHeight &gt; height) {
       traceHeight = getTraceHeight(height, zAngle, distance);
-      <span class="keyword">if</span>(traceHeight &lt;= otherHeight) {
-        <span class="keyword">return</span> <span class="keyword">true</span>;
+      if(traceHeight &lt;= otherHeight) {
+        return true;
       }
     }
   }
 
-  <span class="keyword">return</span> <span class="keyword">false</span>;
+  return false;
 }
 
 varying vec2 vTextureCoord;
 uniform sampler2D uHeightMap;
-uniform <span class="keyword">float</span> uXYAngle;
-uniform <span class="keyword">float</span> uZAngle;
-uniform <span class="keyword">int</span> uMaxShadowSteps;
-uniform <span class="keyword">float</span> uTexStep;
+uniform float uXYAngle;
+uniform float uZAngle;
+uniform int uMaxShadowSteps;
+uniform float uTexStep;
 
-<span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>{
-  <span class="keyword">float</span> alpha = <span class="number">0.0</span>;
+void main(void) {
+  float alpha = 0.0;
 
-  <span class="keyword">if</span>(isInShadow(uXYAngle, uZAngle, uHeightMap, uMaxShadowSteps,
+  if(isInShadow(uXYAngle, uZAngle, uHeightMap, uMaxShadowSteps,
      vTextureCoord, uTexStep)) {
 
-    alpha = <span class="number">0.5</span>;
+    alpha = 0.5;
   }
 
-  gl_FragColor = vec4(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, alpha);
+  gl_FragColor = vec4(0, 0, 0, alpha);
 }
 </code></pre>
 <p>The <code>uTexStep</code> uniform is how far to move over each time we check a nearby pixel. This is set to either <code>1/heightMap.width</code> or <code>1/heightMap.height</code> before invoking the shader. This is because textures in OpenGL are typically mapped from 0 to 1, so the inverse is how far to move to get to the next pixel.</p>
-<h3 id="shadow-wrap-up">shadow wrap up</h3>
-<p>Truth be told there are some minor details I’m leaving out in the above code, but the core idea is definitely there. One major problem with this approach is each pixel in the scene can only have one height. A good example of how this is a limitation is trees. I can tell the engine to cast a really low, long shadow for a tree, but the trunk will never show up in the shadow. This is because the overhang area at the bottom of the leaves is not recorded in the height map.</p>
+<p>###shadow wrap up
+Truth be told there are some minor details I’m leaving out in the above code, but the core idea is definitely there. One major problem with this approach is each pixel in the scene can only have one height. A good example of how this is a limitation is trees. I can tell the engine to cast a really low, long shadow for a tree, but the trunk will never show up in the shadow. This is because the overhang area at the bottom of the leaves is not recorded in the height map.</p>
 <p><img src="/articles/dynamic-lighting-and-shadows/shadow1.png" alt="shadow example 1">  </p>
 <p><img src="/articles/dynamic-lighting-and-shadows/shadow2.png" alt="shadow example 2"></p>
 <h2 id="translations">Translations</h2>

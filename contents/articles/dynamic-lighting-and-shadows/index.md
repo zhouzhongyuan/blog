@@ -8,6 +8,10 @@ I'm working on a stealth action game where shadows will play a big role in the g
 
 <span class="more"></span>
 
+<div class="callout pitfall">
+  I never released this game. Partly due to not seeing it through and partly because I never succeeded in making it fun :-/
+</div>
+
 <iframe width="560" height="315" style="margin-top: 3em; margin-bottom: 3em;" src="http://www.youtube.com/embed/ZMyg5erp-vk" frameborder="0" allowfullscreen></iframe>
 
 ##Part one: dynamic lighting

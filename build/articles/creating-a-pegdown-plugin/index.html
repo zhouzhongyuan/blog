@@ -36,11 +36,11 @@
             <article class="article">
               <section class="content"><p>I recently found myself needing to create a <a href="http://pegdown.org">Pegdown</a> plugin. The documentation was a bit all over the place on this, so I figured I’d dump my end-to-end experience into a blog post for Google to consume.</p>
 <p><span class="more"></span></p>
-<h2 id="what-is-pegdown-">What is Pegdown?</h2>
+<p>##What is Pegdown?</p>
 <p><a href="http://pegdown.org">Pegdown</a> is a Markdown parser and HTML generator for the JVM. Converting Markdown to HTML is as simple as <code>new PegDownProcessor().markdownToHtml(markdown);</code>, which is awesome. If you want to extend Markdown with your own syntax, Pegdown’s got you covered with its plugin system. However creating a Pegdown plugin is not quite as simple.</p>
-<h2 id="the-two-phases-of-pegdown">The Two Phases of Pegdown</h2>
+<p>##The Two Phases of Pegdown</p>
 <p>Pegdown works in two phases. First it converts Markdown into an abstract syntax tree, then it takes that AST and serializes it into HTML. Your plugin probably needs to be involved in both phases, but you are free to only work with one phase if it suits you.</p>
-<h2 id="the-parsing-plugin">The Parsing Plugin</h2>
+<p>##The Parsing Plugin</p>
 <p>First, create a plugin that participates in the parsing/AST phase. In my case, I wanted to parse this extension to Markdown</p>
 <pre><code class="lang-markdown">%%% someMethod(someParam=someValue)
 body goes here
@@ -255,7 +255,7 @@ Pegdown has one expectation here: <em>your plugin should finish its job with one
 </code></pre>
 
 <p>That’s as far as I needed to take Vars, I’m sure they get more involved if you need to do fancier stuff.</p>
-<h2 id="having-pegdown-use-your-parser-plugin">Having Pegdown Use Your Parser Plugin</h2>
+<p>##Having Pegdown Use Your Parser Plugin</p>
 <p>Now with the parser plugin written, I need to tell Pegdown to use it:</p>
 <pre><code class="lang-java">  PegDownPlugins plugins = <span class="keyword">new</span> PegDownPlugins.Builder()
     .withPlugin(ComponentParser.class).build();

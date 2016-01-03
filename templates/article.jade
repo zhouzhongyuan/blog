@@ -13,7 +13,3 @@ block content
     span= moment.utc(page.date).format('DD MMMM YYYY')
   article.article
     section.content!= page.html
-
-block prepend footer
-  div.nav
-    a(href=contents.index.url) « Full blog

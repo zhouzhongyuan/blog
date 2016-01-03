@@ -57,12 +57,12 @@
 <p>is a good start. It grabs all the table rows on the page.</p>
 <p>From there, I turn the result into an array since querySelectorAll returns a <code>StaticNodeList</code>, and then filter it down to rows that have four cells, as it turns out the two tables with only three cells per row I don’t care about</p>
 <pre><code class="lang-javascript">[].slice.call(<span class="built_in">document</span>.querySelectorAll(<span class="string">'tr'</span>))
-  .filter(<span class="function"><span class="keyword">function</span><span class="params">(tr)</span> </span>{ <span class="keyword">return</span> tr.children.length === <span class="number">4</span>; })
+  .filter(<span class="function"><span class="keyword">function</span>(<span class="params">tr</span>) </span>{ <span class="keyword">return</span> tr.children.length === <span class="number">4</span>; })
 </code></pre>
 <p>Actually I don’t care about the header rows either, so filter them out too</p>
 <pre><code class="lang-javascript">[].slice.call(<span class="built_in">document</span>.querySelectorAll(<span class="string">'tr'</span>))
   <span class="comment">// use nodeName to only grab &lt;td&gt;s, ignoring the &lt;th&gt;s</span>
-  .filter(<span class="function"><span class="keyword">function</span><span class="params">(tr)</span> </span>{
+  .filter(<span class="function"><span class="keyword">function</span>(<span class="params">tr</span>) </span>{
     <span class="keyword">return</span> tr.children.length === <span class="number">4</span> &amp;&amp;
            tr.children[<span class="number">0</span>].nodeName === <span class="string">"TD"</span>;
   })
@@ -73,11 +73,11 @@ I got really lucky here, on some webpages narrowing down your query to just the 
 
 <p>from here, each <code>&lt;td&gt;</code> child inside of the <code>&lt;tr&gt;</code> contains a piece of data I want. So I can <code>reduce</code> the whole shebang into an object</p>
 <pre><code class="lang-javascript">[].slice.call(<span class="built_in">document</span>.querySelectorAll(<span class="string">'tr'</span>))
-  .filter(<span class="function"><span class="keyword">function</span><span class="params">(tr)</span> </span>{
+  .filter(<span class="function"><span class="keyword">function</span>(<span class="params">tr</span>) </span>{
     <span class="keyword">return</span> tr.children.length === <span class="number">4</span> &amp;&amp;
            tr.children[<span class="number">0</span>].nodeName === <span class="string">"TD"</span>;
   })
-  .reduce(<span class="function"><span class="keyword">function</span><span class="params">(accum, tr)</span> </span>{
+  .reduce(<span class="function"><span class="keyword">function</span>(<span class="params">accum, tr</span>) </span>{
     <span class="comment">// fallback to the official name if the color lacks a common name</span>
     accum[tr.children[<span class="number">2</span>].innerText || tr.children[<span class="number">1</span>].innerText] = {
       id: <span class="built_in">Number</span>(tr.children[<span class="number">0</span>].innerText),
