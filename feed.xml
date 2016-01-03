@@ -5,9 +5,156 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Fri, 03 Jul 2015 17:00:00 -0700</pubDate>
+    <pubDate>Sat, 02 Jan 2016 16:00:00 -0800</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Server Side React and Falcor</title>
+      <link>http://mattgreer.org/articles/server-side-react-and-falcor/</link>
+      <pubDate>Sat, 02 Jan 2016 16:00:00 -0800</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/server-side-react-and-falcor/</guid>
+      <author></author>
+      <description>&lt;p&gt;Everything I have found about Falcor has been strongly focused on the client side. I am building a webapp that involves server side React rendering, and I wanted to use Falcor. Here’s how I wired up a server side Falcor “client” to accomplish this.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://netflix.github.io/falcor/&quot;&gt;Falcor&lt;/a&gt; is a new open source library from Netflix that offers a new approach to retrieving data for an application. It is similar in concept to &lt;a href=&quot;https://facebook.github.io/relay/&quot;&gt;Facebook’s Relay&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I feel like if you are building a React-based app today, you really should take advantage of server side rendering. The days of 100% JavaScript driven UIs should be behind us. But there isn’t much out there on combining server side React with Falcor. The Falcor docs strictly focus on initiating your data retrieval on the client.&lt;/p&gt;
+&lt;h2 id=&quot;datasources-routers-and-models&quot;&gt;DataSources, Routers and Models&lt;/h2&gt;
+&lt;p&gt;In Falcor, the &lt;code&gt;Model&lt;/code&gt; is the component that initiates data requests. It can get its data either from its internal &lt;code&gt;cache&lt;/code&gt; property, or by hooking up to a &lt;code&gt;DataSource&lt;/code&gt;. Falcor seemingly only ships with one DataSource, the &lt;code&gt;HttpDataSource&lt;/code&gt;, which hooks up a client side Model to a back end server via good ol’ http requests.&lt;/p&gt;
+&lt;p&gt;Conversely, the Falcor Router lives on the server, and responds to requests from client side Models.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/server-side-react-and-falcor/img/falcor-end-to-end.png&quot; alt=&quot;colorTable&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;(diagram stolen from &lt;a href=&quot;https://netflix.github.io/falcor/documentation/model.html&quot;&gt;the Falcor website&lt;/a&gt;)&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;I want a Model on the server though, so HttpDataSource is useless here. But the Router comes to the rescue, as it also implements the DataSource interface.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { Model } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'falcor'&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; DemoRouter &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'./Router'&lt;/span&gt;;
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; demoRouter = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; DemoRouter();
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; model = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Model({ source: demoRouter });
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So the same router that will serve my client can double to serve my server too. Cool. Technically you can get away with just using the router directly, as both &lt;code&gt;model.get(...)&lt;/code&gt; and &lt;code&gt;router.get(...)&lt;/code&gt; do roughly the same thing. But if you go through a Model, you gain caching, de-duping, the ability to use path syntax strings among other advantages.&lt;/p&gt;
+&lt;h2 id=&quot;some-wrenches-redux-and-react-router&quot;&gt;Some Wrenches: Redux and React Router&lt;/h2&gt;
+&lt;p&gt;I’m also using these two libraries, and they complicate hooking up my Falcor model to my server side React components a bit. Here is my Express handler that is using react-router (simplified a bit)&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;app.use((req, res, next) =&amp;gt; {
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; location = history.createLocation(req.path);
+  match({
+    routes,
+    location
+  }, (err, redirectLocation, renderProps) =&amp;gt; {
+    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (err) {
+      &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.error(err);
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; next(err);
+    }
+
+    res.send(renderToString(
+      &lt;span class=&quot;comment&quot;&gt;// notice that store doesn't actually exist, yet ...&lt;/span&gt;
+      &amp;lt;Provider store={store}&amp;gt;
+        &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;RoutingContext&lt;/span&gt; {&lt;span class=&quot;attribute&quot;&gt;...renderProps&lt;/span&gt;}/&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;
+    )&lt;/span&gt;;
+  });
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Using react-router’s &lt;code&gt;match&lt;/code&gt;, the path is matched up to a route. From there, renderProps contains everything needed to render that route on the server. &lt;code&gt;Provider&lt;/code&gt; is a react-redux component and glues data in the store to the components inside of it. Server side React rendering is synchronous, so I need to get my data from Falcor before calling &lt;code&gt;renderToString&lt;/code&gt;. In other words, the &lt;code&gt;store&lt;/code&gt; getting passed to Provider needs to both exist and be populated.&lt;/p&gt;
+&lt;h2 id=&quot;gluing-falcor-and-react-router&quot;&gt;Gluing Falcor and react-router&lt;/h2&gt;
+&lt;p&gt;Ok, so the client has requested some random page of my app. The router has mapped that random page to some random component. All of my components have different data needs. So how do I know what to ask Falcor? I decided the components should tell me. For example, here is the component for the main page of the app&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { connect } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'react-redux'&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Hello &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'../components/Hello'&lt;/span&gt;;
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapStateToProps&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
+    hellofalcor: state.hello.hellofalcor,
+    helloagain: state.hello.helloagain
+  };
+}
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; HelloPage = connect(mapStateToProps)(Hello);
+
+HelloPage.serverFalcorPaths = [
+  { namespace: &lt;span class=&quot;string&quot;&gt;'hello'&lt;/span&gt;, paths: [[&lt;span class=&quot;string&quot;&gt;'hellofalcor'&lt;/span&gt;], [&lt;span class=&quot;string&quot;&gt;'helloagain'&lt;/span&gt;]] }
+];
+
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; HelloPage;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you’ve not used Redux this probably look nuts. &lt;code&gt;Hello&lt;/code&gt; is a vanilla React component, and redux’s &lt;code&gt;connect()&lt;/code&gt; creates a new component which marries &lt;code&gt;Hello&lt;/code&gt; to data in the store.&lt;/p&gt;
+&lt;p&gt;The new thing here is &lt;code&gt;serverFalcorPaths&lt;/code&gt;, which is my hook to hint to Falcor what data it should grab when doing the server side render. Notice how &lt;code&gt;mapStateToProps&lt;/code&gt; has its data down in a &lt;code&gt;hello&lt;/code&gt; subobject? That’s also a common redux thing. My goal is to create an initial set of state data that I can feed into Redux, then into the components, then finally out via &lt;code&gt;renderToString&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;So back to the Express handler, let’s grab &lt;code&gt;serverFalcorPaths&lt;/code&gt; and get our data&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;app.use((req, res, next) =&amp;gt; {
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; location = history.createLocation(req.path);
+  match({
+    routes,
+    location
+  }, (err, redirectLocation, renderProps) =&amp;gt; {
+    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (err) {
+      &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.error(err);
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; next(err);
+    }
+    getFalcorDataForComponents(renderProps.components)
+      .then(initialStoreData =&amp;gt; {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = createStore(reducers, initialStoreData);
+        res.send(renderToString(
+          &lt;span class=&quot;comment&quot;&gt;// the store prop here is the gotcha&lt;/span&gt;
+          &amp;lt;Provider store={store}&amp;gt;
+            &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;RoutingContext&lt;/span&gt; {&lt;span class=&quot;attribute&quot;&gt;...renderProps&lt;/span&gt;}/&amp;gt;&lt;/span&gt;
+          &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        )&lt;/span&gt;;
+      });
+  });
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;renderProps&lt;/code&gt; from &lt;code&gt;match()&lt;/code&gt; contains everything needed to pull off the render, including the React components themselves. So if I find &lt;code&gt;renderProps.components[i].serverFalcorPaths&lt;/code&gt;, then I know that component needs a little Falcor love before continuing. That’s what &lt;code&gt;getFalcorDataForComponents&lt;/code&gt; is up to.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getFalcorDataForComponents&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;components = []&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; falcorRouter = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FalcorRouter();
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; model = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Model({ source: falcorRouter });
+
+  &lt;span class=&quot;comment&quot;&gt;// grab all the falcor paths the components&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// are requesting into one large bag&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; falcorPaths = components.reduce((paths, cmp) =&amp;gt; {
+    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (cmp &amp;amp;&amp;amp; cmp.serverFalcorPaths) {
+      &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; cmpPaths = _.pluck(cmp.serverFalcorPaths, &lt;span class=&quot;string&quot;&gt;'paths'&lt;/span&gt;);
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; paths.concat(...cmpPaths);
+    } &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt; {
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; paths;
+    }
+  }, []);
+
+  &lt;span class=&quot;comment&quot;&gt;// blindly get all the needed data, we ignore&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// the result because we are really&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;// just populating the model's cache&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; model.get(...falcorPaths).then(() =&amp;gt; {
+    &lt;span class=&quot;comment&quot;&gt;// and now that we have it (in the cache), sort it out&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;// into the namespaces the components specified&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;// this enables the store to be populated the same&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;// as if the reducers and redux's combineReducers()&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;// had assembled the data&lt;/span&gt;
+
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentPromises = components.map(getComponentData.bind(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;, model));
+
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;.all(_.flatten(componentPromises)).then(results =&amp;gt; {
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.assign.apply(&lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;, [{}, ...results]);
+    });
+  });
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This takes two steps. First grab &lt;em&gt;all&lt;/em&gt; of the Falcor paths that all of the components are requesting. We’ll jam that big blob of paths into the Model. Falcor does its thing and all of those paths get satisfied with data. The Model also sticks this data into its cache, so if we request the data again, it will just go to its cache and be very cheaply retrieved.&lt;/p&gt;
+&lt;p&gt;So step two takes advantage of the cache and requests everything again, this time stitching the final result into the shape that redux wants.&lt;/p&gt;
+&lt;p&gt;So step one got us&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;{
+  hellofalcor: &amp;#39;hello from falcor&amp;#39;,
+  helloagain: &amp;#39;hello again from falcor&amp;#39;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And step two massages it into&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;{
+  hello: {
+    hellofalcor: &amp;#39;hello from falcor&amp;#39;,
+    helloagain: &amp;#39;hello again from falcor&amp;#39;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;which satisfies redux’s &lt;code&gt;combineReducers()&lt;/code&gt;‘s needs, and ultimately satisfies the components’s needs.&lt;/p&gt;
+&lt;p&gt;This is a super contrived example. But in a real app, each component will likely need a lot of paths, and want their results placed into different subobjects.&lt;/p&gt;
+&lt;p&gt;Remember that we are going through a Falcor Model, which will de-dupe paths. So components are all free to just specify whatever they want, and Falcor will sort it all out.&lt;/p&gt;
+&lt;h2 id=&quot;demo-app&quot;&gt;Demo app&lt;/h2&gt;
+&lt;p&gt;I captured all of this into a “small” demo app here: &lt;a href=&quot;https://github.com/city41/server-side-react-and-falcor&quot;&gt;https://github.com/city41/server-side-react-and-falcor&lt;/a&gt; – check the README on how to get it running.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>Impromptu Web Scraping</title>
       <link>http://mattgreer.org/articles/impromptu-web-scraping/</link>

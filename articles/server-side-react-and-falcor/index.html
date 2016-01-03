@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Server Side React and Falcor - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>Server Side React and Falcor</h1>
+            <div class="date"><span>03 January 2016</span></div>
+            <article class="article">
+              <section class="content"><p>Everything I have found about Falcor has been strongly focused on the client side. I am building a webapp that involves server side React rendering, and I wanted to use Falcor. Here’s how I wired up a server side Falcor “client” to accomplish this.</p>
+<p><span class="more"></span></p>
+<p><a href="https://netflix.github.io/falcor/">Falcor</a> is a new open source library from Netflix that offers a new approach to retrieving data for an application. It is similar in concept to <a href="https://facebook.github.io/relay/">Facebook’s Relay</a>.</p>
+<p>I feel like if you are building a React-based app today, you really should take advantage of server side rendering. The days of 100% JavaScript driven UIs should be behind us. But there isn’t much out there on combining server side React with Falcor. The Falcor docs strictly focus on initiating your data retrieval on the client.</p>
+<h2 id="datasources-routers-and-models">DataSources, Routers and Models</h2>
+<p>In Falcor, the <code>Model</code> is the component that initiates data requests. It can get its data either from its internal <code>cache</code> property, or by hooking up to a <code>DataSource</code>. Falcor seemingly only ships with one DataSource, the <code>HttpDataSource</code>, which hooks up a client side Model to a back end server via good ol’ http requests.</p>
+<p>Conversely, the Falcor Router lives on the server, and responds to requests from client side Models.</p>
+<p><img src="/articles/server-side-react-and-falcor/img/falcor-end-to-end.png" alt="colorTable"></p>
+<p><em>(diagram stolen from <a href="https://netflix.github.io/falcor/documentation/model.html">the Falcor website</a>)</em></p>
+<p>I want a Model on the server though, so HttpDataSource is useless here. But the Router comes to the rescue, as it also implements the DataSource interface.</p>
+<pre><code class="lang-javascript"><span class="keyword">import</span> { Model } <span class="keyword">from</span> <span class="string">'falcor'</span>;
+<span class="keyword">import</span> DemoRouter <span class="keyword">from</span> <span class="string">'./Router'</span>;
+
+<span class="keyword">const</span> demoRouter = <span class="keyword">new</span> DemoRouter();
+<span class="keyword">const</span> model = <span class="keyword">new</span> Model({ source: demoRouter });
+</code></pre>
+<p>So the same router that will serve my client can double to serve my server too. Cool. Technically you can get away with just using the router directly, as both <code>model.get(...)</code> and <code>router.get(...)</code> do roughly the same thing. But if you go through a Model, you gain caching, de-duping, the ability to use path syntax strings among other advantages.</p>
+<h2 id="some-wrenches-redux-and-react-router">Some Wrenches: Redux and React Router</h2>
+<p>I’m also using these two libraries, and they complicate hooking up my Falcor model to my server side React components a bit. Here is my Express handler that is using react-router (simplified a bit)</p>
+<pre><code class="lang-javascript">app.use((req, res, next) =&gt; {
+  <span class="keyword">const</span> location = history.createLocation(req.path);
+  match({
+    routes,
+    location
+  }, (err, redirectLocation, renderProps) =&gt; {
+    <span class="keyword">if</span> (err) {
+      <span class="built_in">console</span>.error(err);
+      <span class="keyword">return</span> next(err);
+    }
+
+    res.send(renderToString(
+      <span class="comment">// notice that store doesn't actually exist, yet ...</span>
+      &lt;Provider store={store}&gt;
+        <span class="xml"><span class="tag">&lt;<span class="title">RoutingContext</span> {<span class="attribute">...renderProps</span>}/&gt;</span>
+      <span class="tag">&lt;/<span class="title">Provider</span>&gt;</span>
+    )</span>;
+  });
+});
+</code></pre>
+<p>Using react-router’s <code>match</code>, the path is matched up to a route. From there, renderProps contains everything needed to render that route on the server. <code>Provider</code> is a react-redux component and glues data in the store to the components inside of it. Server side React rendering is synchronous, so I need to get my data from Falcor before calling <code>renderToString</code>. In other words, the <code>store</code> getting passed to Provider needs to both exist and be populated.</p>
+<h2 id="gluing-falcor-and-react-router">Gluing Falcor and react-router</h2>
+<p>Ok, so the client has requested some random page of my app. The router has mapped that random page to some random component. All of my components have different data needs. So how do I know what to ask Falcor? I decided the components should tell me. For example, here is the component for the main page of the app</p>
+<pre><code class="lang-javascript"><span class="keyword">import</span> { connect } <span class="keyword">from</span> <span class="string">'react-redux'</span>;
+<span class="keyword">import</span> Hello <span class="keyword">from</span> <span class="string">'../components/Hello'</span>;
+
+<span class="function"><span class="keyword">function</span> <span class="title">mapStateToProps</span>(<span class="params">state</span>) </span>{
+  <span class="keyword">return</span> {
+    hellofalcor: state.hello.hellofalcor,
+    helloagain: state.hello.helloagain
+  };
+}
+
+<span class="keyword">const</span> HelloPage = connect(mapStateToProps)(Hello);
+
+HelloPage.serverFalcorPaths = [
+  { namespace: <span class="string">'hello'</span>, paths: [[<span class="string">'hellofalcor'</span>], [<span class="string">'helloagain'</span>]] }
+];
+
+<span class="keyword">export</span> <span class="keyword">default</span> HelloPage;
+</code></pre>
+<p>If you’ve not used Redux this probably look nuts. <code>Hello</code> is a vanilla React component, and redux’s <code>connect()</code> creates a new component which marries <code>Hello</code> to data in the store.</p>
+<p>The new thing here is <code>serverFalcorPaths</code>, which is my hook to hint to Falcor what data it should grab when doing the server side render. Notice how <code>mapStateToProps</code> has its data down in a <code>hello</code> subobject? That’s also a common redux thing. My goal is to create an initial set of state data that I can feed into Redux, then into the components, then finally out via <code>renderToString</code>.</p>
+<p>So back to the Express handler, let’s grab <code>serverFalcorPaths</code> and get our data</p>
+<pre><code class="lang-javascript">app.use((req, res, next) =&gt; {
+  <span class="keyword">const</span> location = history.createLocation(req.path);
+  match({
+    routes,
+    location
+  }, (err, redirectLocation, renderProps) =&gt; {
+    <span class="keyword">if</span> (err) {
+      <span class="built_in">console</span>.error(err);
+      <span class="keyword">return</span> next(err);
+    }
+    getFalcorDataForComponents(renderProps.components)
+      .then(initialStoreData =&gt; {
+        <span class="keyword">const</span> store = createStore(reducers, initialStoreData);
+        res.send(renderToString(
+          <span class="comment">// the store prop here is the gotcha</span>
+          &lt;Provider store={store}&gt;
+            <span class="xml"><span class="tag">&lt;<span class="title">RoutingContext</span> {<span class="attribute">...renderProps</span>}/&gt;</span>
+          <span class="tag">&lt;/<span class="title">Provider</span>&gt;</span>
+        )</span>;
+      });
+  });
+});
+</code></pre>
+<p><code>renderProps</code> from <code>match()</code> contains everything needed to pull off the render, including the React components themselves. So if I find <code>renderProps.components[i].serverFalcorPaths</code>, then I know that component needs a little Falcor love before continuing. That’s what <code>getFalcorDataForComponents</code> is up to.</p>
+<pre><code class="lang-javascript"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">getFalcorDataForComponents</span>(<span class="params">components = []</span>) </span>{
+  <span class="keyword">const</span> falcorRouter = <span class="keyword">new</span> FalcorRouter();
+  <span class="keyword">const</span> model = <span class="keyword">new</span> Model({ source: falcorRouter });
+
+  <span class="comment">// grab all the falcor paths the components</span>
+  <span class="comment">// are requesting into one large bag</span>
+  <span class="keyword">const</span> falcorPaths = components.reduce((paths, cmp) =&gt; {
+    <span class="keyword">if</span> (cmp &amp;&amp; cmp.serverFalcorPaths) {
+      <span class="keyword">const</span> cmpPaths = _.pluck(cmp.serverFalcorPaths, <span class="string">'paths'</span>);
+      <span class="keyword">return</span> paths.concat(...cmpPaths);
+    } <span class="keyword">else</span> {
+      <span class="keyword">return</span> paths;
+    }
+  }, []);
+
+  <span class="comment">// blindly get all the needed data, we ignore</span>
+  <span class="comment">// the result because we are really</span>
+  <span class="comment">// just populating the model's cache</span>
+  <span class="keyword">return</span> model.get(...falcorPaths).then(() =&gt; {
+    <span class="comment">// and now that we have it (in the cache), sort it out</span>
+    <span class="comment">// into the namespaces the components specified</span>
+    <span class="comment">// this enables the store to be populated the same</span>
+    <span class="comment">// as if the reducers and redux's combineReducers()</span>
+    <span class="comment">// had assembled the data</span>
+
+    <span class="keyword">const</span> componentPromises = components.map(getComponentData.bind(<span class="keyword">this</span>, model));
+
+    <span class="keyword">return</span> <span class="built_in">Promise</span>.all(_.flatten(componentPromises)).then(results =&gt; {
+      <span class="keyword">return</span> <span class="built_in">Object</span>.assign.apply(<span class="built_in">Object</span>, [{}, ...results]);
+    });
+  });
+}
+</code></pre>
+<p>This takes two steps. First grab <em>all</em> of the Falcor paths that all of the components are requesting. We’ll jam that big blob of paths into the Model. Falcor does its thing and all of those paths get satisfied with data. The Model also sticks this data into its cache, so if we request the data again, it will just go to its cache and be very cheaply retrieved.</p>
+<p>So step two takes advantage of the cache and requests everything again, this time stitching the final result into the shape that redux wants.</p>
+<p>So step one got us</p>
+<pre><code>{
+  hellofalcor: &#39;hello from falcor&#39;,
+  helloagain: &#39;hello again from falcor&#39;
+}
+</code></pre><p>And step two massages it into</p>
+<pre><code>{
+  hello: {
+    hellofalcor: &#39;hello from falcor&#39;,
+    helloagain: &#39;hello again from falcor&#39;
+  }
+}
+</code></pre><p>which satisfies redux’s <code>combineReducers()</code>‘s needs, and ultimately satisfies the components’s needs.</p>
+<p>This is a super contrived example. But in a real app, each component will likely need a lot of paths, and want their results placed into different subobjects.</p>
+<p>Remember that we are going through a Falcor Model, which will de-dupe paths. So components are all free to just specify whatever they want, and Falcor will sort it all out.</p>
+<h2 id="demo-app">Demo app</h2>
+<p>I captured all of this into a “small” demo app here: <a href="https://github.com/city41/server-side-react-and-falcor">https://github.com/city41/server-side-react-and-falcor</a> – check the README on how to get it running.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. </p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>
