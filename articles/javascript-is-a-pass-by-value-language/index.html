@@ -39,7 +39,7 @@
 <h2 id="pass-by-wha-">Pass by wha?</h2>
 <p>What are you talking about?</p>
 <p>Let’s look at this example</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">clamp</span><span class="params">(value, valueMax, valueMin)</span> </span>{
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">clamp</span>(<span class="params">value, valueMax, valueMin</span>) </span>{
   <span class="keyword">return</span> <span class="built_in">Math</span>.min(valueMax, <span class="built_in">Math</span>.max(value, valueMin));
 }
 
@@ -51,11 +51,11 @@ clamp(<span class="number">200</span>, <span class="number">1</span>, <span clas
 <pre><code class="lang-csharp"><span class="comment">// this is C#</span>
 
 <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyProgram</span> {
-  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mutate</span><span class="params">(<span class="keyword">ref</span> <span class="keyword">int</span> a)</span> </span>{
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mutate</span>(<span class="params"><span class="keyword">ref</span> <span class="keyword">int</span> a</span>) </span>{
     a = <span class="number">5</span>;
   }
 
-  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span><span class="params">(<span class="keyword">string</span>[] args)</span> </span>{
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>) </span>{
     <span class="keyword">int</span> myA = <span class="number">12</span>;
     mutate(<span class="keyword">ref</span> myA);
 
@@ -67,9 +67,9 @@ clamp(<span class="number">200</span>, <span class="number">1</span>, <span clas
 <p>Notice the <code>ref</code> keywords? These are the indicators that will let the compiler know to do pass by reference whenever <code>mutate</code> is called.</p>
 <h2 id="objects-and-references-in-javascript">Objects and references in JavaScript</h2>
 <p>This is where it gets a little confusing.</p>
-<p>In JavaScript — like most object oriented languages — objects are created on the heap (and in actuality primitives are too due to closures. <a href="http://stackoverflow.com/a/3691209/194940">This StackOverflow answer</a> explains it nicely). You don’t have direct access to the heap, instead whenever working with an object you are doing so through a reference. A reference is like a pointer in C, it stores the address of the object on the heap. But unlike pointers, that’s really all they do, you can’t really do fancy things with references like you can pointers. They are simply a calling card that lets you get at your object.</p>
+<p>In JavaScript – like most object oriented languages – objects are created on the heap (and in actuality primitives are too due to closures. <a href="http://stackoverflow.com/a/3691209/194940">This StackOverflow answer</a> explains it nicely). You don’t have direct access to the heap, instead whenever working with an object you are doing so through a reference. A reference is like a pointer in C, it stores the address of the object on the heap. But unlike pointers, that’s really all they do, you can’t really do fancy things with references like you can pointers. They are simply a calling card that lets you get at your object.</p>
 <p>So what does this mean with objects and function calls?</p>
-<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">mutateObject</span><span class="params">(obj)</span> </span>{
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">mutateObject</span>(<span class="params">obj</span>) </span>{
   obj.foo = <span class="string">"changed!"</span>;
 }
 
@@ -88,7 +88,7 @@ mutateObject(myObj);
 <p>Yo dawg…</p>
 <p>Let’s head back to C# for a second.</p>
 <pre><code class="lang-csharp"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyObject</span> {
-  <span class="function"><span class="keyword">public</span> <span class="title">MyObject</span><span class="params">(<span class="keyword">string</span> a)</span> </span>{
+  <span class="function"><span class="keyword">public</span> <span class="title">MyObject</span>(<span class="params"><span class="keyword">string</span> a</span>) </span>{
     A = a;
   }
 
@@ -96,11 +96,11 @@ mutateObject(myObj);
 }
 
 <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyProgram</span> {
-  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Mutate</span><span class="params">(<span class="keyword">ref</span> MyObject obj)</span> </span>{
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Mutate</span>(<span class="params"><span class="keyword">ref</span> MyObject obj</span>) </span>{
     obj = <span class="keyword">new</span> MyObject(<span class="string">"assigning a new object"</span>);
   }
 
-  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span><span class="params">(<span class="keyword">string</span>[] args)</span> </span>{
+  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>) </span>{
     MyObject myObj = <span class="keyword">new</span> MyObject(<span class="string">"original object"</span>);
     MyObject anotherRefToMyObj = myObj;
     Mutate(<span class="keyword">ref</span> myObj);

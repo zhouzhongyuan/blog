@@ -36,9 +36,9 @@
             <article class="article">
               <section class="content"><p>I don’t think a fixture generator for PostgreSQL exists in NPM. If one does, I could not find it. So I went ahead and <a href="https://github.com/city41/node-sql-fixtures">made one</a>. Added bonus, it works with MySQL, MariaDB and sqlite as well.</p>
 <p><span class="more"></span></p>
-<h2 id="fixtures-">Fixtures?</h2>
+<p>##Fixtures?</p>
 <p>“Fixture” is just a fancy word for “sample data”. I first encountered the idea of fixtures in Ruby on Rails almost a decade ago (egads!). Typically in Ruby you lay out some sample data using YAML, and this data then gets populated into your database. This is ideal for integration tests, dummy data and end-to-end tests.</p>
-<h2 id="sql-fixtures-for-node">SQL Fixtures for Node</h2>
+<p>##SQL Fixtures for Node</p>
 <p><a href="https://github.com/city41/node-sql-fixtures">sql-fixtures</a> applies the same idea, except this time for Node. Since JavaScript is such a flexible language, no need for something like YAML, it’s easy to just define the fixture data in JavaScript itself.</p>
 <p>For example, here’s how to populate some data in a Users table in your database:</p>
 <pre><code class="lang-javascript"><span class="keyword">var</span> fixtures = {
@@ -51,7 +51,7 @@
 
 <span class="keyword">var</span> sqlFixtures = <span class="built_in">require</span>(<span class="string">'sql-fixtures'</span>);
 
-sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
+sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span class="keyword">function</span>(<span class="params">result</span>) </span>{
   <span class="comment">// the Users table now has two more rows in it</span>
   <span class="comment">// result returns what got created,</span>
   <span class="comment">// so you can make use of the data in your tests</span>
@@ -61,7 +61,7 @@ sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span c
 });
 </code></pre>
 <p>The <code>databaseConfig</code> parameter tells sql-fixtures how to connect to your database, more info on that in the <a href="https://github.com/city41/node-sql-fixtures/blob/master/README.md">README</a></p>
-<h2 id="foreign-key-resolution">Foreign Key Resolution</h2>
+<p>##Foreign Key Resolution</p>
 <p>The neatest feature of sql-fixtures is automatic foreign key resolution. If you want to insert data into two tables and have their keys point at each other, it can be tedious to do manually. With sql-fixtures you can specify the relation in the fixture spec:</p>
 <pre><code class="lang-javascript"><span class="keyword">var</span> fixtures = {
   Users: {
@@ -73,7 +73,7 @@ sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span c
   }
 };
 
-sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{
+sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span class="keyword">function</span>(<span class="params">result</span>) </span>{
   <span class="built_in">console</span>.log(result.Purchase[<span class="number">0</span>].userId === result.Users[<span class="number">0</span>].id); <span class="comment">// true</span>
 });
 </code></pre>
@@ -91,10 +91,10 @@ sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span c
 };
 </code></pre>
 <p>and with the specId, the association is made just like when using an index.</p>
-<h2 id="that-s-it-">That’s it!</h2>
+<p>##That’s it!</p>
 <p>Not much to this one. And a shout out to <a href="http://knexjs.org/">Knex.js</a> which is the library that sql-fixtures uses to communicate with the database. I’m a fan of Knex.js and the ORM built on top of it, <a href="http://bookshelfjs.org/">Bookshelf.js</a>.</p>
-<h3 id="by-the-way">By the way</h3>
-<p>Knex.js is why I make the claim this works with Postgres, MySql, Maria and sqlite, as Knex.js supports all of them. However, I only need Postgres so far, so Postgres is the only database that’s seen any real usage. If you use sql-fixtures with one of the other database engines, let me know if you hit any problems.</p>
+<p>###By the way
+Knex.js is why I make the claim this works with Postgres, MySql, Maria and sqlite, as Knex.js supports all of them. However, I only need Postgres so far, so Postgres is the only database that’s seen any real usage. If you use sql-fixtures with one of the other database engines, let me know if you hit any problems.</p>
 </section>
             </article>
           </div>

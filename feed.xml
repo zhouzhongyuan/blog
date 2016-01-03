@@ -37,12 +37,12 @@
 &lt;p&gt;is a good start. It grabs all the table rows on the page.&lt;/p&gt;
 &lt;p&gt;From there, I turn the result into an array since querySelectorAll returns a &lt;code&gt;StaticNodeList&lt;/code&gt;, and then filter it down to rows that have four cells, as it turns out the two tables with only three cells per row I don’t care about&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;[].slice.call(&lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.querySelectorAll(&lt;span class=&quot;string&quot;&gt;'tr'&lt;/span&gt;))
-  .filter(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(tr)&lt;/span&gt; &lt;/span&gt;{ &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; tr.children.length === &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;; })
+  .filter(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;tr&lt;/span&gt;) &lt;/span&gt;{ &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; tr.children.length === &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;; })
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Actually I don’t care about the header rows either, so filter them out too&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;[].slice.call(&lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.querySelectorAll(&lt;span class=&quot;string&quot;&gt;'tr'&lt;/span&gt;))
   &lt;span class=&quot;comment&quot;&gt;// use nodeName to only grab &amp;lt;td&amp;gt;s, ignoring the &amp;lt;th&amp;gt;s&lt;/span&gt;
-  .filter(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(tr)&lt;/span&gt; &lt;/span&gt;{
+  .filter(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;tr&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; tr.children.length === &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt; &amp;amp;&amp;amp;
            tr.children[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].nodeName === &lt;span class=&quot;string&quot;&gt;&quot;TD&quot;&lt;/span&gt;;
   })
@@ -53,11 +53,11 @@ I got really lucky here, on some webpages narrowing down your query to just the 
 
 &lt;p&gt;from here, each &lt;code&gt;&amp;lt;td&amp;gt;&lt;/code&gt; child inside of the &lt;code&gt;&amp;lt;tr&amp;gt;&lt;/code&gt; contains a piece of data I want. So I can &lt;code&gt;reduce&lt;/code&gt; the whole shebang into an object&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;[].slice.call(&lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.querySelectorAll(&lt;span class=&quot;string&quot;&gt;'tr'&lt;/span&gt;))
-  .filter(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(tr)&lt;/span&gt; &lt;/span&gt;{
+  .filter(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;tr&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; tr.children.length === &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt; &amp;amp;&amp;amp;
            tr.children[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].nodeName === &lt;span class=&quot;string&quot;&gt;&quot;TD&quot;&lt;/span&gt;;
   })
-  .reduce(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(accum, tr)&lt;/span&gt; &lt;/span&gt;{
+  .reduce(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;accum, tr&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;comment&quot;&gt;// fallback to the official name if the color lacks a common name&lt;/span&gt;
     accum[tr.children[&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;].innerText || tr.children[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;].innerText] = {
       id: &lt;span class=&quot;built_in&quot;&gt;Number&lt;/span&gt;(tr.children[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].innerText),
@@ -139,7 +139,7 @@ You can also have &lt;code&gt;stringify&lt;/code&gt; format the result for you b
 &lt;h2 id=&quot;pass-by-wha-&quot;&gt;Pass by wha?&lt;/h2&gt;
 &lt;p&gt;What are you talking about?&lt;/p&gt;
 &lt;p&gt;Let’s look at this example&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;clamp&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value, valueMax, valueMin)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;clamp&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;value, valueMax, valueMin&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Math&lt;/span&gt;.min(valueMax, &lt;span class=&quot;built_in&quot;&gt;Math&lt;/span&gt;.max(value, valueMin));
 }
 
@@ -151,11 +151,11 @@ clamp(&lt;span class=&quot;number&quot;&gt;200&lt;/span&gt;, &lt;span class=&quo
 &lt;pre&gt;&lt;code class=&quot;lang-csharp&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// this is C#&lt;/span&gt;
 
 &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyProgram&lt;/span&gt; {
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mutate&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;ref&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; a)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mutate&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;ref&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; a&lt;/span&gt;) &lt;/span&gt;{
     a = &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;;
   }
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;string&lt;/span&gt;[] args)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Main&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;string&lt;/span&gt;[] args&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; myA = &lt;span class=&quot;number&quot;&gt;12&lt;/span&gt;;
     mutate(&lt;span class=&quot;keyword&quot;&gt;ref&lt;/span&gt; myA);
 
@@ -167,9 +167,9 @@ clamp(&lt;span class=&quot;number&quot;&gt;200&lt;/span&gt;, &lt;span class=&quo
 &lt;p&gt;Notice the &lt;code&gt;ref&lt;/code&gt; keywords? These are the indicators that will let the compiler know to do pass by reference whenever &lt;code&gt;mutate&lt;/code&gt; is called.&lt;/p&gt;
 &lt;h2 id=&quot;objects-and-references-in-javascript&quot;&gt;Objects and references in JavaScript&lt;/h2&gt;
 &lt;p&gt;This is where it gets a little confusing.&lt;/p&gt;
-&lt;p&gt;In JavaScript — like most object oriented languages — objects are created on the heap (and in actuality primitives are too due to closures. &lt;a href=&quot;http://stackoverflow.com/a/3691209/194940&quot;&gt;This StackOverflow answer&lt;/a&gt; explains it nicely). You don’t have direct access to the heap, instead whenever working with an object you are doing so through a reference. A reference is like a pointer in C, it stores the address of the object on the heap. But unlike pointers, that’s really all they do, you can’t really do fancy things with references like you can pointers. They are simply a calling card that lets you get at your object.&lt;/p&gt;
+&lt;p&gt;In JavaScript – like most object oriented languages – objects are created on the heap (and in actuality primitives are too due to closures. &lt;a href=&quot;http://stackoverflow.com/a/3691209/194940&quot;&gt;This StackOverflow answer&lt;/a&gt; explains it nicely). You don’t have direct access to the heap, instead whenever working with an object you are doing so through a reference. A reference is like a pointer in C, it stores the address of the object on the heap. But unlike pointers, that’s really all they do, you can’t really do fancy things with references like you can pointers. They are simply a calling card that lets you get at your object.&lt;/p&gt;
 &lt;p&gt;So what does this mean with objects and function calls?&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mutateObject&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(obj)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mutateObject&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;obj&lt;/span&gt;) &lt;/span&gt;{
   obj.foo = &lt;span class=&quot;string&quot;&gt;&quot;changed!&quot;&lt;/span&gt;;
 }
 
@@ -188,7 +188,7 @@ mutateObject(myObj);
 &lt;p&gt;Yo dawg…&lt;/p&gt;
 &lt;p&gt;Let’s head back to C# for a second.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-csharp&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyObject&lt;/span&gt; {
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyObject&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;string&lt;/span&gt; a)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyObject&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;string&lt;/span&gt; a&lt;/span&gt;) &lt;/span&gt;{
     A = a;
   }
 
@@ -196,11 +196,11 @@ mutateObject(myObj);
 }
 
 &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyProgram&lt;/span&gt; {
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Mutate&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;ref&lt;/span&gt; MyObject obj)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Mutate&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;ref&lt;/span&gt; MyObject obj&lt;/span&gt;) &lt;/span&gt;{
     obj = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; MyObject(&lt;span class=&quot;string&quot;&gt;&quot;assigning a new object&quot;&lt;/span&gt;);
   }
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;string&lt;/span&gt;[] args)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Main&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;string&lt;/span&gt;[] args&lt;/span&gt;) &lt;/span&gt;{
     MyObject myObj = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; MyObject(&lt;span class=&quot;string&quot;&gt;&quot;original object&quot;&lt;/span&gt;);
     MyObject anotherRefToMyObj = myObj;
     Mutate(&lt;span class=&quot;keyword&quot;&gt;ref&lt;/span&gt; myObj);
@@ -481,8 +481,8 @@ This is all a very simple application of core.async and transducers. If this is 
 }
 &lt;/style&gt;
 
-&lt;h2 id=&quot;a-little-background&quot;&gt;A Little Background&lt;/h2&gt;
-&lt;p&gt;Before diving into the how, we need to talk about the why a little bit. If you’re not new to Clojure, feel free to &lt;a href=&quot;#inside-clojurescript-s-persistentvector&quot;&gt;skip to the next section&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;##A Little Background
+Before diving into the how, we need to talk about the why a little bit. If you’re not new to Clojure, feel free to &lt;a href=&quot;#inside-clojurescript-s-persistentvector&quot;&gt;skip to the next section&lt;/a&gt;.&lt;/p&gt;
 &lt;h3 id=&quot;persistent-data-structures&quot;&gt;Persistent Data Structures&lt;/h3&gt;
 &lt;p&gt;Clojure data structures are persistent and immutable.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
@@ -652,9 +652,9 @@ else
 &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Big deal! In JavaScript &lt;code&gt;myGiantArray.push(1)&lt;/code&gt; is also very fast! In fact, it’s faster! But ClojureScript is maintaining immutability (and persistence), where &lt;code&gt;push&lt;/code&gt; mutates in place. A naive approach to accomplishing immutability in JavaScript would be&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;arrayConj&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(array, x)&lt;/span&gt;
-  &lt;span class=&quot;title&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;newArray&lt;/span&gt; = &lt;span class=&quot;title&quot;&gt;array&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;slice&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(0)&lt;/span&gt;;
-  &lt;span class=&quot;title&quot;&gt;newArray&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(x)&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;arrayConj&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;array, x&lt;/span&gt;)
+  &lt;span class=&quot;title&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;newArray&lt;/span&gt; = &lt;span class=&quot;title&quot;&gt;array&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;slice&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;0&lt;/span&gt;);
+  &lt;span class=&quot;title&quot;&gt;newArray&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;push&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;x&lt;/span&gt;);
   &lt;span class=&quot;title&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;newArray&lt;/span&gt;;
 }&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
@@ -726,7 +726,7 @@ else
   &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;+&lt;/span&gt;&lt;/span&gt; a b)&lt;/span&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;is roughly equivalent to:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; add = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(a, b)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; add = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;a, b&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; a + b;
 };
 &lt;/code&gt;&lt;/pre&gt;
@@ -885,11 +885,11 @@ And again, this is super glossed over
       <author></author>
       <description>&lt;p&gt;I recently found myself needing to create a &lt;a href=&quot;http://pegdown.org&quot;&gt;Pegdown&lt;/a&gt; plugin. The documentation was a bit all over the place on this, so I figured I’d dump my end-to-end experience into a blog post for Google to consume.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;h2 id=&quot;what-is-pegdown-&quot;&gt;What is Pegdown?&lt;/h2&gt;
+&lt;p&gt;##What is Pegdown?&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;http://pegdown.org&quot;&gt;Pegdown&lt;/a&gt; is a Markdown parser and HTML generator for the JVM. Converting Markdown to HTML is as simple as &lt;code&gt;new PegDownProcessor().markdownToHtml(markdown);&lt;/code&gt;, which is awesome. If you want to extend Markdown with your own syntax, Pegdown’s got you covered with its plugin system. However creating a Pegdown plugin is not quite as simple.&lt;/p&gt;
-&lt;h2 id=&quot;the-two-phases-of-pegdown&quot;&gt;The Two Phases of Pegdown&lt;/h2&gt;
+&lt;p&gt;##The Two Phases of Pegdown&lt;/p&gt;
 &lt;p&gt;Pegdown works in two phases. First it converts Markdown into an abstract syntax tree, then it takes that AST and serializes it into HTML. Your plugin probably needs to be involved in both phases, but you are free to only work with one phase if it suits you.&lt;/p&gt;
-&lt;h2 id=&quot;the-parsing-plugin&quot;&gt;The Parsing Plugin&lt;/h2&gt;
+&lt;p&gt;##The Parsing Plugin&lt;/p&gt;
 &lt;p&gt;First, create a plugin that participates in the parsing/AST phase. In my case, I wanted to parse this extension to Markdown&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-markdown&quot;&gt;%%% someMethod(someParam=someValue)
 body goes here
@@ -1104,7 +1104,7 @@ Pegdown has one expectation here: &lt;em&gt;your plugin should finish its job wi
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;That’s as far as I needed to take Vars, I’m sure they get more involved if you need to do fancier stuff.&lt;/p&gt;
-&lt;h2 id=&quot;having-pegdown-use-your-parser-plugin&quot;&gt;Having Pegdown Use Your Parser Plugin&lt;/h2&gt;
+&lt;p&gt;##Having Pegdown Use Your Parser Plugin&lt;/p&gt;
 &lt;p&gt;Now with the parser plugin written, I need to tell Pegdown to use it:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  PegDownPlugins plugins = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; PegDownPlugins.Builder()
     .withPlugin(ComponentParser.class).build();
@@ -1181,9 +1181,9 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
       <author></author>
       <description>&lt;p&gt;I don’t think a fixture generator for PostgreSQL exists in NPM. If one does, I could not find it. So I went ahead and &lt;a href=&quot;https://github.com/city41/node-sql-fixtures&quot;&gt;made one&lt;/a&gt;. Added bonus, it works with MySQL, MariaDB and sqlite as well.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;h2 id=&quot;fixtures-&quot;&gt;Fixtures?&lt;/h2&gt;
+&lt;p&gt;##Fixtures?&lt;/p&gt;
 &lt;p&gt;“Fixture” is just a fancy word for “sample data”. I first encountered the idea of fixtures in Ruby on Rails almost a decade ago (egads!). Typically in Ruby you lay out some sample data using YAML, and this data then gets populated into your database. This is ideal for integration tests, dummy data and end-to-end tests.&lt;/p&gt;
-&lt;h2 id=&quot;sql-fixtures-for-node&quot;&gt;SQL Fixtures for Node&lt;/h2&gt;
+&lt;p&gt;##SQL Fixtures for Node&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/city41/node-sql-fixtures&quot;&gt;sql-fixtures&lt;/a&gt; applies the same idea, except this time for Node. Since JavaScript is such a flexible language, no need for something like YAML, it’s easy to just define the fixture data in JavaScript itself.&lt;/p&gt;
 &lt;p&gt;For example, here’s how to populate some data in a Users table in your database:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; fixtures = {
@@ -1196,7 +1196,7 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
 
 &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; sqlFixtures = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'sql-fixtures'&lt;/span&gt;);
 
-sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// the Users table now has two more rows in it&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// result returns what got created,&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// so you can make use of the data in your tests&lt;/span&gt;
@@ -1206,7 +1206,7 @@ sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The &lt;code&gt;databaseConfig&lt;/code&gt; parameter tells sql-fixtures how to connect to your database, more info on that in the &lt;a href=&quot;https://github.com/city41/node-sql-fixtures/blob/master/README.md&quot;&gt;README&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&quot;foreign-key-resolution&quot;&gt;Foreign Key Resolution&lt;/h2&gt;
+&lt;p&gt;##Foreign Key Resolution&lt;/p&gt;
 &lt;p&gt;The neatest feature of sql-fixtures is automatic foreign key resolution. If you want to insert data into two tables and have their keys point at each other, it can be tedious to do manually. With sql-fixtures you can specify the relation in the fixture spec:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; fixtures = {
   Users: {
@@ -1218,7 +1218,7 @@ sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&
   }
 };
 
-sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(result.Purchase[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].userId === result.Users[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].id); &lt;span class=&quot;comment&quot;&gt;// true&lt;/span&gt;
 });
 &lt;/code&gt;&lt;/pre&gt;
@@ -1236,10 +1236,10 @@ sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&
 };
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;and with the specId, the association is made just like when using an index.&lt;/p&gt;
-&lt;h2 id=&quot;that-s-it-&quot;&gt;That’s it!&lt;/h2&gt;
+&lt;p&gt;##That’s it!&lt;/p&gt;
 &lt;p&gt;Not much to this one. And a shout out to &lt;a href=&quot;http://knexjs.org/&quot;&gt;Knex.js&lt;/a&gt; which is the library that sql-fixtures uses to communicate with the database. I’m a fan of Knex.js and the ORM built on top of it, &lt;a href=&quot;http://bookshelfjs.org/&quot;&gt;Bookshelf.js&lt;/a&gt;.&lt;/p&gt;
-&lt;h3 id=&quot;by-the-way&quot;&gt;By the way&lt;/h3&gt;
-&lt;p&gt;Knex.js is why I make the claim this works with Postgres, MySql, Maria and sqlite, as Knex.js supports all of them. However, I only need Postgres so far, so Postgres is the only database that’s seen any real usage. If you use sql-fixtures with one of the other database engines, let me know if you hit any problems.&lt;/p&gt;
+&lt;p&gt;###By the way
+Knex.js is why I make the claim this works with Postgres, MySql, Maria and sqlite, as Knex.js supports all of them. However, I only need Postgres so far, so Postgres is the only database that’s seen any real usage. If you use sql-fixtures with one of the other database engines, let me know if you hit any problems.&lt;/p&gt;
 </description>
     </item>
     <item>
@@ -1283,7 +1283,7 @@ sandbox/
 &lt;p&gt;In the ES6 world, this all works just fine and as you’d expect. Traceur, however, does not quite turn this into a CommonJS module in the way I wanted.&lt;/p&gt;
 &lt;p&gt;Traceur will define the export from above as&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.defineProperties(exports, {
-  &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: {get: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: {get: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; $__default;
     }},
   __esModule: {value: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;}
@@ -1301,7 +1301,7 @@ sandbox/
 &lt;p&gt;In ES6 land, &lt;code&gt;export default &amp;lt;value&amp;gt;&lt;/code&gt; basically means “this is the default thing we are exporting from this module, if someone just imports this module, give them this”. So you’d think &lt;code&gt;default&lt;/code&gt; would translate into effectively &lt;code&gt;module.exports = RectEntity&lt;/code&gt;, but it doesn’t, it puts a &lt;code&gt;default&lt;/code&gt; property on there. You can even see this in Traceur’s code when you import another module:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; BaseEntity = ($__base_45_entity__ = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;&quot;./base-entity&quot;&lt;/span&gt;), $__base_45_entity__ &amp;amp;&amp;amp; $__base_45_entity__.__esModule &amp;amp;&amp;amp; $__base_45_entity__ || {&lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: $__base_45_entity__}).default;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;That long line of generated code basically boils down to — in CommonJS speak — &lt;code&gt;var BaseEntity = require(&amp;#39;./base-entity&amp;#39;).default&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;That long line of generated code basically boils down to – in CommonJS speak – &lt;code&gt;var BaseEntity = require(&amp;#39;./base-entity&amp;#39;).default&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;This meant my &lt;code&gt;index.js&lt;/code&gt; ended up looking like this&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;module&lt;/span&gt;.exports = {
   Engine: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/engine'&lt;/span&gt;).default,
@@ -1323,14 +1323,14 @@ sandbox/
 &lt;p&gt;It will define the runtime on &lt;code&gt;global&lt;/code&gt; and from there the rest of your transpiled code will be happy. Pretty simple.&lt;/p&gt;
 &lt;h3 id=&quot;approach-two-pull-it-in-with-gulp-traceur&quot;&gt;Approach two: pull it in with gulp-traceur&lt;/h3&gt;
 &lt;p&gt;I am transpiling from ES6-&amp;gt;ES5 using &lt;a href=&quot;https://github.com/sindresorhus/gulp-traceur&quot;&gt;gulp-traceur&lt;/a&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; gulp.src(&lt;span class=&quot;string&quot;&gt;'src/**/*.js'&lt;/span&gt;)
     .pipe(traceur({modules:&lt;span class=&quot;string&quot;&gt;'commonjs'&lt;/span&gt;}))
     .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./lib'&lt;/span&gt;));
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;the above will transpile the code but not include the runtime. gulp-traceur makes it available at &lt;code&gt;traceur.RUNTIME_PATH&lt;/code&gt;, so you can just do&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; gulp.src([traceur.RUNTIME_PATH, &lt;span class=&quot;string&quot;&gt;'src/**/*.js'&lt;/span&gt;])
     .pipe(traceur({modules:&lt;span class=&quot;string&quot;&gt;'commonjs'&lt;/span&gt;}))
     .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./lib'&lt;/span&gt;));
@@ -1354,7 +1354,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
 &lt;h3 id=&quot;approach-three-punt-on-it-and-let-browserify-bring-the-runtime&quot;&gt;Approach Three: punt on it and let Browserify bring the runtime&lt;/h3&gt;
 &lt;p&gt;Browserify and ES6 get along great thanks to &lt;a href=&quot;https://github.com/thlorenz/es6ify&quot;&gt;es6ify&lt;/a&gt;. es6ify can bring the runtime in too, and for some scenarios this is the way to go. For me it’s not, as it leaves my core NPM module dead in the water unless whoever consumes it knows they need to provide the runtime. Which is pretty lame.&lt;/p&gt;
 &lt;p&gt;With gulp, browserify and es6ify, it looks like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'browserify:sandbox'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;], &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'browserify:sandbox'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;], &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; browserify()
     .add(es6ify.runtime)
     .transform(es6ify)
@@ -1366,7 +1366,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Notice the strange call to Browserify’s require? This is because you must include the runtime first. Otherwise your code will come first and it will be without its runtime and crap out.&lt;/p&gt;
 &lt;p&gt;An alternative way is this, which I actually prefer:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'browserify:sandbox'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;], &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'browserify:sandbox'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;], &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; browserify(es6ify.runtime)
     .transform(es6ify)
     .add(&lt;span class=&quot;string&quot;&gt;'./sandbox/sandbox.js'&lt;/span&gt;)
@@ -1388,14 +1388,14 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
       <author></author>
       <description>&lt;p&gt;For the past 3 years, I have almost exclusively pair programmed at my job. I have paired with many people in many situations and learned a lot about this practice. I have found pairing can be effective, but it can also be ineffective and costly. Pair programming seems to be gaining traction, which concerns me a little bit. Some of us really don’t like to pair, and I feel it’s important to recognize that and maintain a balance here. Pairing is just a tool like anything else; it definitely should not be your company’s default mode of work.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;h2 id=&quot;if-you-re-going-to-start-pairing-&quot;&gt;If You’re Going to Start Pairing…&lt;/h2&gt;
+&lt;p&gt;##If You’re Going to Start Pairing…&lt;/p&gt;
 &lt;p&gt;Before I really begin, I want to point out it’s important to create a proper pairing environment. Sticking two people at one desk with a laptop won’t cut it. Start with two desks, arranged at 90 degrees. One computer feeds two mirrored monitors (or four), two keyboards and two mice.&lt;/p&gt;
 &lt;div class=&quot;center&quot;&gt;
   &lt;img class=&quot;diagram&quot; width=&quot;253&quot; height=&quot;253&quot; src=&quot;./pairing-station.svg&quot; alt=&quot;pairing station diagram&quot; /&gt;
 &lt;/div&gt;
 
 &lt;p&gt;This gives each participant their own space, a comfortable neutral zone, and sets them up as equals as far as the environment is concerned. You don’t want the environment itself to cause any inhibitions.&lt;/p&gt;
-&lt;h2 id=&quot;when-pairing-is-great&quot;&gt;When Pairing Is Great&lt;/h2&gt;
+&lt;p&gt;##When Pairing Is Great&lt;/p&gt;
 &lt;p&gt;Knowledge transfer is pairing’s killer feature.&lt;/p&gt;
 &lt;p&gt;When one person knows the subject matter well and the other doesn’t, then pairing can be &lt;em&gt;highly&lt;/em&gt; effective. A slight variation includes when both people bring their own set of knowledge to the table, such as a front end developer and a back end developer joining to solve a problem that lies somewhere in the middle. Transferring knowledge through pairing is almost always effective, regardless of personalities involved or what knowledge is being transfered.&lt;/p&gt;
 &lt;p&gt;The knowledge transfer doesn’t necessarily have to be the main focus of the pairing session. Small things like new key commands also get shared nicely. I find I can enjoy pairing with someone new just to get added exposure to tools, tricks, etc.&lt;/p&gt;
@@ -1403,23 +1403,23 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
 &lt;p&gt;When you need help from someone, often the two of you end up crowded around one machine. If you can swap that machine with a pairing station, the help arrives faster and smoother. Instead of verbally relaying commands to enter, both people can just type and explore as needed, greatly improving communication.&lt;/p&gt;
 &lt;h3 id=&quot;and-when-the-pair-gels&quot;&gt;And … When the Pair Gels&lt;/h3&gt;
 &lt;p&gt;This is the other circumstance I have found where pairing is highly effective. When the two members gel well. Their personalities slide together just right, and the end result is a super being that is more than the sum of its parts. Sometimes way more. When this happens, it almost doesn’t matter what they are working on, they tend to do it very well.&lt;/p&gt;
-&lt;h2 id=&quot;that-super-being-is-mythical-most-of-the-time&quot;&gt;That Super Being is Mythical Most of the Time&lt;/h2&gt;
+&lt;p&gt;##That Super Being is Mythical Most of the Time&lt;/p&gt;
 &lt;p&gt;Throwing two random people together and expecting magic is optimistic at best. We see this all the time in the real world. A star studded cast yet the movie is a dud. Baseball’s all-star game rarely leads to two unstoppable teams. More is not necessarily better, and relationships are tricky.&lt;/p&gt;
-&lt;h2 id=&quot;exploring-the-unknown-and-solving-hard-problems&quot;&gt;Exploring the Unknown and Solving Hard Problems&lt;/h2&gt;
+&lt;p&gt;##Exploring the Unknown and Solving Hard Problems&lt;/p&gt;
 &lt;p&gt;Tough problems are also where companies might gravitate towards pairing. Surely if one smart person can solve a difficult problem, two can solve it faster and better?&lt;/p&gt;
 &lt;p&gt;I can’t think of a single time I’ve made a great breakthrough while pairing. Yet I can point to numerous times when the breakthroughs happen once the pair disperses. One person has to go to the dentist, or the other had to work from home that day. These are the moments when the hard problems suddenly make leaps toward being solved. This is a key area where i find pairing to be highly ineffective.&lt;/p&gt;
 &lt;p&gt;I don’t want to have to constantly explain everything I’m thinking about when digging into hard problems. It slows me down and prevents me from getting into the zone, where deep thought really comes from and where breakthroughs happen. I want to feel free to try something silly or even stupid if I think it might increase my knowledge about the problem, without first having to justify why I’m doing it. Vice versa too with the person I’m working with, I want them to get into the zone as well. Susan Cain wrote a &lt;a href=&quot;http://www.nytimes.com/2012/01/15/opinion/sunday/the-rise-of-the-new-groupthink.html?pagewanted=all&amp;amp;_r=0&quot;&gt;great article&lt;/a&gt; all about this. There’s pretty compelling evidence that solitude is where innovation comes from.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;If you have talented and motivated people, they should be encouraged to work alone when creativity or efficiency is the highest priority.&lt;/p&gt;
-&lt;p&gt;— Adrian Furnham &lt;em&gt;taken from the article linked just above&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;– Adrian Furnham &lt;em&gt;taken from the article linked just above&lt;/em&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;Regardless of your personality or comfort level with other people, it’s hard to deny that keeping both people in the loop slows down and can even prevent deep thought. Being in the zone and really digging deep into a problem requires quiet and focus. Something pairing actively takes away from you. The recent backlash against open offices (such as &lt;a href=&quot;http://www.theguardian.com/news/2013/nov/18/open-plan-offices-bad-harvard-business-review&quot;&gt;here&lt;/a&gt;, &lt;a href=&quot;http://www.newyorker.com/online/blogs/currency/2014/01/the-open-office-trap.html&quot;&gt;here&lt;/a&gt; and &lt;a href=&quot;http://www.fastcompany.com/3022456/dialed/the-10-worst-things-about-working-in-an-open-office-in-your-words&quot;&gt;here&lt;/a&gt;) largely applies to pairing too.&lt;/p&gt;
-&lt;h2 id=&quot;i-am-an-introvert&quot;&gt;I &lt;em&gt;am&lt;/em&gt; an introvert&lt;/h2&gt;
+&lt;p&gt;##I &lt;em&gt;am&lt;/em&gt; an introvert&lt;/p&gt;
 &lt;p&gt;I’m totally an introvert. For sure, my disposition makes me more critical of pairing.&lt;/p&gt;
 &lt;p&gt;Roughly a third of the population is introverted, and there is no correlation between introversion/extroversion and intelligence. These facts are concerning when it comes to pairing regardless of where you personally lie on the spectrum.&lt;/p&gt;
-&lt;p&gt;Pairing lets the loud idea win. Which might be the correct idea, or … it might not be. Why leave it to chance? In a pairing situation a quieter, more introverted or anxious person is far less likely to push their idea forward. Pairing usually ensures that the more extroverted — or more engaged — person’s idea to be the one that gets implemented.&lt;/p&gt;
+&lt;p&gt;Pairing lets the loud idea win. Which might be the correct idea, or … it might not be. Why leave it to chance? In a pairing situation a quieter, more introverted or anxious person is far less likely to push their idea forward. Pairing usually ensures that the more extroverted – or more engaged – person’s idea to be the one that gets implemented.&lt;/p&gt;
 &lt;p&gt;Many of us just don’t shine in this situation. Heck for many of us this situation is down right uncomfortable. Programming has stereotypically attracted the quieter, more introverted types. It’s clearly not a loud or very social activity. Pairing may be shutting this type of person down, which is not what you want.&lt;/p&gt;
-&lt;h2 id=&quot;other-pairing-problems&quot;&gt;Other Pairing Problems&lt;/h2&gt;
+&lt;p&gt;##Other Pairing Problems&lt;/p&gt;
 &lt;p&gt;Leaving behind the whole introversion/extroversion arguments, there are problems with pairing that affect everyone.&lt;/p&gt;
 &lt;h3 id=&quot;different-levels-of-engagement-within-the-pair&quot;&gt;Different levels of engagement within the pair&lt;/h3&gt;
 &lt;p&gt;Much like group work back in high school, pairing can lead to a situation where the two people are engaged at different levels. One person may contribute more simply because they are more interested, are having a particularly good day, are more disciplined, whatever it may be. The other person may contribute less due to being uncomfortable, bored, less disciplined or internally not agreeing with the chosen approach. If nothing else, this is costly. A perfectly good employee is really not doing much.&lt;/p&gt;
@@ -1427,10 +1427,10 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
 &lt;p&gt;In my experience pairing almost always takes more chronological time to complete a task. Take that value and multiply it by two and that’s a pretty large cost to the company. Sometimes that cost is worth it. Knowledge transfer is very important in a company, and pairing can be an effective way to pull that off. Sometimes the extra cost of pairing is worth the benefits that come from it. But sometimes it isn’t.&lt;/p&gt;
 &lt;h3 id=&quot;physical-space&quot;&gt;Physical Space&lt;/h3&gt;
 &lt;p&gt;Proper pairing stations take more space and hardware. That can be hard to justify sometimes. I’ve even seen more pairing stations meaning the removal of personal desks and personal space, leaving fewer places people can escape to for some solitude.&lt;/p&gt;
-&lt;h2 id=&quot;pairing-is-not-necessarily-collaboration&quot;&gt;Pairing is Not Necessarily Collaboration&lt;/h2&gt;
+&lt;p&gt;##Pairing is Not Necessarily Collaboration&lt;/p&gt;
 &lt;p&gt;Pairing leads to collaboration much like blind dates lead to romance. The act of pairing itself has little influence on the actual collaboration that may or may not happen. There are more natural and more efficient ways to collaborate, such as code reviews and ad hoc conversations. Rather than confine yourself to one person, workers should feel free to seek out the input they are after.&lt;/p&gt;
 &lt;p&gt;More recently, a focus on office spaces that balance open spaces with private coves are becoming more common. This gives people the power to decide when to be collaborative, and when to work in quiet focus. Letting people naturally make this decision seems much more effective.&lt;/p&gt;
-&lt;h2 id=&quot;pairing-is-a-tool&quot;&gt;Pairing is a Tool&lt;/h2&gt;
+&lt;p&gt;##Pairing is a Tool&lt;/p&gt;
 &lt;p&gt;In the end that’s all it is and all I am really arguing. Sometimes pairing is great, other times it’s costly and ineffective. The key is to recognize this and utilize pairing intelligently. If your company is new to pairing, you need to get familiar with it and find out for yourself when it’s effective. This is no different from any other tool. But please don’t propose it as the new default for all work going forward, it probably won’t work.&lt;/p&gt;
 </description>
     </item>
@@ -1489,25 +1489,25 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
 &lt;p&gt;Why bother to understand promises to this level of detail? Really understanding how something works can increase your ability to take advantage of it, and debug it more successfully when things go wrong. I was inspired to write this article when a coworker and I got stumped on a tricky promise scenario. Had I known then what I know now, we wouldn’t have gotten stumped.&lt;/p&gt;
 &lt;h2 id=&quot;the-simplest-use-case&quot;&gt;The Simplest Use Case&lt;/h2&gt;
 &lt;p&gt;Let’s begin our promise implementation as simple as can be. We want to go from this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;value&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Got a value:'&lt;/span&gt; + value);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;to this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;value&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Got a value:'&lt;/span&gt; + value);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;To do this, we just need to change &lt;code&gt;doSomething()&lt;/code&gt; from this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(callback)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;callback&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value = &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;;
   callback(value);
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;to this “promise” based solution&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
-    then: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(callback)&lt;/span&gt; &lt;/span&gt;{
+    then: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;callback&lt;/span&gt;) &lt;/span&gt;{
       &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value = &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;;
       callback(value);
     }
@@ -1523,13 +1523,13 @@ Promises capture the notion of an eventual value into an object
 &lt;p&gt;This is the main reason promises are so interesting. Once the concept of eventuality is captured like this, we can begin to do some very powerful things. We’ll explore this more later on.&lt;/p&gt;
 &lt;h3 id=&quot;defining-the-promise-type&quot;&gt;Defining the Promise type&lt;/h3&gt;
 &lt;p&gt;This simple object literal isn’t going to hold up. Let’s define an actual &lt;code&gt;Promise&lt;/code&gt; type that we’ll be able to expand upon&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;fn&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; callback = &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
-  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(cb)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
     callback = cb;
   };
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;value&lt;/span&gt;) &lt;/span&gt;{
     callback(value);
   }
 
@@ -1537,25 +1537,25 @@ Promises capture the notion of an eventual value into an object
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;and reimplement &lt;code&gt;doSomething()&lt;/code&gt; to use it&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;resolve&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value = &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;;
     resolve(value);
   });
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;There is a problem here. If you trace through the execution, you’ll see that &lt;code&gt;resolve()&lt;/code&gt; gets called before &lt;code&gt;then()&lt;/code&gt;, which means &lt;code&gt;callback&lt;/code&gt; will be &lt;code&gt;null&lt;/code&gt;. Let’s hide this problem in a little hack involving &lt;code&gt;setTimeout&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;fn&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; callback = &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
-  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(cb)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;cb&lt;/span&gt;) &lt;/span&gt;{
     callback = cb;
   };
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;value&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;comment&quot;&gt;// force callback to be called in the next&lt;/span&gt;
     &lt;span class=&quot;comment&quot;&gt;// iteration of the event loop, giving&lt;/span&gt;
     &lt;span class=&quot;comment&quot;&gt;// callback a chance to be set by then()&lt;/span&gt;
-    setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+    setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
       callback(value);
     }, &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;);
   }
@@ -1578,12 +1578,12 @@ Promises capture the notion of an eventual value into an object
 
 &lt;p&gt;&lt;em&gt;(A promise can also be rejected, but we’ll get to error handling later)&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;Let’s explicitly track the state inside of our implementation, which will allow us to do away with our hack&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;fn&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; state = &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; deferred;
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;newValue&lt;/span&gt;) &lt;/span&gt;{
     value = newValue;
     state = &lt;span class=&quot;string&quot;&gt;'resolved'&lt;/span&gt;;
 
@@ -1592,7 +1592,7 @@ Promises capture the notion of an eventual value into an object
     }
   }
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;onResolved&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(state === &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;) {
       deferred = onResolved;
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
@@ -1601,7 +1601,7 @@ Promises capture the notion of an eventual value into an object
     onResolved(value);
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;onResolved&lt;/span&gt;) &lt;/span&gt;{
     handle(onResolved);
   };
 
@@ -1623,11 +1623,11 @@ With promises, the order in which we work with them doesn’t matter. We are fre
 &lt;p&gt;We still have quite a few more things in the spec to implement, but our promises are already pretty powerful. This system allows us to call &lt;code&gt;then()&lt;/code&gt; as many times as we want, we will always get the same value back&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; promise = doSomething();
 
-promise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+promise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;value&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Got a value:'&lt;/span&gt;, value);
 });
 
-promise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+promise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;value&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Got the same value again:'&lt;/span&gt;, value);
 });
 &lt;/code&gt;&lt;/pre&gt;
@@ -1648,12 +1648,12 @@ This is not completely true for the promise implementation in this article. If t
 &lt;/div&gt;
 
 &lt;p&gt;Here is our promise type with chaining added in&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;fn&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; state = &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; deferred = &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;newValue&lt;/span&gt;) &lt;/span&gt;{
     value = newValue;
     state = &lt;span class=&quot;string&quot;&gt;'resolved'&lt;/span&gt;;
 
@@ -1662,7 +1662,7 @@ This is not completely true for the promise implementation in this article. If t
     }
   }
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(handler)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;handler&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(state === &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;) {
       deferred = handler;
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
@@ -1677,8 +1677,8 @@ This is not completely true for the promise implementation in this article. If t
     handler.resolve(ret);
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved)&lt;/span&gt; &lt;/span&gt;{
-    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;onResolved&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;resolve&lt;/span&gt;) &lt;/span&gt;{
       handle({
         onResolved: onResolved,
         resolve: resolve
@@ -1699,15 +1699,15 @@ Since &lt;code&gt;then()&lt;/code&gt; always returns a new promise object, there
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; ret = handler.onResolved(value);
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;In the examples I’ve been using here, &lt;code&gt;handler.onResolved&lt;/code&gt; is&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;value&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;Got a value:&quot;&lt;/span&gt;, value);
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;in other words, it’s what was passed into the first call to &lt;code&gt;then()&lt;/code&gt;. The return value of that first handler is used to resolve the second promise. Thus chaining is accomplished&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'first result'&lt;/span&gt;, result);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;88&lt;/span&gt;;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(secondResult)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;secondResult&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'second result'&lt;/span&gt;, secondResult);
 });
 
@@ -1717,10 +1717,10 @@ Since &lt;code&gt;then()&lt;/code&gt; always returns a new promise object, there
 &lt;span class=&quot;comment&quot;&gt;// second result 88&lt;/span&gt;
 
 
-doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'first result'&lt;/span&gt;, result);
   &lt;span class=&quot;comment&quot;&gt;// not explicitly returning anything&lt;/span&gt;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(secondResult)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;secondResult&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'second result'&lt;/span&gt;, secondResult);
 });
 
@@ -1730,28 +1730,28 @@ doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;k
 &lt;span class=&quot;comment&quot;&gt;// second result undefined&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Since &lt;code&gt;then()&lt;/code&gt; always returns a new promise, this chaining can go as deep as we like&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'first result'&lt;/span&gt;, result);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;88&lt;/span&gt;;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(secondResult)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;secondResult&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'second result'&lt;/span&gt;, secondResult);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;99&lt;/span&gt;;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(thirdResult)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;thirdResult&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'third result'&lt;/span&gt;, thirdResult);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;200&lt;/span&gt;;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fourthResult)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;fourthResult&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// on and on...&lt;/span&gt;
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;What if in the above example, we wanted all the results in the end? With chaining, we would need to manually build up the result ourself&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; results = [result];
   results.push(&lt;span class=&quot;number&quot;&gt;88&lt;/span&gt;);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; results;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(results)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;results&lt;/span&gt;) &lt;/span&gt;{
   results.push(&lt;span class=&quot;number&quot;&gt;99&lt;/span&gt;);
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; results;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(results)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;results&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(results.join(&lt;span class=&quot;string&quot;&gt;', '&lt;/span&gt;);
 });
 
@@ -1766,7 +1766,7 @@ doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;k
 &lt;p&gt;A potentially better way is to use a promise library’s &lt;code&gt;all()&lt;/code&gt; method or any number of other utility methods that increase the usefulness of promises, which I’ll leave to you to go and discover.&lt;/p&gt;
 &lt;h3 id=&quot;the-callback-is-optional&quot;&gt;The Callback is Optional&lt;/h3&gt;
 &lt;p&gt;The callback to &lt;code&gt;then()&lt;/code&gt; is not strictly required. If you leave it off, the promise resolves to the same value as the previous promise&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'got a result'&lt;/span&gt;, result);
 });
 
@@ -1782,25 +1782,25 @@ doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;k
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h3 id=&quot;returning-promises-inside-the-chain&quot;&gt;Returning Promises Inside the Chain&lt;/h3&gt;
 &lt;p&gt;Our chaining implementation is a bit naive. It’s blindly passing the resolved values down the line. What if one of the resolved values is a promise? For example&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// doSomethingElse returns a promise&lt;/span&gt;
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; doSomethingElse(result);
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(finalResult)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;finalResult&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;the final result is&quot;&lt;/span&gt;, finalResult);
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;As it stands now, the above won’t do what we want. &lt;code&gt;finalResult&lt;/code&gt; won’t actually be a fully resolved value, it will instead be a promise. To get the intended result, we’d need to do&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// doSomethingElse returns a promise&lt;/span&gt;
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; doSomethingElse(result);
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(anotherPromise)&lt;/span&gt; &lt;/span&gt;{
-  anotherPromise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(finalResult)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;anotherPromise&lt;/span&gt;) &lt;/span&gt;{
+  anotherPromise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;finalResult&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;the final result is&quot;&lt;/span&gt;, finalResult);
   });
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Who wants that crud in their code? Let’s have the promise implementation seamlessly handle this for us. This is simple to do, inside of &lt;code&gt;resolve()&lt;/code&gt; just add a special case if the resolved value is a promise&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;newValue&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(newValue &amp;amp;&amp;amp; &lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; newValue.then === &lt;span class=&quot;string&quot;&gt;'function'&lt;/span&gt;) {
     newValue.then(resolve);
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
@@ -1831,9 +1831,9 @@ Different promise implementations can interopt with each other, as long as they 
 &lt;p&gt;With chaining in place, our implementation is pretty complete. But we’ve completely ignored error handling.&lt;/p&gt;
 &lt;h2 id=&quot;rejecting-promises&quot;&gt;Rejecting Promises&lt;/h2&gt;
 &lt;p&gt;When something goes wrong during the course of a promise, it needs to be &lt;strong&gt;rejected&lt;/strong&gt; with a &lt;em&gt;reason&lt;/em&gt;. How does the caller know when this happens? They can find out by passing in a second callback to &lt;code&gt;then()&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(value)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;doSomething().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;value&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Success!'&lt;/span&gt;, value);
-}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(error)&lt;/span&gt; &lt;/span&gt;{
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;error&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'Uh oh'&lt;/span&gt;, error);
 });
 &lt;/code&gt;&lt;/pre&gt;
@@ -1842,8 +1842,8 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
 &lt;/div&gt;
 
 &lt;p&gt;Promises enable rejection by means of &lt;code&gt;reject()&lt;/code&gt;, the evil twin of &lt;code&gt;resolve()&lt;/code&gt;. Here is &lt;code&gt;doSomething()&lt;/code&gt; with error handling support added&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve, reject)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;resolve, reject&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; result = somehowGetTheValue();
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(result.error) {
       reject(result.error);
@@ -1855,12 +1855,12 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Inside the promise implementation, we need to account for rejection.&lt;/p&gt;
 &lt;p&gt;Let’s see the full promise implementation again, this time with rejection support added&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(fn)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;fn&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; state = &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; deferred = &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;newValue&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(newValue &amp;amp;&amp;amp; &lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; newValue.then === &lt;span class=&quot;string&quot;&gt;'function'&lt;/span&gt;) {
       newValue.then(resolve, reject);
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
@@ -1873,7 +1873,7 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
     }
   }
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;reject&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(reason)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;reject&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;reason&lt;/span&gt;) &lt;/span&gt;{
     state = &lt;span class=&quot;string&quot;&gt;'rejected'&lt;/span&gt;;
     value = reason;
 
@@ -1882,7 +1882,7 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
     }
   }
 
-  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(handler)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;handler&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(state === &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;) {
       deferred = handler;
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
@@ -1910,8 +1910,8 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
     handler.resolve(ret);
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(onResolved, onRejected)&lt;/span&gt; &lt;/span&gt;{
-    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve, reject)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;onResolved, onRejected&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;resolve, reject&lt;/span&gt;) &lt;/span&gt;{
       handle({
         onResolved: onResolved,
         onRejected: onRejected,
@@ -1933,7 +1933,7 @@ When using promises, it’s very easy to omit the error callback. But if you do,
 &lt;h3 id=&quot;unexpected-errors-should-also-lead-to-rejection&quot;&gt;Unexpected Errors Should Also Lead to Rejection&lt;/h3&gt;
 &lt;p&gt;So far our error handling only accounts for known errors. It’s possible an unhandled exception will happen, completely ruining everything. It’s essential that the promise implementation catch these exceptions and reject accordingly.&lt;/p&gt;
 &lt;p&gt;This means that &lt;code&gt;resolve()&lt;/code&gt; should get wrapped in a try/catch block&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(newValue)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;resolve&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;newValue&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;try&lt;/span&gt; {
     &lt;span class=&quot;comment&quot;&gt;// ... as before&lt;/span&gt;
   } &lt;span class=&quot;keyword&quot;&gt;catch&lt;/span&gt;(e) {
@@ -1942,7 +1942,7 @@ When using promises, it’s very easy to omit the error callback. But if you do,
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;It’s also important to make sure the callbacks given to us by the caller don’t throw unhandled exceptions. These callbacks are called in &lt;code&gt;handle()&lt;/code&gt;, so we end up with&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(deferred)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;deferred&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// ... as before&lt;/span&gt;
 
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; ret;
@@ -1962,17 +1962,17 @@ It’s possible for a misunderstanding of promises to lead to completely swallow
 &lt;/div&gt;
 
 &lt;p&gt;Consider this example&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getSomeJson&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(resolve, reject)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getSomeJson&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;resolve, reject&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; badJson = &lt;span class=&quot;string&quot;&gt;&quot;&amp;lt;div&amp;gt;uh oh, this is not JSON at all!&amp;lt;/div&amp;gt;&quot;&lt;/span&gt;;
     resolve(badJson);
   });
 }
 
-getSomeJson().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(json)&lt;/span&gt; &lt;/span&gt;{
+getSomeJson().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;json&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; obj = &lt;span class=&quot;built_in&quot;&gt;JSON&lt;/span&gt;.parse(json);
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(obj);
-}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(error)&lt;/span&gt; &lt;/span&gt;{
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;error&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'uh oh'&lt;/span&gt;, error);
 });
 &lt;/code&gt;&lt;/pre&gt;
@@ -1988,10 +1988,10 @@ Always remember, inside of &lt;code&gt;then()&lt;/code&gt;‘s callback, the pro
 &lt;/div&gt;
 
 &lt;p&gt;If you want to capture the above error, you need an error callback further downstream&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;getSomeJson().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(json)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;getSomeJson().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;json&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; obj = &lt;span class=&quot;built_in&quot;&gt;JSON&lt;/span&gt;.parse(json);
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(obj);
-}).then(&lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(error)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;error&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;an error occured: &quot;&lt;/span&gt;, error);
 });
 &lt;/code&gt;&lt;/pre&gt;
@@ -2003,7 +2003,7 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 &lt;h3 id=&quot;done-to-the-rescue&quot;&gt;done() to the Rescue&lt;/h3&gt;
 &lt;p&gt;Most (but not all) promise libraries have a &lt;code&gt;done()&lt;/code&gt; method. It’s very similar to &lt;code&gt;then()&lt;/code&gt;, except it avoids the above pitfalls of &lt;code&gt;then()&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;done()&lt;/code&gt; can be called whenever &lt;code&gt;then()&lt;/code&gt; can. The key differences are it does not return a promise, and any unhandled exception inside of &lt;code&gt;done()&lt;/code&gt; is not captured by the promise implementation. In other words, &lt;code&gt;done()&lt;/code&gt; represents when the entire promise chain has fully resolved. Our &lt;code&gt;getSomeJson()&lt;/code&gt; example can be more robust using &lt;code&gt;done()&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;getSomeJson().done(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(json)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;getSomeJson().done(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;json&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// when this throws, it won't be swallowed&lt;/span&gt;
   &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; obj = &lt;span class=&quot;built_in&quot;&gt;JSON&lt;/span&gt;.parse(json);
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(obj);
@@ -2016,15 +2016,15 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 
 &lt;h3 id=&quot;recovering-from-rejection&quot;&gt;Recovering from Rejection&lt;/h3&gt;
 &lt;p&gt;It is possible to recover from a rejected promise. If you pass in an errback to &lt;code&gt;then()&lt;/code&gt;, from then on any further promises in this chain will be resolved instead of rejected:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;aMethodThatRejects().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;aMethodThatRejects().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// won't get here&lt;/span&gt;
-}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; &lt;/span&gt;{
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;err&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// since aMethodThatRejects calls reject()&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// we end up here in the errback&lt;/span&gt;
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;recovered!&quot;&lt;/span&gt;;
-}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+}).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;after recovery: &quot;&lt;/span&gt;, result);
-}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; &lt;/span&gt;{
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;err&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// we won't actually get here&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// since the rejected promise had an errback&lt;/span&gt;
 });
@@ -2034,9 +2034,9 @@ In my experience, this is the biggest pitfall of promises. Read onto the next se
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;If you don’t pass in an errback, then the rejection propagates to the next promise in the chain:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// notice the two calls to then()&lt;/span&gt;
-aMethodThatRejects().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(result)&lt;/span&gt; &lt;/span&gt;{
+aMethodThatRejects().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;result&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;comment&quot;&gt;// we won't get here&lt;/span&gt;
-}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(err)&lt;/span&gt; &lt;/span&gt;{
+}, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;err&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;&quot;error propagated&quot;&lt;/span&gt;);
 });
 
@@ -2045,18 +2045,18 @@ aMethodThatRejects().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id=&quot;promise-resolution-needs-to-be-async&quot;&gt;Promise Resolution Needs to be Async&lt;/h2&gt;
 &lt;p&gt;Early in the article we cheated a bit by using &lt;code&gt;setTimeout&lt;/code&gt;. Once we fixed that hack, we’ve not used setTimeout since. But the truth is the Promises/A+ spec requires that promise resolution happen asynchronously. Meeting this requirement is simple, we simply need to wrap most of &lt;code&gt;handle()&lt;/code&gt;‘s implementation inside of a &lt;code&gt;setTimeout&lt;/code&gt; call&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(handler)&lt;/span&gt; &lt;/span&gt;{
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;handler&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(state === &lt;span class=&quot;string&quot;&gt;'pending'&lt;/span&gt;) {
     deferred = handler;
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
   }
-  setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
+  setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;comment&quot;&gt;// ... as before&lt;/span&gt;
   }, &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;);
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;This is all that is needed. In truth, real promise libraries don’t tend to use &lt;code&gt;setTimeout&lt;/code&gt;. If the library is NodeJS oriented it will possibly use &lt;code&gt;process.nextTick&lt;/code&gt;, for browsers it might use the new &lt;code&gt;setImmediate&lt;/code&gt; or a &lt;a href=&quot;https://github.com/NobleJS/setImmediate&quot;&gt;setImmediate shim&lt;/a&gt; (so far only IE supports setImmediate), or perhaps an asynchronous library such as Kris Kowal’s &lt;a href=&quot;https://github.com/kriskowal/asap&quot;&gt;asap&lt;/a&gt; (Kris Kowal also wrote &lt;a href=&quot;https://github.com/kriskowal/q&quot;&gt;Q&lt;/a&gt;, a popular promise library)&lt;/p&gt;
-&lt;h3 id=&quot;why-is-this-async-requirement-in-the-spec-&quot;&gt;Why Is This Async Requirement in the Spec?&lt;/h3&gt;
+&lt;p&gt;###Why Is This Async Requirement in the Spec?&lt;/p&gt;
 &lt;p&gt;It allows for consistency and reliable execution flow. Consider this contrived example&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; promise = doAnOperation();
 invokeSomething();
@@ -2079,8 +2079,8 @@ Promises always require at least one more iteration of the event loop to resolve
 &lt;h2 id=&quot;further-reading&quot;&gt;Further Reading&lt;/h2&gt;
 &lt;p&gt;More great articles on promises&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;http://promisejs.org&quot;&gt;promisejs.org&lt;/a&gt; — great tutorial on promises (already mentioned it a few times)&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://github.com/kriskowal/q/blob/v1/design/README.js&quot;&gt;Q’s Design Rationale&lt;/a&gt; — an article much like this one, but goes into even more detail. By Kris Kowal, creator of Q&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://promisejs.org&quot;&gt;promisejs.org&lt;/a&gt; – great tutorial on promises (already mentioned it a few times)&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/kriskowal/q/blob/v1/design/README.js&quot;&gt;Q’s Design Rationale&lt;/a&gt; – an article much like this one, but goes into even more detail. By Kris Kowal, creator of Q&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/domenic/promises-unwrapping/issues/19&quot;&gt;Some debate over whether done() is a good thing&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;http://solutionoptimist.com/2013/12/27/javascript-promise-chains-2/&quot;&gt;Flattening Promise Chains&lt;/a&gt; by Thomas Burleson. A nice article that goes into more advanced usage of promises. If my article is the “what”, then Thomas’s is a nice look at the “why”.&lt;/li&gt;
 &lt;/ul&gt;
@@ -2104,13 +2104,13 @@ no longer use CoffeeScript in my future projects, here is why.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;I’ve tweeted about this here and there, and today someone asked me why. 
 So I thought I’d blog it out.&lt;/p&gt;
-&lt;h2 id=&quot;ecmascript-6-has-the-key-coffeescript-features-i-like&quot;&gt;EcmaScript 6 Has the Key CoffeeScript Features I Like&lt;/h2&gt;
+&lt;p&gt;##EcmaScript 6 Has the Key CoffeeScript Features I Like&lt;/p&gt;
 &lt;p&gt;arrow functions, destructuring assignment and shorthand object literals are my
 favorite features of CoffeeScript. They are all in EcmaScript 6. This is the
 biggest reason why CoffeeScript is becoming less relevant to me. For sure, ES6
 has a ways to go and not even Node has these features yet. But by the time my
 current project is done, Node’s Harmony support will likely meet my needs.&lt;/p&gt;
-&lt;h2 id=&quot;ecmascript-6-has-none-of-the-coffeescript-features-i-hate&quot;&gt;EcmaScript 6 Has None of the CoffeeScript Features I Hate&lt;/h2&gt;
+&lt;p&gt;##EcmaScript 6 Has None of the CoffeeScript Features I Hate&lt;/p&gt;
 &lt;h3 id=&quot;significant-whitespace&quot;&gt;significant whitespace&lt;/h3&gt;
 &lt;p&gt;I &lt;em&gt;hate&lt;/em&gt; significant whitespace, and always have. I downright think it’s wrong.
 I grudgingly accepted it when adopting CoffeeScript. I really look forward to no
@@ -2132,22 +2132,22 @@ wants here (leading to an error). I often have to do this to avoid loops
 becoming unneeded expressions too. The real problem here though is not the
 ugliness, but the occassional surprises. I don’t even use implicit return, so a
 double whammy for me.&lt;/p&gt;
-&lt;h2 id=&quot;ecmascript-5-is-ubiquitous-for-me&quot;&gt;EcmaScript 5 is Ubiquitous for Me&lt;/h2&gt;
+&lt;p&gt;##EcmaScript 5 is Ubiquitous for Me&lt;/p&gt;
 &lt;p&gt;I have to support IE8 at work, but not at home. ES5’s features (especially the
 array functions) negate even more of CoffeeScript’s features for me.
 CoffeeScript compiling all of its loop constructs into a standard for loop is a
 nice little bonus though.&lt;/p&gt;
-&lt;h2 id=&quot;open-source-code-is-better-written-in-javascript&quot;&gt;Open Source Code is Better Written in JavaScript&lt;/h2&gt;
+&lt;p&gt;##Open Source Code is Better Written in JavaScript&lt;/p&gt;
 &lt;p&gt;If you’re contributing to the JS community, you’re better off writing in
 JavaScript. More people will contribute and/or adopt your code. &lt;/p&gt;
-&lt;h2 id=&quot;tooling-support&quot;&gt;Tooling Support&lt;/h2&gt;
+&lt;p&gt;##Tooling Support &lt;/p&gt;
 &lt;p&gt;Tooling support for CoffeeScript is pretty darn good. But it’s not
 perfect. It &lt;em&gt;is&lt;/em&gt; perfect with JavaScript, it has to be. This is a minor point, but
 eliminating even a little bit of friction is a good thing. Tools all tend
 to support CoffeeScript just a little bit differently: where they dump the
 compiled JS, how to specify wrap, etc. &lt;/p&gt;
 &lt;p&gt;Not having to &lt;code&gt;grunt watch&lt;/code&gt; your JS is another minor win.&lt;/p&gt;
-&lt;h2 id=&quot;coffeescript-isn-t-irrelevant-yet&quot;&gt;CoffeeScript Isn’t Irrelevant Yet&lt;/h2&gt;
+&lt;p&gt;##CoffeeScript Isn’t Irrelevant Yet&lt;/p&gt;
 &lt;p&gt;Even for me, and it won’t be for a while yet. But I do suspect I’m on my last CS
 project. If you need to support old IEs, want to use PhantomJS, etc, then CS is
 still very welcome. &lt;/p&gt;
@@ -2161,20 +2161,24 @@ still very welcome. &lt;/p&gt;
       <author></author>
       <description>&lt;p&gt;I’m working on a stealth action game where shadows will play a big role in the gameplay. Using WebGL shaders, I implemented dynamic lighting and shadows. This post is the blog post I wish existed before I started :) Gritty details on how I implemented these below…&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;div class=&quot;callout pitfall&quot;&gt;
+  I never released this game. Partly due to not seeing it through and partly because I never succeeded in making it fun :-/
+&lt;/div&gt;
+
 &lt;iframe width=&quot;560&quot; height=&quot;315&quot; style=&quot;margin-top: 3em; margin-bottom: 3em;&quot; src=&quot;http://www.youtube.com/embed/ZMyg5erp-vk&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;
 
-&lt;h2 id=&quot;part-one-dynamic-lighting&quot;&gt;Part one: dynamic lighting&lt;/h2&gt;
-&lt;p&gt;I was inspired by &lt;a href=&quot;http://www.reddit.com/r/gamedev/comments/115f3y/how_to_dynamic_lighting_on_sprites/&quot;&gt;this post&lt;/a&gt; on Reddit, where aionskull used normal maps in Unity to dynamically light up his sprites. gpillow also posted in the comments how he had done &lt;a href=&quot;https://love2d.org/forums/viewtopic.php?f=5&amp;amp;t=11076&quot;&gt;something similar&lt;/a&gt; in Love2D. &lt;a href=&quot;/articles/dynamic-lighting-and-shadows/pixel_shading.gif&quot;&gt;Here’s a large gif illustrating gpillow’s results&lt;/a&gt;. I’d just include the gif here, but it’s 8 megs. Thanks to jusksmit for making the gif.&lt;/p&gt;
+&lt;p&gt;##Part one: dynamic lighting
+I was inspired by &lt;a href=&quot;http://www.reddit.com/r/gamedev/comments/115f3y/how_to_dynamic_lighting_on_sprites/&quot;&gt;this post&lt;/a&gt; on Reddit, where aionskull used normal maps in Unity to dynamically light up his sprites. gpillow also posted in the comments how he had done &lt;a href=&quot;https://love2d.org/forums/viewtopic.php?f=5&amp;amp;t=11076&quot;&gt;something similar&lt;/a&gt; in Love2D. &lt;a href=&quot;/articles/dynamic-lighting-and-shadows/pixel_shading.gif&quot;&gt;Here’s a large gif illustrating gpillow’s results&lt;/a&gt;. I’d just include the gif here, but it’s 8 megs. Thanks to jusksmit for making the gif.&lt;/p&gt;
 &lt;p&gt;So, what is dynamic lighting? It’s a 3D graphics technique where a light source lights up objects in the scene. It’s dynamic as the lighting effects update in real time as the light source moves around. This is pretty standard stuff in the 3D world and easy to translate into a 2D environment, assuming you can take advantage of shaders.&lt;/p&gt;
 &lt;p&gt;The key is the angle the light hits a surface indicates how much the surface lights up.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/lighting.gif&quot; alt=&quot;lighting diagram&quot;&gt;&lt;/p&gt;
 &lt;p&gt;and the key to &lt;em&gt;that&lt;/em&gt; is the normal vector. A vector which indicates which way a surface is facing. In the above diagram, the arrow sticking out of the center of the panel is the normal vector. You can see that when the light’s rays come in at a shallower angle, the panel is less influenced by the light and not lit up as much. So in the end, the algorithm is quite simple, as that angle increases, have the light source influence less. A simple way to calculate the influence is to calculate the dot product between the light vector and the normal vector.&lt;/p&gt;
-&lt;h3 id=&quot;dynamic-lighting-in-a-2d-environment&quot;&gt;dynamic lighting in a 2d environment&lt;/h3&gt;
-&lt;p&gt;That’s all well and good, but how do you have normal vectors in a 2d game? There aren’t any real 3D objects in the traditional sense, but textures can step in to provide the needed info. I created &lt;em&gt;normal maps&lt;/em&gt; for the two houses in the above video, and use them to calculate the lighting:&lt;/p&gt;
+&lt;p&gt;###dynamic lighting in a 2d environment
+That’s all well and good, but how do you have normal vectors in a 2d game? There aren’t any real 3D objects in the traditional sense, but textures can step in to provide the needed info. I created &lt;em&gt;normal maps&lt;/em&gt; for the two houses in the above video, and use them to calculate the lighting:&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/mansionNormals.png&quot; alt=&quot;mansion normals&quot;&gt;&lt;/p&gt;
 &lt;p&gt;For starters, you can see the actual house sprite has no shading drawn into it. Then the normal map encodes the normals for each pixel into a color. A vector needs to be specified with (x,y,z) coordinates, and an image has r,g and b values. So the encoding into the image is easy to do. Take the front face of the house, which is facing due south giving the normal vector values of &lt;code&gt;[x:0, y:0.5, z:0]&lt;/code&gt;. RGB values are positive, so need to shift the values up by 0.5 to force everything positive:  &lt;code&gt;[x:0.5, y:1, z:0.5]&lt;/code&gt;. And RGB values are normally represented as bytes, so multiply each value by &lt;code&gt;255&lt;/code&gt;, yielding (rounded up): &lt;code&gt;[x:128, y:255, z:128]&lt;/code&gt;, or in other words, this bright green &lt;span style=&quot;display:inline-block; width: 30px; height: 15px; background-color: rgb(128, 255, 128)&quot;&gt;&amp;nbsp;&lt;/span&gt;, the same green in the normal map image.&lt;/p&gt;
 &lt;p&gt;With our normals in tow, we’re ready to have the graphics card do its magic. My game is using &lt;a href=&quot;http://www.impactjs.com&quot;&gt;ImpactJS&lt;/a&gt;, which is very compatibile with &lt;a href=&quot;https://github.com/gameclosure/webgl-2d&quot;&gt;WebGL2D&lt;/a&gt; Using WebGL2D, it was easy to add an additional fragment shader to implement the lighting:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;preprocessor&quot;&gt;#ifdef GL_ES&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;preprocessor&quot;&gt;#&lt;span class=&quot;keyword&quot;&gt;ifdef&lt;/span&gt; GL_ES&lt;/span&gt;
   precision highp &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt;;
 &lt;span class=&quot;preprocessor&quot;&gt;#&lt;span class=&quot;keyword&quot;&gt;endif&lt;/span&gt;&lt;/span&gt;
 
@@ -2211,8 +2215,8 @@ irrelevant in 2D rendering (just 4 vertices to drop the texture into the scene),
 fragment lighting is more accurate anyway. Also this shader is only rendering the light itself. It assumes the main sprite has already been drawn. I have to admit I am cheating a little bit, as I am setting my &lt;code&gt;lightColor&lt;/code&gt; to a dark grey, and not sending out light but actually darkness. This
 is because lighting the pixels up makes them looked washed out. There are ways to resolve this, but for now I’m cheating a smidge.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/lightingExamples.png&quot; alt=&quot;lighting examples&quot;&gt;&lt;/p&gt;
-&lt;h2 id=&quot;part-two-casting-shadows&quot;&gt;part two: casting shadows&lt;/h2&gt;
-&lt;p&gt;Casting shadows in 3D environments is a well solved problem, using techniques like &lt;a href=&quot;http://en.wikipedia.org/wiki/Ray_tracing_(graphics&quot;&gt;raytracing&lt;/a&gt;) or &lt;a href=&quot;http://en.wikipedia.org/wiki/Shadow_mapping&quot;&gt;shadow mapping&lt;/a&gt; casting shadows in the scene is pretty easy to accomplish. I struggled to find an implementation in my 2D environment that I was happy with. I think I came up with a good solution, but for sure it has drawbacks.&lt;/p&gt;
+&lt;p&gt;##part two: casting shadows
+Casting shadows in 3D environments is a well solved problem, using techniques like &lt;a href=&quot;http://en.wikipedia.org/wiki/Ray_tracing_(graphics&quot;&gt;raytracing&lt;/a&gt;) or &lt;a href=&quot;http://en.wikipedia.org/wiki/Shadow_mapping&quot;&gt;shadow mapping&lt;/a&gt; casting shadows in the scene is pretty easy to accomplish. I struggled to find an implementation in my 2D environment that I was happy with. I think I came up with a good solution, but for sure it has drawbacks.&lt;/p&gt;
 &lt;p&gt;In short, draw a line from a fragment (aka pixel) in the scene to the sun and see if anything gets in the way. if something does, that pixel is in the shade, else it’s in the sun. In the end it’s actually pretty simple.&lt;/p&gt;
 &lt;p&gt;The shader will get &lt;code&gt;xyAngle&lt;/code&gt; and &lt;code&gt;zAngle&lt;/code&gt; passed into it, indicating where the sun is. Since the sun is so far away, these two angles are the same for all pixels, as sunrays are effectively parallel to each other.&lt;/p&gt;
 &lt;p&gt;The other key piece of info the shader receives is the &lt;em&gt;height map&lt;/em&gt; for the world. This height map indicates how tall everything is, buildings, trees, etc. If a pixel is occupied by a building, then that pixel’s value will be something like 10, to indicate that building is 10 pixels tall.&lt;/p&gt;
@@ -2244,83 +2248,83 @@ is because lighting the pixels up makes them looked washed out. There are ways t
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(otherHeight &amp;gt; height) {
       &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; traceHeight = getTraceHeightAt(distance);
       &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(traceHeight &amp;lt;= otherHeight) {
-        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;true&lt;/span&gt;;
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;;
       }
     }
   }
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;false&lt;/span&gt;;
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;;
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;And here is the whole shebang:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;preprocessor&quot;&gt;#ifdef GL_ES&lt;/span&gt;
-  precision highp &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt;;
-&lt;span class=&quot;preprocessor&quot;&gt;#&lt;span class=&quot;keyword&quot;&gt;endif&lt;/span&gt;&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;#ifdef GL_ES
+  precision highp float;
+#endif
 
-&lt;span class=&quot;function&quot;&gt;vec2 &lt;span class=&quot;title&quot;&gt;extrude&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(vec2 other, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; angle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; length)&lt;/span&gt; &lt;/span&gt;{
-  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; x = length * &lt;span class=&quot;built_in&quot;&gt;cos&lt;/span&gt;(angle);
-  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; y = length * &lt;span class=&quot;built_in&quot;&gt;sin&lt;/span&gt;(angle);
+vec2 extrude(vec2 other, float angle, float length) {
+  float x = length * cos(angle);
+  float y = length * sin(angle);
 
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; vec2(other.x + x, other.y + y);
+  return vec2(other.x + x, other.y + y);
 }
 
-&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getHeightAt&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(vec2 texCoord, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; xyAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance,
-    sampler2D heightMap)&lt;/span&gt; &lt;/span&gt;{
+float getHeightAt(vec2 texCoord, float xyAngle, float distance,
+    sampler2D heightMap) {
 
   vec2 newTexCoord = extrude(texCoord, xyAngle, distance);
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; texture2D(heightMap, newTexCoord).r;
+  return texture2D(heightMap, newTexCoord).r;
 }
 
-&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getTraceHeight&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; height, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; zAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance)&lt;/span&gt; &lt;/span&gt;{
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; distance * &lt;span class=&quot;built_in&quot;&gt;tan&lt;/span&gt;(zAngle) + height;
+float getTraceHeight(float height, float zAngle, float distance) {
+  return distance * tan(zAngle) + height;
 }
 
-&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;isInShadow&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; xyAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; zAngle, sampler2D heightMap,
-    vec2 texCoord, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; step)&lt;/span&gt; &lt;/span&gt;{
+bool isInShadow(float xyAngle, float zAngle, sampler2D heightMap,
+    vec2 texCoord, float step) {
 
-  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance;
-  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; height;
-  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; otherHeight;
-  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; traceHeight;
+  float distance;
+  float height;
+  float otherHeight;
+  float traceHeight;
 
   height = texture2D(heightMap, texCoord).r;
 
-  &lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt;(&lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; i = &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span class=&quot;number&quot;&gt;100&lt;/span&gt;; ++i) {
-    distance = step * &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt;(i);
+  for(int i = 0; i &amp;lt; 100; ++i) {
+    distance = step * float(i);
     otherHeight = getHeightAt(texCoord, xyAngle, distance, heightMap);
 
-    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(otherHeight &amp;gt; height) {
+    if(otherHeight &amp;gt; height) {
       traceHeight = getTraceHeight(height, zAngle, distance);
-      &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(traceHeight &amp;lt;= otherHeight) {
-        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;true&lt;/span&gt;;
+      if(traceHeight &amp;lt;= otherHeight) {
+        return true;
       }
     }
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;false&lt;/span&gt;;
+  return false;
 }
 
 varying vec2 vTextureCoord;
 uniform sampler2D uHeightMap;
-uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uXYAngle;
-uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uZAngle;
-uniform &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; uMaxShadowSteps;
-uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
+uniform float uXYAngle;
+uniform float uZAngle;
+uniform int uMaxShadowSteps;
+uniform float uTexStep;
 
-&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt;)&lt;/span&gt; &lt;/span&gt;{
-  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; alpha = &lt;span class=&quot;number&quot;&gt;0.0&lt;/span&gt;;
+void main(void) {
+  float alpha = 0.0;
 
-  &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(isInShadow(uXYAngle, uZAngle, uHeightMap, uMaxShadowSteps,
+  if(isInShadow(uXYAngle, uZAngle, uHeightMap, uMaxShadowSteps,
      vTextureCoord, uTexStep)) {
 
-    alpha = &lt;span class=&quot;number&quot;&gt;0.5&lt;/span&gt;;
+    alpha = 0.5;
   }
 
-  gl_FragColor = vec4(&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, alpha);
+  gl_FragColor = vec4(0, 0, 0, alpha);
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The &lt;code&gt;uTexStep&lt;/code&gt; uniform is how far to move over each time we check a nearby pixel. This is set to either &lt;code&gt;1/heightMap.width&lt;/code&gt; or &lt;code&gt;1/heightMap.height&lt;/code&gt; before invoking the shader. This is because textures in OpenGL are typically mapped from 0 to 1, so the inverse is how far to move to get to the next pixel.&lt;/p&gt;
-&lt;h3 id=&quot;shadow-wrap-up&quot;&gt;shadow wrap up&lt;/h3&gt;
-&lt;p&gt;Truth be told there are some minor details I’m leaving out in the above code, but the core idea is definitely there. One major problem with this approach is each pixel in the scene can only have one height. A good example of how this is a limitation is trees. I can tell the engine to cast a really low, long shadow for a tree, but the trunk will never show up in the shadow. This is because the overhang area at the bottom of the leaves is not recorded in the height map.&lt;/p&gt;
+&lt;p&gt;###shadow wrap up
+Truth be told there are some minor details I’m leaving out in the above code, but the core idea is definitely there. One major problem with this approach is each pixel in the scene can only have one height. A good example of how this is a limitation is trees. I can tell the engine to cast a really low, long shadow for a tree, but the trunk will never show up in the shadow. This is because the overhang area at the bottom of the leaves is not recorded in the height map.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/shadow1.png&quot; alt=&quot;shadow example 1&quot;&gt;  &lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/shadow2.png&quot; alt=&quot;shadow example 2&quot;&gt;&lt;/p&gt;
 &lt;h2 id=&quot;translations&quot;&gt;Translations&lt;/h2&gt;
@@ -2337,14 +2341,14 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
       <author></author>
       <description>&lt;p&gt;Back in January I posted an article about &lt;a href=&quot;http://mattgreer.org/articles/waking-up-at-5am-to-code/&quot;&gt;waking up at 5am to code&lt;/a&gt;. It seemed to really strike a chord with a lot of people. Lately I’ve been getting a handful of emails asking me if I still do this and where I’m at with it now. So I thought I’d post a quick follow up.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;h2 id=&quot;kept-it-solidly-up-for-about-6-weeks&quot;&gt;Kept it solidly up for about 6 weeks&lt;/h2&gt;
-&lt;p&gt;Waking up early to tackle personal projects is a good strategy. But it’s not without its cost. I managed to maintain it quite solidly for about 6 weeks. From there I found myself not waking up early on most weekend days for another few weeks. The early hours and extra load do take their toll, nothing is free unfortunately. I could feel my stress levels rising and overall just an extra level of feeling worn out. But how my day job is going is a factor there too.&lt;/p&gt;
-&lt;h2 id=&quot;anything-to-show-for-all-this-&quot;&gt;Anything to show for all this?&lt;/h2&gt;
-&lt;p&gt;My early hours were mostly dedicated to writing a little JavaScript game engine. One thing I did with it was create an animation &lt;a href=&quot;http://yaysarahandmatt.org&quot;&gt;celebrating my wedding engagement&lt;/a&gt;. I’ve also been working on a game using the engine, an intro/preview of which can be found &lt;a href=&quot;/media/labAdder/index.html&quot;&gt;here&lt;/a&gt;. I was pretty happy with my results and overall felt pretty darn productive.&lt;/p&gt;
-&lt;h2 id=&quot;sporadic-from-there-on&quot;&gt;Sporadic from there on&lt;/h2&gt;
-&lt;p&gt;I still do wake up early, but now it’s more in “spurts”. I will go for a week or two doing it, then take a break for a while. I also find my desire to do it depends on where I’m at inspiration wise. Lately I’ve also been getting more involved with local hack nights. Having a set aside “event” to do personal hacking I am finding is also a good way to accomplish productivity. Being both out of the house and the office to focus on personal projects really amps the focus for me. Experimenting and finding what works best is key.&lt;/p&gt;
-&lt;h2 id=&quot;also-finding-time-for-down-time&quot;&gt;Also finding time for down time&lt;/h2&gt;
-&lt;p&gt;My personality is very work oriented. I have a hard time relaxing and almost always want to be pushing forward on something. But lately I’ve been forcing myself to take certain weekends and 100% do nothing but relaxing, non-taxing things. They really do wonders for rejuvination and balance. Probably more than I’ve ever realized in the past. Related to the topic at hand, I have also woken up early just to then go for a nice long walk or watch morning news shows. I think my experiments in trying to hyper increase productivity have shown that down time is equally as important.&lt;/p&gt;&lt;/p&gt;
+&lt;p&gt;##Kept it solidly up for about 6 weeks
+Waking up early to tackle personal projects is a good strategy. But it’s not without its cost. I managed to maintain it quite solidly for about 6 weeks. From there I found myself not waking up early on most weekend days for another few weeks. The early hours and extra load do take their toll, nothing is free unfortunately. I could feel my stress levels rising and overall just an extra level of feeling worn out. But how my day job is going is a factor there too.&lt;/p&gt;
+&lt;p&gt;##Anything to show for all this?
+My early hours were mostly dedicated to writing a little JavaScript game engine. One thing I did with it was create an animation &lt;a href=&quot;http://yaysarahandmatt.org&quot;&gt;celebrating my wedding engagement&lt;/a&gt;. I’ve also been working on a game using the engine, an intro/preview of which can be found &lt;a href=&quot;/media/labAdder/index.html&quot;&gt;here&lt;/a&gt;. I was pretty happy with my results and overall felt pretty darn productive.&lt;/p&gt;
+&lt;p&gt;##Sporadic from there on
+I still do wake up early, but now it’s more in “spurts”. I will go for a week or two doing it, then take a break for a while. I also find my desire to do it depends on where I’m at inspiration wise. Lately I’ve also been getting more involved with local hack nights. Having a set aside “event” to do personal hacking I am finding is also a good way to accomplish productivity. Being both out of the house and the office to focus on personal projects really amps the focus for me. Experimenting and finding what works best is key.&lt;/p&gt;
+&lt;p&gt;##Also finding time for down time
+My personality is very work oriented. I have a hard time relaxing and almost always want to be pushing forward on something. But lately I’ve been forcing myself to take certain weekends and 100% do nothing but relaxing, non-taxing things. They really do wonders for rejuvination and balance. Probably more than I’ve ever realized in the past. Related to the topic at hand, I have also woken up early just to then go for a nice long walk or watch morning news shows. I think my experiments in trying to hyper increase productivity have shown that down time is equally as important.&lt;/p&gt;&lt;/p&gt;
 </description>
     </item>
     <item>
@@ -2356,23 +2360,23 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
       <description>&lt;p&gt;I’m currently experimenting with waking up at 5am to work on personal projects before heading to work.&lt;/p&gt;
 &lt;p&gt;Someone on Hacker News once mentioned they do this, and it stuck in the back of my head ever since. I’ve been at this for two weeks thus far.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;h2 id=&quot;the-basic-idea&quot;&gt;The basic idea&lt;/h2&gt;
-&lt;p&gt;At 5am I jump out of bed and code for two hours, then get ready for work. I do this every day, including weekends. I maintain an online Kanban board which I groom/prep in the evenings while watching TV, to ensure I am ready to be productive the next morning.&lt;/p&gt;
-&lt;h2 id=&quot;enjoying-the-work-is-key&quot;&gt;Enjoying the work is key&lt;/h2&gt;
-&lt;p&gt;It’s 5am &lt;em&gt;and&lt;/em&gt; I will be also putting in a full day’s work afterwards. Not being stressed out or frustrated during this time is essential. I ensure this by working on truly personal projects that interest me and I have complete control over. I’m only two weeks in but so far no signs of getting worn out, in fact quite the opposite. It’s been pretty invigorating.&lt;/p&gt;
-&lt;h2 id=&quot;advantages&quot;&gt;Advantages&lt;/h2&gt;
+&lt;p&gt;##The basic idea
+At 5am I jump out of bed and code for two hours, then get ready for work. I do this every day, including weekends. I maintain an online Kanban board which I groom/prep in the evenings while watching TV, to ensure I am ready to be productive the next morning.&lt;/p&gt;
+&lt;p&gt;##Enjoying the work is key
+It’s 5am &lt;em&gt;and&lt;/em&gt; I will be also putting in a full day’s work afterwards. Not being stressed out or frustrated during this time is essential. I ensure this by working on truly personal projects that interest me and I have complete control over. I’m only two weeks in but so far no signs of getting worn out, in fact quite the opposite. It’s been pretty invigorating.&lt;/p&gt;
+&lt;p&gt;##Advantages&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;At 5am things are very quiet and serene. Nobody is on IM, no one is texting or emailing me. I find myself very focused. I am also aware of the cost of these two hours, which motivates me to be even more to focus and use them efficiently. So far, I have found I am very productive.&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;I have a well defined slot to do my work, and I am guaranteed at least 12 hours a week, typically 14-18 (how much I put in on a weekend can vary). This is very different from before when I’d try to carve time out of my life at the expense of other things. The strong structure has led to better time usage overall.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p&gt;I am only going to bed one hour earlier than I used to. To do this I do sacrifice a bit of reading time, and I get between 7-8 hours of sleep. But I’m (so far) ok with all of this&lt;/p&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;p&gt;My evenings — and much of my weekend — are more relaxing. I can enjoy myself and unwind and not have a little voice in the back of my head telling me I really should be pushing forward on the game. If I want to work in the evening I can. But so far I am finding ~12 really good hours a week to be enough to propel my project forward at a comfortable pace. The itch to create is well satiated.&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;My evenings – and much of my weekend – are more relaxing. I can enjoy myself and unwind and not have a little voice in the back of my head telling me I really should be pushing forward on the game. If I want to work in the evening I can. But so far I am finding ~12 really good hours a week to be enough to propel my project forward at a comfortable pace. The itch to create is well satiated.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;I am finding myself turning off the project thinking and daydreaming and being more in the moment for the rest of my day.&lt;/li&gt;
 &lt;li&gt;When I head off to work I’m more awake, and feeling good about already having been productive.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&quot;disadvantages&quot;&gt;Disadvantages&lt;/h2&gt;
+&lt;p&gt;##Disadvantages&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;At first waking up at 5am was very painful. But I am adjusting.&lt;/li&gt;
 &lt;li&gt;I may be wearing myself down more than I realize, and may not really know that for a while yet&lt;/li&gt;
@@ -2380,14 +2384,14 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
 &lt;li&gt;This could interfere with weekend plans. I do doubt it though, I’m not so young anymore and not really a late nighter these days.&lt;/li&gt;
 &lt;li&gt;Getting in a pinch and not making much progress during these early morning sessions may be a drag on the rest of the day. Hopefully that never happens, but it may eventually.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&quot;why-the-weekend-too-&quot;&gt;Why the weekend too?&lt;/h2&gt;
-&lt;p&gt;I find I am more likely to stick with something like this if I do it every day. Letting myself sleep in on the weekends makes me more likely to then sleep in on Monday too. It can unravel from there. That’s just my personality though.&lt;/p&gt;
-&lt;h2 id=&quot;the-kanban-board&quot;&gt;The Kanban board&lt;/h2&gt;
-&lt;p&gt;I’ve really become a fan of Kanban, even when just working by myself. I do feel this is a key element in this. It keeps me focused, forces me to break down my tasks into managable chunks (ideally finishable in 2 hours), and makes sure I am never messing around trying to think of where to go next.&lt;/p&gt;
+&lt;p&gt;##Why the weekend too?
+I find I am more likely to stick with something like this if I do it every day. Letting myself sleep in on the weekends makes me more likely to then sleep in on Monday too. It can unravel from there. That’s just my personality though.&lt;/p&gt;
+&lt;p&gt;##The Kanban board
+I’ve really become a fan of Kanban, even when just working by myself. I do feel this is a key element in this. It keeps me focused, forces me to break down my tasks into managable chunks (ideally finishable in 2 hours), and makes sure I am never messing around trying to think of where to go next.&lt;/p&gt;
 &lt;p&gt;I got requests to see a screenshot of my board, so here it is (click for full size):&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;/articles/waking-up-at-5am-to-code/kanban.png&quot; alt=&quot;kanban&quot;&gt;&lt;/p&gt;
-&lt;h2 id=&quot;other-ideas&quot;&gt;Other ideas&lt;/h2&gt;
-&lt;p&gt;First I plan to see if this will really stick. I am optimisic it will. If it does, I think might look into a coffee pot that can have a nice cup waiting for me right when I get up. &lt;/p&gt;
+&lt;p&gt;##Other ideas
+First I plan to see if this will really stick. I am optimisic it will. If it does, I think might look into a coffee pot that can have a nice cup waiting for me right when I get up. &lt;/p&gt;
 &lt;p&gt;I gave the standing desk idea a shot a while back and ultimately went back to sitting. But maybe for two hours in the morning standing would be more ideal? Worth looking into.&lt;/p&gt;
 </description>
     </item>
