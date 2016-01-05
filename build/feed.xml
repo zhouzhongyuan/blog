@@ -129,6 +129,9 @@ HelloPage.serverFalcorPaths = [
     &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentPromises = components.map(getComponentData.bind(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;, model));
 
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;.all(_.flatten(componentPromises)).then(results =&amp;gt; {
+      &lt;span class=&quot;comment&quot;&gt;// assign could lead to clobbered data depending on&lt;/span&gt;
+      &lt;span class=&quot;comment&quot;&gt;// how your data is set up, better to use a deep merge.&lt;/span&gt;
+      &lt;span class=&quot;comment&quot;&gt;// But this suffices for blog post/demo purposes&lt;/span&gt;
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.assign.apply(&lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;, [{}, ...results]);
     });
   });

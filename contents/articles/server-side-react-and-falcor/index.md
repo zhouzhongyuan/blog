@@ -147,6 +147,9 @@ export default function getFalcorDataForComponents(components = []) {
     const componentPromises = components.map(getComponentData.bind(this, model));
 
     return Promise.all(_.flatten(componentPromises)).then(results => {
+      // assign could lead to clobbered data depending on
+      // how your data is set up, better to use a deep merge.
+      // But this suffices for blog post/demo purposes
       return Object.assign.apply(Object, [{}, ...results]);
     });
   });
