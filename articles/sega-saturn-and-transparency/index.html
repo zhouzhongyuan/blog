@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>The Sega Saturn and Transparency - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>The Sega Saturn and Transparency</h1>
+            <div class="date"><span>23 January 2016</span></div>
+            <article class="article">
+              <section class="content"><p>The Sega Saturn is notorious for not being able to pull off transparency effects as well as its competitors. But the Saturn does do proper transparency effects as many games demonstrate. So why did so many developers settle on the “mesh” approach in their Saturn games?
+<span class="more"></span></p>
+<h2 id="the-problem">The problem</h2>
+<p>Often Saturn games want to do a transparency effect but instead settle for a mesh approach.</p>
+<p>Here in the beginning of Mega Man X4, the spotlights in the Saturn version are a mesh.</p>
+<p><img src="img/mmx4Saturn.png"></p>
+<p>But they are truly transparent on the PlayStation.</p>
+<p><img src="img/mmx4PSX.png"></p>
+<div class="callout pitfall">
+  Notice the Saturn is missing the second orange spotlight? It comes through fine on the PlayStation. It’s technically there on the Saturn too (you can just see the beginnings of it) but the mesh approach does not allow it to display.
+</div>
+
+<p>And if you just walk forward a little bit, you find your character encased in a transparent glass tube, showing transparency works just fine on the Saturn!</p>
+<p><img src="img/mmx4SaturnTube.png"></p>
+<p>So what’s up with the spotlights?</p>
+<h2 id="a-tale-of-two-processors">A Tale of Two Processors</h2>
+<p>Of the Saturn’s 8 processors, 2 are dedicated to drawing graphics onto the screen, the VDP1 and the VDP2.</p>
+<h3 id="the-vdp1">The VDP1</h3>
+<p>The VDP1 is responsible for “highly dynamic” graphics. It is capable of drawing sprites and polygons into a frame buffer. The VDP1 has access to two frame buffers, it builds the next frame of the game in one buffer while the other one is being displayed.</p>
+<p>To use the VDP1, you send it commands, which are 32 byte chunks of data that tell the VDP1 what to do. Of the many commands it understands, several are for drawing sprites and polygons. As far as the VDP1 is concerned, a sprite is really just a textured polygon. Both 2D and 3D games use the same command primitives to build up their scenes on the Saturn.</p>
+<p>When sending a sprite draw command to the VDP1, you can tell it that sprite’s pixels should be fully opaque, half-transparent or a mesh (along with some other options that I’m glossing over).</p>
+<div class="callout wisdom">
+Whenever you see a “mesh” in a Sega Saturn game, the VDP1 was responsible. The developers didn’t have to create a second meshed version of the sprite, they just added the mesh flag to the command and the VDP1 responds by adding every other pixel into its buffer.
+</div>
+
+<h3 id="the-vdp2">The VDP2</h3>
+<p>The VDP2 is responsible for managing 5 background layers (they are officially called “scenes”, but I will use the term “layer” as I think it’s clearer). It also has the job of taking the VDP1’s frame buffer and incorporating it into the final image, in a sense the frame buffer is a sixth layer. But much more on that later.</p>
+<p>The background layers can be stacked in any order, scrolled independently, some can be rotated and scaled, and some can be scaled on the z-axis accomplishing “mode 7” a la the Super Nintendo.</p>
+<h2 id="bringing-vdp1-and-vdp2-together">Bringing VDP1 and VDP2 together</h2>
+<p>When it comes time to compose all of the layers together into an image to display on the screen, priority is used to decide on order. Each VDP2 layer has a priority set, and <em>each sprite in the VDP1 frame buffer also has a priority.</em> This allows different sprites to end up behind and in front of different layers.</p>
+<p><img src="img/composingBlowup.svg" width="600" /></p>
+<div class="callout wisdom">
+Technically the priority in the VDP1 frame buffer is per pixel, not per sprite. The VDP2 doesn’t know of or care about sprites, it only sees pixels.
+</div>
+
+<p>When the VDP2 is composing all the layers together, it’s also taking transparency into account. If a pixel in a higher priority layer is set to half-transparent, the final pixel will be the result of averaging the pixels from both layers together.</p>
+<h2 id="the-vdp1-s-frame-buffer-is-only-one-layer-">The VDP1’s frame buffer is only one “layer”</h2>
+<p>Here’s the rub. When adding sprites to the frame buffer, at the end of the day they all come together into one pile of pixels. It’s as if all the sprites join forces to become a single VDP2 layer. The VDP2 can only do transparency effects across layer. The Saturn is not capable of handling transparency effects between sprites.</p>
+<p>If two sprites in the frame buffer overlap each other and both are opaque, then no big deal, the second sprite’s pixel data replace the first sprite’s data in the buffer.</p>
+<p>But if the second sprite wants to be half-transparent, it will still occupy that section of the buffer and clobber the previous sprite, but the data now sports a transparency flag.</p>
+<p>Here in Guardian Heroes, Nicole’s cap is translucent, it’s a sprite that has been set to half-transparent.</p>
+<p><img src="img/guardianHeroesNoOverlapSprites.png" /></p>
+<p>But when she overlaps with another sprite, her cape “swallows” that sprite’s data, still showing through to the background scene and not the sprite underneath. That’s because the sprite data underneath no longer exists, instead Nicole’s cape replaced it.</p>
+<p><img src="img/guardianHeroesOverlapTransparentSprites.png" /></p>
+<div class="callout wisdom">
+In other words, every pixel in the VDP1 frame buffer can have a corresponding priority and transparency value. But at the end of the day, there’s still only one pixel to work with. Overlapping sprites clobber each other. The last sprite to be drawn wins.
+</div>
+
+<h2 id="meshes-to-the-rescue-">Meshes to the “rescue”</h2>
+<p>The way the VDP1 and VDP2 interact with each other works great for the most part, allowing the creation of elaborate game scenes. But half-transparency of sprites is a major limitation. Sega addressed the problem by allowing the mesh flag. This allows a quasi transparency effect without blowing sprites away.</p>
+<p>By setting the mesh flag, the VDP1 will only draw every other pixel of a sprite into its buffer, allowing the previous sprite data to still show through in the gaps. That is exactly what the spotlights are doing in Mega Man X4, and they do so so that the foreground spotlights don’t swallow up Mega Man and the enemies.</p>
+<h3 id="the-tvs-of-the-nineties">The TVs of the nineties</h3>
+<p>When the Saturn was a current console, most people were hooking it up to their TV using composite cables. Composite is a low quality signal that combines all of the color information into a single blurry stream. This meant the mesh effect was not as noticeable, as the mesh pixels would tend to average out in the blurriness and result in a decent approximation of transparency. Complaints of the Saturn’s meshes really started to rise when emulation and use of upscalers like the XRGB Mini enabled people to play Saturn games with a crystal clear picture.</p>
+<p>Here is Mega Man X4 running via composite into my HDTV (oh the humanity…)</p>
+<p><img src="img/mmx4ViaComposite.jpg" /></p>
+<p>Not a perfect simulation of a typical 90s TV, but the best I can do :)</p>
+<h2 id="a-vdp1-vdp2-simulator">A VDP1/VDP2 Simulator</h2>
+<p>Below is a simple simulator that shows how the VDP2 combines all the information into a final image on the screen. The spotlight in front is the most interesting thing here, when you play with its mesh and transparency settings, notice what happens to the other sprites behind it.</p>
+<p><link rel="stylesheet" href="simplegrid.css" /></p>
+<p><link rel="stylesheet" href="dist/bundle.css" /></p>
+<p><link rel="stylesheet" href="css/font-awesome.min.css" /></p>
+<p><div id='simulator-root'></div></p>
+<script src="dist/bundle.min.js"></script>
+
+<h2 id="and-thanks">And thanks</h2>
+<p>A big thank you to Low Score Boy on YouTube. His <a href="https://www.youtube.com/watch?v=f_OchOV_WDg">video on this very subject</a> was an inspiration and source of lots of information for this blog post. His video is highly recommended, he goes into more examples and dives into 3D rendering too.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. </p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>
