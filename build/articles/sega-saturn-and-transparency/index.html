@@ -71,10 +71,10 @@ Technically the priority in the VDP1 frame buffer is per pixel, not per sprite. 
 
 <p>When the VDP2 is composing all the layers together, it’s also taking transparency into account. If a pixel in a higher priority layer is set to half-transparent, the final pixel will be the result of averaging the pixels from both layers together.</p>
 <h2 id="the-vdp1-s-frame-buffer-is-only-one-layer-">The VDP1’s frame buffer is only one “layer”</h2>
-<p>Here’s the rub. When adding sprites to the frame buffer, at the end of the day they all come together into one pile of pixels. It’s as if all the sprites join forces to become a single VDP2 layer. The VDP2 can only do transparency effects across layer. The Saturn is not capable of handling transparency effects between sprites.</p>
-<p>If two sprites in the frame buffer overlap each other and both are opaque, then no big deal, the second sprite’s pixel data replace the first sprite’s data in the buffer.</p>
+<p>Here’s the rub. When adding sprites to the frame buffer, at the end of the day they all come together into one pile of pixels. It’s as if all the sprites join forces to become a single VDP2 layer. The VDP2 can only do transparency effects across layers. The Saturn is not capable of handling transparency effects between sprites.</p>
+<p>If two sprites in the frame buffer overlap each other and both are opaque, then no big deal, the second sprite’s pixel data replaces the first sprite’s data in the buffer.</p>
 <p>But if the second sprite wants to be half-transparent, it will still occupy that section of the buffer and clobber the previous sprite, but the data now sports a transparency flag.</p>
-<p>Here in Guardian Heroes, Nicole’s cap is translucent, it’s a sprite that has been set to half-transparent.</p>
+<p>Here in Guardian Heroes, Nicole’s cape is translucent, it’s a sprite that has been set to half-transparent.</p>
 <p><img src="img/guardianHeroesNoOverlapSprites.png" /></p>
 <p>But when she overlaps with another sprite, her cape “swallows” that sprite’s data, still showing through to the background scene and not the sprite underneath. That’s because the sprite data underneath no longer exists, instead Nicole’s cape replaced it.</p>
 <p><img src="img/guardianHeroesOverlapTransparentSprites.png" /></p>

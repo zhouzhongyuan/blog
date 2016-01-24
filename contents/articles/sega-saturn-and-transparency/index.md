@@ -65,13 +65,13 @@ When the VDP2 is composing all the layers together, it's also taking transparenc
 
 ## The VDP1's frame buffer is only one "layer"
 
-Here's the rub. When adding sprites to the frame buffer, at the end of the day they all come together into one pile of pixels. It's as if all the sprites join forces to become a single VDP2 layer. The VDP2 can only do transparency effects across layer. The Saturn is not capable of handling transparency effects between sprites.
+Here's the rub. When adding sprites to the frame buffer, at the end of the day they all come together into one pile of pixels. It's as if all the sprites join forces to become a single VDP2 layer. The VDP2 can only do transparency effects across layers. The Saturn is not capable of handling transparency effects between sprites.
 
-If two sprites in the frame buffer overlap each other and both are opaque, then no big deal, the second sprite's pixel data replace the first sprite's data in the buffer.
+If two sprites in the frame buffer overlap each other and both are opaque, then no big deal, the second sprite's pixel data replaces the first sprite's data in the buffer.
 
 But if the second sprite wants to be half-transparent, it will still occupy that section of the buffer and clobber the previous sprite, but the data now sports a transparency flag.
 
-Here in Guardian Heroes, Nicole's cap is translucent, it's a sprite that has been set to half-transparent.
+Here in Guardian Heroes, Nicole's cape is translucent, it's a sprite that has been set to half-transparent.
 
 <img src="img/guardianHeroesNoOverlapSprites.png" />
 
