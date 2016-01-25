@@ -109,6 +109,6 @@ Below is a simple simulator that shows how the VDP2 combines all the information
 <div id='simulator-root'></div>
 <script src="dist/bundle.min.js"></script>
 
-## And thanks
+## And thanks to Low Score Boy
 
-A big thank you to Low Score Boy on YouTube. His [video on this very subject](https://www.youtube.com/watch?v=f_OchOV_WDg) was an inspiration and source of lots of information for this blog post. His video is highly recommended, he goes into more examples and dives into 3D rendering too.
+A big thank you to Low Score Boy on YouTube. His [video on this very subject](https://www.youtube.com/watch?v=f_OchOV_WDg) was an inspiration and source of lots of information for this blog post. I asked him if I could write a blog post based on his video. His video is highly recommended, he goes into more examples, shows how some developers worked around the limitations of the hardware and dives into 3D rendering too.
