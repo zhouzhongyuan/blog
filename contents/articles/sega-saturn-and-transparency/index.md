@@ -7,6 +7,8 @@ template: article.jade
 The Sega Saturn is notorious for not being able to pull off transparency effects as well as its competitors. But the Saturn does do proper transparency effects as many games demonstrate. So why did so many developers so often settle on the "mesh" approach in their Saturn games?
 <span class="more"></span>
 
+*This article is based on a YouTube video made by Low Score Boy. See the <a href="#and-thanks-to-low-score-boy">thank you section</a> at the bottom of this post.*
+
 ## The problem
 
 Often Saturn games want to do a transparency effect but instead settle for a mesh approach.
