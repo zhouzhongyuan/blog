@@ -2281,7 +2281,7 @@ aMethodThatRejects().then().then(&lt;span class=&quot;function&quot;&gt;&lt;span
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;This is all that is needed. In truth, real promise libraries don’t tend to use &lt;code&gt;setTimeout&lt;/code&gt;. If the library is NodeJS oriented it will possibly use &lt;code&gt;process.nextTick&lt;/code&gt;, for browsers it might use the new &lt;code&gt;setImmediate&lt;/code&gt; or a &lt;a href=&quot;https://github.com/NobleJS/setImmediate&quot;&gt;setImmediate shim&lt;/a&gt; (so far only IE supports setImmediate), or perhaps an asynchronous library such as Kris Kowal’s &lt;a href=&quot;https://github.com/kriskowal/asap&quot;&gt;asap&lt;/a&gt; (Kris Kowal also wrote &lt;a href=&quot;https://github.com/kriskowal/q&quot;&gt;Q&lt;/a&gt;, a popular promise library)&lt;/p&gt;
-&lt;p&gt;###Why Is This Async Requirement in the Spec?&lt;/p&gt;
+&lt;h3 id=&quot;why-is-this-async-requirement-in-the-spec-&quot;&gt;Why Is This Async Requirement in the Spec?&lt;/h3&gt;
 &lt;p&gt;It allows for consistency and reliable execution flow. Consider this contrived example&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; promise = doAnOperation();
 invokeSomething();

@@ -764,7 +764,7 @@ function handle(handler) {
 
 This is all that is needed. In truth, real promise libraries don't tend to use `setTimeout`. If the library is NodeJS oriented it will possibly use `process.nextTick`, for browsers it might use the new `setImmediate` or a [setImmediate shim](https://github.com/NobleJS/setImmediate) (so far only IE supports setImmediate), or perhaps an asynchronous library such as Kris Kowal's [asap](https://github.com/kriskowal/asap) (Kris Kowal also wrote [Q](https://github.com/kriskowal/q), a popular promise library)
 
-###Why Is This Async Requirement in the Spec?
+### Why Is This Async Requirement in the Spec?
 
 It allows for consistency and reliable execution flow. Consider this contrived example
 

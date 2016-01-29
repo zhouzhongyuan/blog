@@ -650,7 +650,7 @@ aMethodThatRejects().then().then(<span class="function"><span class="keyword">fu
 }
 </code></pre>
 <p>This is all that is needed. In truth, real promise libraries don’t tend to use <code>setTimeout</code>. If the library is NodeJS oriented it will possibly use <code>process.nextTick</code>, for browsers it might use the new <code>setImmediate</code> or a <a href="https://github.com/NobleJS/setImmediate">setImmediate shim</a> (so far only IE supports setImmediate), or perhaps an asynchronous library such as Kris Kowal’s <a href="https://github.com/kriskowal/asap">asap</a> (Kris Kowal also wrote <a href="https://github.com/kriskowal/q">Q</a>, a popular promise library)</p>
-<p>###Why Is This Async Requirement in the Spec?</p>
+<h3 id="why-is-this-async-requirement-in-the-spec-">Why Is This Async Requirement in the Spec?</h3>
 <p>It allows for consistency and reliable execution flow. Consider this contrived example</p>
 <pre><code class="lang-javascript"><span class="keyword">var</span> promise = doAnOperation();
 invokeSomething();
