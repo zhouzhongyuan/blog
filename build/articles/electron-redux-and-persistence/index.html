@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Electron, Redux and Persistence - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>Electron, Redux and Persistence</h1>
+            <div class="date"><span>31 January 2016</span></div>
+            <article class="article">
+              <section class="content"><p>Redux is a nice pattern for React apps. But when wanting to persist my redux state across sessions for an Electron app, I hit some hurdles.
+<span class="more"></span></p>
+<p>For work I created a small Electron based app using React and Redux. I dig Electron, it’s a great platform for rapidly building something; internal tools are perfect candidates.</p>
+<h2 id="dealing-with-errors-in-the-app">Dealing with errors in the app</h2>
+<p>If an error occurs, I want to inform the user. So my app has a <code>receiveError</code> redux action</p>
+<pre><code class="lang-javascript"><span class="comment">// the action</span>
+<span class="function"><span class="keyword">function</span> <span class="title">receiveError</span>(<span class="params">error</span>) </span>{
+  <span class="keyword">return</span> {
+    type: RECEIVE_ERROR,
+    error
+  };
+}
+
+<span class="comment">// and over in the reducer</span>
+<span class="keyword">const</span> initialState = {
+  hasError: <span class="literal">false</span>
+};
+
+<span class="function"><span class="keyword">function</span> <span class="title">error</span>(<span class="params">state = initialState, action</span>) </span>{
+  <span class="keyword">switch</span> (action.type) {
+    <span class="keyword">case</span> RECEIVE_ERROR:
+      <span class="keyword">return</span> {
+        ...state,
+        hasError: <span class="literal">true</span>,
+        message: action.error.message || action.error,
+        stack: action.error.stack
+      };
+    <span class="keyword">default</span>:
+      <span class="keyword">return</span> state;
+  }
+}
+</code></pre>
+<p>I think storing the error in the app state is the correct thing to do. Errors can come from anywhere, and the component that will report what happened to the user should be independent. App state is a good mediator here.</p>
+<h2 id="storing-app-state-across-app-sessions">Storing app state across app sessions</h2>
+<p>I want the app to be as the user left it the next time they launch it. This is easy to do in Electron, <code>localStorage</code> to the rescue.</p>
+<pre><code class="lang-javascript">remote.getCurrentWindow().on(<span class="string">'close'</span>, () =&gt; {
+  <span class="keyword">const</span> state = store.getState();
+  localStorage.myAppState = <span class="built_in">JSON</span>.stringify(state);
+});
+</code></pre>
+<p>and here comes the problem, I want state like errors stored in app state for good reasons, but they shouldn’t be persisted.</p>
+<p>Roughly speaking there’s three types of state</p>
+<ul>
+<li><strong>true app state</strong>: data and the real state of the app. Stored in redux’s app state permanently</li>
+<li><strong>local component state</strong>: think “is this details panel open or closed?”, little details about a component can be stored on that component’s own state, completely separate from redux</li>
+<li><strong>transient app state:</strong> like the error above. Not true, permanent app state, but also not something components should be storing. Kind of a <em>no man’s land</em> in redux.</li>
+</ul>
+<p>The second type is sometimes debatable. Storing details like that in app state is also a fine approach.</p>
+<h2 id="cleaning-app-state-before-persisting">Cleaning app state before persisting</h2>
+<p>My initial stab at this was to just take the entire app state via <code>store.getState()</code>, then start strategically <code>delete</code>ing properties I don’t want persisted. This is ugly, doesn’t scale, error prone, all kinds of bad stuff.</p>
+<p>A better approach is to have a <code>PERSISTING</code> action. Send this action through all of your reducers, and let them decide what should stay and what should go</p>
+<pre><code class="lang-javascript">  <span class="keyword">const</span> initialState = {
+    hasError: <span class="literal">false</span>
+  };
+
+  <span class="function"><span class="keyword">function</span> <span class="title">error</span>(<span class="params">state = initialState, action</span>) </span>{
+    <span class="keyword">switch</span> (action.type) {
+      <span class="keyword">case</span> RECEIVE_ERROR:
+        <span class="keyword">return</span> {
+          ...state,
+          hasError: <span class="literal">true</span>,
+          message: action.error.message || action.error,
+          stack: action.error.stack
+        };
+      <span class="keyword">case</span> PERSISTING:
+        <span class="keyword">return</span> {...initialState};
+      <span class="keyword">default</span>:
+        <span class="keyword">return</span> state;
+    }
+  }
+</code></pre>
+<p>I like this little pattern. Who better to decide how to clean the state than the reducer? For most reducers you just reset back to the beginning using <code>initialState</code>, and so there’s confidence that the state going into localStorage is well formed.</p>
+<p>And with that, my persistence code is now</p>
+<pre><code class="lang-javascript"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">save</span>(<span class="params">state</span>) </span>{
+  <span class="keyword">const</span> stateForPersistence = rootReducer(state, { type: PERSISTING });
+
+  <span class="keyword">const</span> serialized = <span class="built_in">JSON</span>.stringify(stateForPersistence);
+  localStorage[localStorageKey] = serialized;
+}
+
+<span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">restore</span>(<span class="params"></span>) </span>{
+  <span class="keyword">return</span> localStorage[localStorageKey] &amp;&amp;
+  <span class="built_in">JSON</span>.parse(localStorage[localStorageKey]);
+}
+</code></pre>
+<p>Where <code>rootReducer</code> is built using redux’s <code>combineReducers</code>.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. </p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/cityfortyone">@cityfortyone</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>

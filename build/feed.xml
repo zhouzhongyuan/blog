@@ -5,9 +5,103 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Fri, 22 Jan 2016 16:00:00 -0800</pubDate>
+    <pubDate>Sat, 30 Jan 2016 16:00:00 -0800</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Electron, Redux and Persistence</title>
+      <link>http://mattgreer.org/articles/electron-redux-and-persistence/</link>
+      <pubDate>Sat, 30 Jan 2016 16:00:00 -0800</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/electron-redux-and-persistence/</guid>
+      <author></author>
+      <description>&lt;p&gt;Redux is a nice pattern for React apps. But when wanting to persist my redux state across sessions for an Electron app, I hit some hurdles.
+&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;For work I created a small Electron based app using React and Redux. I dig Electron, it’s a great platform for rapidly building something; internal tools are perfect candidates.&lt;/p&gt;
+&lt;h2 id=&quot;dealing-with-errors-in-the-app&quot;&gt;Dealing with errors in the app&lt;/h2&gt;
+&lt;p&gt;If an error occurs, I want to inform the user. So my app has a &lt;code&gt;receiveError&lt;/code&gt; redux action&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// the action&lt;/span&gt;
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;receiveError&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;error&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
+    type: RECEIVE_ERROR,
+    error
+  };
+}
+
+&lt;span class=&quot;comment&quot;&gt;// and over in the reducer&lt;/span&gt;
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; initialState = {
+  hasError: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;
+};
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;error&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state = initialState, action&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;switch&lt;/span&gt; (action.type) {
+    &lt;span class=&quot;keyword&quot;&gt;case&lt;/span&gt; RECEIVE_ERROR:
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
+        ...state,
+        hasError: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
+        message: action.error.message || action.error,
+        stack: action.error.stack
+      };
+    &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;:
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; state;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I think storing the error in the app state is the correct thing to do. Errors can come from anywhere, and the component that will report what happened to the user should be independent. App state is a good mediator here.&lt;/p&gt;
+&lt;h2 id=&quot;storing-app-state-across-app-sessions&quot;&gt;Storing app state across app sessions&lt;/h2&gt;
+&lt;p&gt;I want the app to be as the user left it the next time they launch it. This is easy to do in Electron, &lt;code&gt;localStorage&lt;/code&gt; to the rescue.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;remote.getCurrentWindow().on(&lt;span class=&quot;string&quot;&gt;'close'&lt;/span&gt;, () =&amp;gt; {
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; state = store.getState();
+  localStorage.myAppState = &lt;span class=&quot;built_in&quot;&gt;JSON&lt;/span&gt;.stringify(state);
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and here comes the problem, I want state like errors stored in app state for good reasons, but they shouldn’t be persisted.&lt;/p&gt;
+&lt;p&gt;Roughly speaking there’s three types of state&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;true app state&lt;/strong&gt;: data and the real state of the app. Stored in redux’s app state permanently&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;local component state&lt;/strong&gt;: think “is this details panel open or closed?”, little details about a component can be stored on that component’s own state, completely separate from redux&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;transient app state:&lt;/strong&gt; like the error above. Not true, permanent app state, but also not something components should be storing. Kind of a &lt;em&gt;no man’s land&lt;/em&gt; in redux.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The second type is sometimes debatable. Storing details like that in app state is also a fine approach.&lt;/p&gt;
+&lt;h2 id=&quot;cleaning-app-state-before-persisting&quot;&gt;Cleaning app state before persisting&lt;/h2&gt;
+&lt;p&gt;My initial stab at this was to just take the entire app state via &lt;code&gt;store.getState()&lt;/code&gt;, then start strategically &lt;code&gt;delete&lt;/code&gt;ing properties I don’t want persisted. This is ugly, doesn’t scale, error prone, all kinds of bad stuff.&lt;/p&gt;
+&lt;p&gt;A better approach is to have a &lt;code&gt;PERSISTING&lt;/code&gt; action. Send this action through all of your reducers, and let them decide what should stay and what should go&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; initialState = {
+    hasError: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;
+  };
+
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;error&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state = initialState, action&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;switch&lt;/span&gt; (action.type) {
+      &lt;span class=&quot;keyword&quot;&gt;case&lt;/span&gt; RECEIVE_ERROR:
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
+          ...state,
+          hasError: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
+          message: action.error.message || action.error,
+          stack: action.error.stack
+        };
+      &lt;span class=&quot;keyword&quot;&gt;case&lt;/span&gt; PERSISTING:
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {...initialState};
+      &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;:
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; state;
+    }
+  }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I like this little pattern. Who better to decide how to clean the state than the reducer? For most reducers you just reset back to the beginning using &lt;code&gt;initialState&lt;/code&gt;, and so there’s confidence that the state going into localStorage is well formed.&lt;/p&gt;
+&lt;p&gt;And with that, my persistence code is now&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;save&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; stateForPersistence = rootReducer(state, { type: PERSISTING });
+
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; serialized = &lt;span class=&quot;built_in&quot;&gt;JSON&lt;/span&gt;.stringify(stateForPersistence);
+  localStorage[localStorageKey] = serialized;
+}
+
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;restore&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; localStorage[localStorageKey] &amp;amp;&amp;amp;
+  &lt;span class=&quot;built_in&quot;&gt;JSON&lt;/span&gt;.parse(localStorage[localStorageKey]);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Where &lt;code&gt;rootReducer&lt;/code&gt; is built using redux’s &lt;code&gt;combineReducers&lt;/code&gt;.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>The Sega Saturn and Transparency</title>
       <link>http://mattgreer.org/articles/sega-saturn-and-transparency/</link>
