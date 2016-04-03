@@ -68,36 +68,36 @@
 Before diving into the how, we need to talk about the why a little bit. If you’re not new to Clojure, feel free to <a href="#inside-clojurescript-s-persistentvector">skip to the next section</a>.</p>
 <h3 id="persistent-data-structures">Persistent Data Structures</h3>
 <p>Clojure data structures are persistent and immutable.</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> a <span class="collection">[<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>]</span>)</span>
-<span class="list">(<span class="keyword"><span class="built_in">def</span></span> b <span class="list">(<span class="keyword"><span class="built_in">conj</span></span> a <span class="number">4</span>)</span>)</span>
-<span class="list">(<span class="keyword">println</span> a)</span> <span class="comment">; [1 2 3]</span>
-<span class="list">(<span class="keyword">println</span> b)</span> <span class="comment">; [1 2 3 4]</span>
+<pre><code class="lang-clojure">(<span class="name"><span class="builtin-name">def</span></span> a [<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>])
+(<span class="name"><span class="builtin-name">def</span></span> b (<span class="name"><span class="builtin-name">conj</span></span> a <span class="number">4</span>))
+(<span class="name">println</span> a) <span class="comment">; [1 2 3]</span>
+(<span class="name">println</span> b) <span class="comment">; [1 2 3 4]</span>
 </code></pre>
 <p><code>a</code> <em>persists on</em> despite <code>b</code> being created based off of it. <code>a</code> can never change in the Clojure world. ClojureScript needs to maintain this promise of immutability and persistence too.</p>
 <h3 id="data-structure-characteristics">Data Structure Characteristics</h3>
 <p>Clojure’s different data structures have different tendencies. Vector’s claim to fame is it is efficient when working with the <em>back</em> of the vector. Lists on the other hand optimize their efficiency at the front. <code>conj</code> is the classic example of when these differences can come to light</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> a <span class="collection">[<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>]</span>)</span>  <span class="comment">; a vector</span>
-<span class="list">(<span class="keyword"><span class="built_in">def</span></span> b '<span class="list">(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span> <span class="comment">; a list</span>
+<pre><code class="lang-clojure">(<span class="name"><span class="builtin-name">def</span></span> a [<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>])  <span class="comment">; a vector</span>
+(<span class="name"><span class="builtin-name">def</span></span> b '(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)) <span class="comment">; a list</span>
 
 <span class="comment">;; vectors conj to the back</span>
-<span class="list">(<span class="keyword">println</span> <span class="list">(<span class="keyword"><span class="built_in">conj</span></span> a <span class="number">42</span>)</span>)</span> <span class="comment">; [1 2 3 42]</span>
+(<span class="name">println</span> (<span class="name"><span class="builtin-name">conj</span></span> a <span class="number">42</span>)) <span class="comment">; [1 2 3 42]</span>
 
 <span class="comment">;; and lists conj to the front</span>
-<span class="list">(<span class="keyword">println</span> <span class="list">(<span class="keyword"><span class="built_in">conj</span></span> b <span class="number">42</span>)</span>)</span> <span class="comment">; (42 4 5 6)</span>
+(<span class="name">println</span> (<span class="name"><span class="builtin-name">conj</span></span> b <span class="number">42</span>)) <span class="comment">; (42 4 5 6)</span>
 </code></pre>
 <p>When the ClojureScript team implemented vectors, they needed to maintain this characteristic. This will become apparent as we dig deeper.</p>
 <h2 id="inside-clojurescript-s-persistentvector">Inside ClojureScript’s PersistentVector</h2>
 <p>Whenever you create a vector in ClojureScript either with the literal form <code>[1 2 3]</code> or perhaps by calling <code>(vector 4 5 6)</code>, ultimately this becomes an instance of <code>cljs.core.PersistentVector</code>. PersistentVector lives in the core ClojureScript namespace, which does mean it is accessible from standard ClojureScript code</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> my-vector <span class="list">(<span class="keyword">PersistentVector.</span>
+<pre><code class="lang-clojure">(<span class="name"><span class="builtin-name">def</span></span> my-vector (<span class="name">PersistentVector.</span>
                  <span class="literal">nil</span>
                  <span class="number">4</span>
                  <span class="number">5</span>
-                 <span class="list">(<span class="keyword">.-EMPTY_NODE</span> PersistentVector)</span>
-                 #js <span class="collection">[<span class="number">5</span> <span class="number">4</span> <span class="number">3</span> <span class="number">2</span>]</span>
-                 <span class="literal">nil</span>)</span>)</span>
+                 (<span class="name">.-EMPTY_NODE</span> PersistentVector)
+                 #js [<span class="number">5</span> <span class="number">4</span> <span class="number">3</span> <span class="number">2</span>]
+                 <span class="literal">nil</span>))
 
-<span class="list">(<span class="keyword">println</span> <span class="list">(<span class="keyword"><span class="built_in">first</span></span> my-vector)</span>)</span> <span class="comment">; 5</span>
-<span class="list">(<span class="keyword">println</span> <span class="list">(<span class="keyword"><span class="built_in">rest</span></span> my-vector)</span>)</span>  <span class="comment">; [4 3 2]</span>
+(<span class="name">println</span> (<span class="name"><span class="builtin-name">first</span></span> my-vector)) <span class="comment">; 5</span>
+(<span class="name">println</span> (<span class="name"><span class="builtin-name">rest</span></span> my-vector))  <span class="comment">; [4 3 2]</span>
 </code></pre>
 <p>This hints at the fact that <code>cljs.core</code> is written in ClojureScript itself; and it is, you can see the implementation of PersistentVector <a href="https://github.com/clojure/clojurescript/blob/22dd4fbeed72398cbc3336fccffe8196c56cd209/src/cljs/cljs/core.cljs#L4191">here</a>.</p>
 <h3 id="the-vector-s-root-and-tail">The vector’s root and tail</h3>
@@ -126,23 +126,23 @@ This is simplified and not entirely true. It’s important that the tail never b
 <h2 id="conj-ing-vectors">Conj’ing Vectors</h2>
 <p>Let’s get a feel for how the root and tail work by exploring <code>conj</code></p>
 <p>Here is Vector’s conj implementation. Don’t worry about studying this block too much, we’re going to break it into pieces</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword">-conj</span> <span class="collection">[coll o]</span>
-    <span class="list">(<span class="keyword"><span class="built_in">if</span></span> <span class="list">(<span class="keyword"><span class="built_in">&lt;</span></span> <span class="list">(<span class="keyword"><span class="built_in">-</span></span> cnt <span class="list">(<span class="keyword">tail-off</span> coll)</span>)</span> <span class="number">32</span>)</span>
-      <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[len <span class="list">(<span class="keyword">alength</span> tail)</span>
-            new-tail <span class="list">(<span class="keyword">make-array</span> <span class="list">(<span class="keyword"><span class="built_in">inc</span></span> len)</span>)</span>]</span>
-        <span class="list">(<span class="keyword"><span class="built_in">dotimes</span></span> <span class="collection">[i len]</span>
-          <span class="list">(<span class="keyword"><span class="built_in">aset</span></span> new-tail i <span class="list">(<span class="keyword">aget</span> tail i)</span>)</span>)</span>
-        <span class="list">(<span class="keyword"><span class="built_in">aset</span></span> new-tail len o)</span>
-        <span class="list">(<span class="keyword">PersistentVector.</span> meta <span class="list">(<span class="keyword"><span class="built_in">inc</span></span> cnt)</span> shift root new-tail <span class="literal">nil</span>)</span>)</span>
-      <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[root-overflow? <span class="list">(<span class="keyword"><span class="built_in">&gt;</span></span> <span class="list">(<span class="keyword">bit-shift-right-zero-fill</span> cnt <span class="number">5</span>)</span> <span class="list">(<span class="keyword">bit-shift-left</span> <span class="number">1</span> shift)</span>)</span>
-            new-shift <span class="list">(<span class="keyword"><span class="built_in">if</span></span> root-overflow? <span class="list">(<span class="keyword"><span class="built_in">+</span></span> shift <span class="number">5</span>)</span> shift)</span>
-            new-root <span class="list">(<span class="keyword"><span class="built_in">if</span></span> root-overflow?
-                       <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[n-r <span class="list">(<span class="keyword">pv-fresh-node</span> <span class="literal">nil</span>)</span>]</span>
-                           <span class="list">(<span class="keyword">pv-aset</span> n-r <span class="number">0</span> root)</span>
-                           <span class="list">(<span class="keyword">pv-aset</span> n-r <span class="number">1</span> <span class="list">(<span class="keyword">new-path</span> <span class="literal">nil</span> shift <span class="list">(<span class="keyword">VectorNode.</span> <span class="literal">nil</span> tail)</span>)</span>)</span>
-                           n-r)</span>
-                       <span class="list">(<span class="keyword">push-tail</span> coll shift root <span class="list">(<span class="keyword">VectorNode.</span> <span class="literal">nil</span> tail)</span>)</span>)</span>]</span>
-        <span class="list">(<span class="keyword">PersistentVector.</span> meta <span class="list">(<span class="keyword"><span class="built_in">inc</span></span> cnt)</span> new-shift new-root <span class="list">(<span class="keyword">array</span> o)</span> <span class="literal">nil</span>)</span>)</span>)</span>)</span>
+<pre><code class="lang-clojure">(<span class="name">-conj</span> [coll o]
+    (<span class="name"><span class="builtin-name">if</span></span> (<span class="name"><span class="builtin-name">&lt;</span></span> (<span class="name"><span class="builtin-name">-</span></span> cnt (<span class="name">tail-off</span> coll)) <span class="number">32</span>)
+      (<span class="name"><span class="builtin-name">let</span></span> [len (<span class="name">alength</span> tail)
+            new-tail (<span class="name">make-array</span> (<span class="name"><span class="builtin-name">inc</span></span> len))]
+        (<span class="name"><span class="builtin-name">dotimes</span></span> [i len]
+          (<span class="name"><span class="builtin-name">aset</span></span> new-tail i (<span class="name">aget</span> tail i)))
+        (<span class="name"><span class="builtin-name">aset</span></span> new-tail len o)
+        (<span class="name">PersistentVector.</span> meta (<span class="name"><span class="builtin-name">inc</span></span> cnt) shift root new-tail <span class="literal">nil</span>))
+      (<span class="name"><span class="builtin-name">let</span></span> [root-overflow? (<span class="name"><span class="builtin-name">&gt;</span></span> (<span class="name">bit-shift-right-zero-fill</span> cnt <span class="number">5</span>) (<span class="name">bit-shift-left</span> <span class="number">1</span> shift))
+            new-shift (<span class="name"><span class="builtin-name">if</span></span> root-overflow? (<span class="name"><span class="builtin-name">+</span></span> shift <span class="number">5</span>) shift)
+            new-root (<span class="name"><span class="builtin-name">if</span></span> root-overflow?
+                       (<span class="name"><span class="builtin-name">let</span></span> [n-r (<span class="name">pv-fresh-node</span> <span class="literal">nil</span>)]
+                           (<span class="name">pv-aset</span> n-r <span class="number">0</span> root)
+                           (<span class="name">pv-aset</span> n-r <span class="number">1</span> (<span class="name">new-path</span> <span class="literal">nil</span> shift (<span class="name">VectorNode.</span> <span class="literal">nil</span> tail)))
+                           n-r)
+                       (<span class="name">push-tail</span> coll shift root (<span class="name">VectorNode.</span> <span class="literal">nil</span> tail)))]
+        (<span class="name">PersistentVector.</span> meta (<span class="name"><span class="builtin-name">inc</span></span> cnt) new-shift new-root (<span class="name">array</span> o) <span class="literal">nil</span>))))
 </code></pre>
 <p>(This code was taken from <a href="https://github.com/clojure/clojurescript/blob/22dd4fbeed72398cbc3336fccffe8196c56cd209/src/cljs/cljs/core.cljs#L4226">here</a>)</p>
 <div class="callout addendum">
@@ -164,38 +164,38 @@ else
         proceed similar to the &quot;room in root&quot; case from here
 </code></pre><h3 id="when-the-tail-has-room">When the tail has room</h3>
 <p>Let’s start with a simple case</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> a <span class="list">(<span class="keyword"><span class="built_in">apply</span></span> vector <span class="list">(<span class="keyword"><span class="built_in">range</span></span> <span class="number">0</span> <span class="number">34</span>)</span>)</span>)</span>
-<span class="list">(<span class="keyword"><span class="built_in">def</span></span> b <span class="list">(<span class="keyword"><span class="built_in">conj</span></span> a <span class="number">99</span>)</span>)</span>
-<span class="list">(<span class="keyword">println</span> b)</span> <span class="comment">; [0 1 2 3 4 5 ... 31 32 33 99]</span>
+<pre><code class="lang-clojure">(<span class="name"><span class="builtin-name">def</span></span> a (<span class="name"><span class="builtin-name">apply</span></span> vector (<span class="name"><span class="builtin-name">range</span></span> <span class="number">0</span> <span class="number">34</span>)))
+(<span class="name"><span class="builtin-name">def</span></span> b (<span class="name"><span class="builtin-name">conj</span></span> a <span class="number">99</span>))
+(<span class="name">println</span> b) <span class="comment">; [0 1 2 3 4 5 ... 31 32 33 99]</span>
 </code></pre>
 <p><code>a</code> is 34 elements long, with 32 elements sitting in the root and 2 hanging out in the tail. There’s plenty of room in the tail, so this is the first case inside <code>conj</code></p>
 <pre><code class="lang-clojure"><span class="comment">;; the chunk of conj that handles the "tail has room" case</span>
-<span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[len <span class="list">(<span class="keyword">alength</span> tail)</span>
-      new-tail <span class="list">(<span class="keyword">make-array</span> <span class="list">(<span class="keyword"><span class="built_in">inc</span></span> len)</span>)</span>]</span>
-  <span class="list">(<span class="keyword"><span class="built_in">dotimes</span></span> <span class="collection">[i len]</span>
-    <span class="list">(<span class="keyword"><span class="built_in">aset</span></span> new-tail i <span class="list">(<span class="keyword">aget</span> tail i)</span>)</span>)</span>
-  <span class="list">(<span class="keyword"><span class="built_in">aset</span></span> new-tail len o)</span>
-  <span class="list">(<span class="keyword">PersistentVector.</span> meta <span class="list">(<span class="keyword"><span class="built_in">inc</span></span> cnt)</span> shift root new-tail <span class="literal">nil</span>)</span>)</span>
+(<span class="name"><span class="builtin-name">let</span></span> [len (<span class="name">alength</span> tail)
+      new-tail (<span class="name">make-array</span> (<span class="name"><span class="builtin-name">inc</span></span> len))]
+  (<span class="name"><span class="builtin-name">dotimes</span></span> [i len]
+    (<span class="name"><span class="builtin-name">aset</span></span> new-tail i (<span class="name">aget</span> tail i)))
+  (<span class="name"><span class="builtin-name">aset</span></span> new-tail len o)
+  (<span class="name">PersistentVector.</span> meta (<span class="name"><span class="builtin-name">inc</span></span> cnt) shift root new-tail <span class="literal">nil</span>))
 </code></pre>
 <p><code>make-array</code> will create our new tail that is one larger than the original tail (<code>(inc len)</code>), then we iterate over the original tail and copy its contents into the new tail. At the end of the new tail, the new value <code>o</code> is placed and from there a new instance of <code>PersistentVector</code> is returned.</p>
 <p><img class="diagram" src="/articles/clojurescript-internals-vectors/img/vector-34-conj-diagram.svg" /></p>
 <h2 id="no-room-in-the-tail-but-room-in-the-root">No room in the tail, but room in the root</h2>
 <p>This time let’s consider conj’ing onto a vector that has 64 elements</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> a <span class="list">(<span class="keyword"><span class="built_in">apply</span></span> vector <span class="list">(<span class="keyword"><span class="built_in">range</span></span> <span class="number">0</span> <span class="number">64</span>)</span>)</span>)</span>
-<span class="list">(<span class="keyword"><span class="built_in">def</span></span> b <span class="list">(<span class="keyword"><span class="built_in">conj</span></span> a <span class="number">99</span>)</span>)</span>
+<pre><code class="lang-clojure">(<span class="name"><span class="builtin-name">def</span></span> a (<span class="name"><span class="builtin-name">apply</span></span> vector (<span class="name"><span class="builtin-name">range</span></span> <span class="number">0</span> <span class="number">64</span>)))
+(<span class="name"><span class="builtin-name">def</span></span> b (<span class="name"><span class="builtin-name">conj</span></span> a <span class="number">99</span>))
 </code></pre>
 <p>This time the tail is full, so that makes the tail a candidate to become a new leaf in the root’s tree. And from there we just create a brand new tail containing the new element. We can see this happening in the <code>conj</code> code</p>
 <pre><code class="lang-clojure"><span class="comment">;; the part of conj that deals with the "tail is full" case</span>
-<span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[root-overflow? <span class="list">(<span class="keyword"><span class="built_in">&gt;</span></span> <span class="list">(<span class="keyword">bit-shift-right-zero-fill</span> cnt <span class="number">5</span>)</span>
-                        <span class="list">(<span class="keyword">bit-shift-left</span> <span class="number">1</span> shift)</span>)</span>
-      new-shift <span class="list">(<span class="keyword"><span class="built_in">if</span></span> root-overflow? <span class="list">(<span class="keyword"><span class="built_in">+</span></span> shift <span class="number">5</span>)</span> shift)</span>
-      new-root <span class="list">(<span class="keyword"><span class="built_in">if</span></span> root-overflow?
-                  <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[n-r <span class="list">(<span class="keyword">pv-fresh-node</span> <span class="literal">nil</span>)</span>]</span>
-                    <span class="list">(<span class="keyword">pv-aset</span> n-r <span class="number">0</span> root)</span>
-                    <span class="list">(<span class="keyword">pv-aset</span> n-r <span class="number">1</span> <span class="list">(<span class="keyword">new-path</span> <span class="literal">nil</span> shift <span class="list">(<span class="keyword">VectorNode.</span> <span class="literal">nil</span> tail)</span>)</span>)</span>
-                    n-r)</span>
-                  <span class="list">(<span class="keyword">push-tail</span> coll shift root <span class="list">(<span class="keyword">VectorNode.</span> <span class="literal">nil</span> tail)</span>)</span>)</span>]</span>
-  <span class="list">(<span class="keyword">PersistentVector.</span> meta <span class="list">(<span class="keyword"><span class="built_in">inc</span></span> cnt)</span> new-shift new-root <span class="list">(<span class="keyword">array</span> o)</span> <span class="literal">nil</span>)</span>)</span>
+(<span class="name"><span class="builtin-name">let</span></span> [root-overflow? (<span class="name"><span class="builtin-name">&gt;</span></span> (<span class="name">bit-shift-right-zero-fill</span> cnt <span class="number">5</span>)
+                        (<span class="name">bit-shift-left</span> <span class="number">1</span> shift))
+      new-shift (<span class="name"><span class="builtin-name">if</span></span> root-overflow? (<span class="name"><span class="builtin-name">+</span></span> shift <span class="number">5</span>) shift)
+      new-root (<span class="name"><span class="builtin-name">if</span></span> root-overflow?
+                  (<span class="name"><span class="builtin-name">let</span></span> [n-r (<span class="name">pv-fresh-node</span> <span class="literal">nil</span>)]
+                    (<span class="name">pv-aset</span> n-r <span class="number">0</span> root)
+                    (<span class="name">pv-aset</span> n-r <span class="number">1</span> (<span class="name">new-path</span> <span class="literal">nil</span> shift (<span class="name">VectorNode.</span> <span class="literal">nil</span> tail)))
+                    n-r)
+                  (<span class="name">push-tail</span> coll shift root (<span class="name">VectorNode.</span> <span class="literal">nil</span> tail)))]
+  (<span class="name">PersistentVector.</span> meta (<span class="name"><span class="builtin-name">inc</span></span> cnt) new-shift new-root (<span class="name">array</span> o) <span class="literal">nil</span>))
 </code></pre>
 <p>The above code has both root cases (whether the root is full or not) intertwined. If <code>root-overflow?</code> is false, then our root still has some room in it. In that case all that really happens is <code>new-root</code> gets set by the call to <code>push-tail</code>, which returns a new root with our existing tail added to it. Then ultimately we return a new vector housing the new root and we quickly whip up a new tail for it that contains the appended element with <code>(array o)</code>.</p>
 <p><img class="diagram" src="/articles/clojurescript-internals-vectors/img/vector-64-conj-diagram.svg" /></p>
@@ -207,32 +207,32 @@ else
 <p>Each vector has a <code>shift</code> property, which is a multiple of 5, <code>1 &lt;&lt; 5</code> is 32. Basically the shift is telling us how many elements the root can hold. When shift is 5, the root has a depth of 1, 10 means a depth of 2, and so on. Way up there when we manually created our own PersistentVector, we passed in <code>5</code> as our shift. Shift also tells other things about the vector, as we’ll see later on when we index into one (its name will make more sense then too).</p>
 <p>When a vector has a shift of 5, its root can at most hold 32 * 32 elements (1024). That is, the root contains 32 VectorNodes, and each VectorNode holds 32 elements of the vector.</p>
 <p>Now we can begin to understand how vectors determine if their root is full</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[root-overflow? <span class="list">(<span class="keyword"><span class="built_in">&gt;</span></span> <span class="list">(<span class="keyword">bit-shift-right-zero-fill</span> cnt <span class="number">5</span>)</span>
-                        <span class="list">(<span class="keyword">bit-shift-left</span> <span class="number">1</span> shift)</span>)</span>]</span>)</span>
+<pre><code class="lang-clojure">(<span class="name"><span class="builtin-name">let</span></span> [root-overflow? (<span class="name"><span class="builtin-name">&gt;</span></span> (<span class="name">bit-shift-right-zero-fill</span> cnt <span class="number">5</span>)
+                        (<span class="name">bit-shift-left</span> <span class="number">1</span> shift))])
 </code></pre>
 <p>Take the case of a vector having 1056 elements</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> a <span class="list">(<span class="keyword"><span class="built_in">apply</span></span> vector <span class="list">(<span class="keyword"><span class="built_in">range</span></span> <span class="number">0</span> <span class="number">1056</span>)</span>)</span>)</span>
-<span class="list">(<span class="keyword"><span class="built_in">def</span></span> b <span class="list">(<span class="keyword"><span class="built_in">conj</span></span> a <span class="number">9999</span>)</span>)</span>
+<pre><code class="lang-clojure">(<span class="name"><span class="builtin-name">def</span></span> a (<span class="name"><span class="builtin-name">apply</span></span> vector (<span class="name"><span class="builtin-name">range</span></span> <span class="number">0</span> <span class="number">1056</span>)))
+(<span class="name"><span class="builtin-name">def</span></span> b (<span class="name"><span class="builtin-name">conj</span></span> a <span class="number">9999</span>))
 </code></pre>
 <p><img class="diagram" src="/articles/clojurescript-internals-vectors/img/vector-1056-diagram.svg" /></p>
 <p>This vector is packed to the gills, <code>root-overflow?</code> will be true. Before it can proceed, the root needs to grow by one level</p>
 <pre><code class="lang-clojure"><span class="comment">;; creation of the new root.</span>
 <span class="comment">;; the root not overflowing case removed for better clarity</span>
-<span class="list">(<span class="keyword"><span class="built_in">let</span></span>
-  <span class="collection">[new-shift <span class="list">(<span class="keyword"><span class="built_in">+</span></span> shift <span class="number">5</span>)</span>
-  <span class="collection">[new-root <span class="list">(<span class="keyword"><span class="built_in">let</span></span> <span class="collection">[n-r <span class="list">(<span class="keyword">pv-fresh-node</span> <span class="literal">nil</span>)</span>]</span>
-              <span class="list">(<span class="keyword">pv-aset</span> n-r <span class="number">0</span> root)</span>
-              <span class="list">(<span class="keyword">pv-aset</span> n-r <span class="number">1</span> <span class="list">(<span class="keyword">new-path</span> <span class="literal">nil</span> shift <span class="list">(<span class="keyword">VectorNode.</span> <span class="literal">nil</span> tail)</span>)</span>)</span>
-              n-r)</span>)</span></span></span>
+(<span class="name"><span class="builtin-name">let</span></span>
+  [new-shift (<span class="name"><span class="builtin-name">+</span></span> shift <span class="number">5</span>)
+  [new-root (<span class="name"><span class="builtin-name">let</span></span> [n-r (<span class="name">pv-fresh-node</span> <span class="literal">nil</span>)]
+              (<span class="name">pv-aset</span> n-r <span class="number">0</span> root)
+              (<span class="name">pv-aset</span> n-r <span class="number">1</span> (<span class="name">new-path</span> <span class="literal">nil</span> shift (<span class="name">VectorNode.</span> <span class="literal">nil</span> tail)))
+              n-r))
 </code></pre>
 <p>Here a new root node is created with <code>pv-fresh-node</code>, then the existing root is  pushed down to become a child, and then the tail becomes the second child with <code>new-path</code></p>
 <p><img class="diagram" src="/articles/clojurescript-internals-vectors/img/vector-1056-conj-diagram.svg" /></p>
 <p>This last diagram’s a little noisy, but again everything gets shared between <code>a</code> and <code>b</code>.</p>
 <h2 id="advantages-to-the-root-tail-design">Advantages to the Root/Tail Design</h2>
 <p>This is a lot of hoopla just to add a new element onto a vector. Why all the fuss?</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> a <span class="list">(<span class="keyword"><span class="built_in">apply</span></span> vector <span class="list">(<span class="keyword"><span class="built_in">range</span></span> <span class="number">0</span> <span class="number">100000</span>)</span>)</span>)</span>
+<pre><code class="lang-clojure">(<span class="name"><span class="builtin-name">def</span></span> a (<span class="name"><span class="builtin-name">apply</span></span> vector (<span class="name"><span class="builtin-name">range</span></span> <span class="number">0</span> <span class="number">100000</span>)))
 <span class="comment">; this conj happens quickly</span>
-<span class="list">(<span class="keyword"><span class="built_in">def</span></span> b <span class="list">(<span class="keyword"><span class="built_in">conj</span></span> a <span class="number">1</span>)</span>)</span>
+(<span class="name"><span class="builtin-name">def</span></span> b (<span class="name"><span class="builtin-name">conj</span></span> a <span class="number">1</span>))
 </code></pre>
 <p>Big deal! In JavaScript <code>myGiantArray.push(1)</code> is also very fast! In fact, it’s faster! But ClojureScript is maintaining immutability (and persistence), where <code>push</code> mutates in place. A naive approach to accomplishing immutability in JavaScript would be</p>
 <pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">arrayConj</span>(<span class="params">array, x</span>)
@@ -245,22 +245,22 @@ else
 <p>Fair enough, but can’t the root just be an array? Not ideally, because as we saw in the above case where the vector had 64 elements, we were able to create a second root very efficiently. The first root is maintained, as the first vector still needs it. The second root was just a matter of moving some tree nodes around. If the root was a flat array, then this would have called for more cloning.</p>
 <h3 id="indexing-into-the-vector">Indexing into the vector</h3>
 <p>Since the root is a tree, some performance is lost when we need to look up an element. With an array, finding an element is a matter of simple arithmetic. But <code>(nth my-giant-vector 200)</code> will require the vector to dig inside the root and figure out where its 200th element lives before it can return it. This requires a little tree traversal, and is done with the <a href="https://github.com/clojure/clojurescript/blob/22dd4fbeed72398cbc3336fccffe8196c56cd209/src/cljs/cljs/core.cljs#L4129"><code>unchecked-array-for</code> function</a></p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">defn-</span></span> unchecked-array-for <span class="collection">[pv i]</span>
-  <span class="list">(<span class="keyword"><span class="built_in">if</span></span> <span class="list">(<span class="keyword"><span class="built_in">&gt;=</span></span> i <span class="list">(<span class="keyword">tail-off</span> pv)</span>)</span>
-      <span class="list">(<span class="keyword">.-tail</span> pv)</span>
-      <span class="list">(<span class="keyword"><span class="built_in">loop</span></span> <span class="collection">[node <span class="list">(<span class="keyword">.-root</span> pv)</span>
-             level <span class="list">(<span class="keyword">.-shift</span> pv)</span>]</span>
-        <span class="list">(<span class="keyword"><span class="built_in">if</span></span> <span class="list">(<span class="keyword"><span class="built_in">pos?</span></span> level)</span>
-          <span class="list">(<span class="keyword"><span class="built_in">recur</span></span> <span class="list">(<span class="keyword">pv-aget</span> node <span class="list">(<span class="keyword">bit-and</span> <span class="list">(<span class="keyword">bit-shift-right-zero-fill</span> i level)</span> <span class="number">0</span>x01f)</span>)</span>
-                 <span class="list">(<span class="keyword"><span class="built_in">-</span></span> level <span class="number">5</span>)</span>)</span>
-          <span class="list">(<span class="keyword">.-arr</span> node)</span>)</span>)</span>)</span>)</span>
+<pre><code class="lang-clojure">(<span class="name"><span class="builtin-name">defn-</span></span> unchecked-array-for [pv i]
+  (<span class="name"><span class="builtin-name">if</span></span> (<span class="name"><span class="builtin-name">&gt;=</span></span> i (<span class="name">tail-off</span> pv))
+      (<span class="name">.-tail</span> pv)
+      (<span class="name"><span class="builtin-name">loop</span></span> [node (<span class="name">.-root</span> pv)
+             level (<span class="name">.-shift</span> pv)]
+        (<span class="name"><span class="builtin-name">if</span></span> (<span class="name"><span class="builtin-name">pos?</span></span> level)
+          (<span class="name"><span class="builtin-name">recur</span></span> (<span class="name">pv-aget</span> node (<span class="name">bit-and</span> (<span class="name">bit-shift-right-zero-fill</span> i level) <span class="number">0</span>x01f))
+                 (<span class="name"><span class="builtin-name">-</span></span> level <span class="number">5</span>))
+          (<span class="name">.-arr</span> node)))))
 </code></pre>
 <p>Ultimately a vector is a tree of arrays, so <code>unchecked-array-for</code> is finding the array that contains the queried index, and from there it’s just a matter of indexing into a standard JavaScript array. The top of the <code>if</code> first figures out if the index is in the tail, if so the answer is easy. Otherwise <code>loop</code> is used to move down through the tree. Again, clever use of bitwise operations enables finding the path through the tree to be efficient.</p>
 <p><code>pv-aget</code> is a simple method that knows a VectorNode contains an array, it effectively does <code>node.arr[i]</code>, and determining what <code>i</code> is relies on some bit-wise logic. <code>(bit-and (bit-shift-right-zero-fill i level) 0x01f)</code> works out to be <code>(i &gt;&gt;&gt; level) &amp; 31</code>, which tells us which array at each level is the one we need to traverse down into.</p>
 <p>That was pretty dense, no? To put that nonsense another way, the index contains its own path into the tree. Let’s take a look at</p>
-<pre><code class="lang-clojure"><span class="list">(<span class="keyword"><span class="built_in">def</span></span> my-giant-vector <span class="list">(<span class="keyword"><span class="built_in">apply</span></span> vector <span class="list">(<span class="keyword"><span class="built_in">range</span></span> <span class="number">0</span> <span class="number">1048586</span>)</span>)</span>)</span>
+<pre><code class="lang-clojure">(<span class="name"><span class="builtin-name">def</span></span> my-giant-vector (<span class="name"><span class="builtin-name">apply</span></span> vector (<span class="name"><span class="builtin-name">range</span></span> <span class="number">0</span> <span class="number">1048586</span>)))
 <span class="comment">;; grab the 142600th element</span>
-<span class="list">(<span class="keyword"><span class="built_in">def</span></span> n <span class="list">(<span class="keyword"><span class="built_in">nth</span></span> my-giant-vector <span class="number">142600</span>)</span>)</span>
+(<span class="name"><span class="builtin-name">def</span></span> n (<span class="name"><span class="builtin-name">nth</span></span> my-giant-vector <span class="number">142600</span>))
 </code></pre>
 <p>This looks like:</p>
 <p><img class="diagram" src="/articles/clojurescript-internals-vectors/img/vector-traversal.svg" /></p>

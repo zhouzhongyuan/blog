@@ -77,7 +77,7 @@ sandbox/
 
 ...
 
-<span class="keyword">var</span> $__default = RectEntity;
+var $__default = RectEntity;
 </code></pre>
 <p>What I really wanted was effectively <code>module.exports = RectEntity</code>, but I’m pretty convinced Traceur just won’t do that. In ES6, <code>export &lt;name&gt; &lt;value&gt;</code> is how it works, and Traceur will use that name verbatim. Even if you do this in ES6</p>
 <pre><code>export class RectEntity ... {

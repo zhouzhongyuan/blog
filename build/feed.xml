@@ -216,9 +216,9 @@ In other words, every pixel in the VDP1 frame buffer can have a corresponding pr
     res.send(renderToString(
       &lt;span class=&quot;comment&quot;&gt;// notice that store doesn't actually exist, yet ...&lt;/span&gt;
       &amp;lt;Provider store={store}&amp;gt;
-        &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;RoutingContext&lt;/span&gt; {&lt;span class=&quot;attribute&quot;&gt;...renderProps&lt;/span&gt;}/&amp;gt;&lt;/span&gt;
-      &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;
-    )&lt;/span&gt;;
+        &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;RoutingContext&lt;/span&gt; {&lt;span class=&quot;attr&quot;&gt;...renderProps&lt;/span&gt;}/&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;
+    );
   });
 });
 &lt;/code&gt;&lt;/pre&gt;
@@ -262,9 +262,9 @@ HelloPage.serverFalcorPaths = [
         res.send(renderToString(
           &lt;span class=&quot;comment&quot;&gt;// the store prop here is the gotcha&lt;/span&gt;
           &amp;lt;Provider store={store}&amp;gt;
-            &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;RoutingContext&lt;/span&gt; {&lt;span class=&quot;attribute&quot;&gt;...renderProps&lt;/span&gt;}/&amp;gt;&lt;/span&gt;
-          &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;
-        )&lt;/span&gt;;
+            &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;RoutingContext&lt;/span&gt; {&lt;span class=&quot;attr&quot;&gt;...renderProps&lt;/span&gt;}/&amp;gt;&lt;/span&gt;
+          &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;
+        );
       });
   });
 });
@@ -553,15 +553,15 @@ mutateObject(myObj);
 &lt;h2 id=&quot;grabbing-window-scroll-events-with-core-async&quot;&gt;Grabbing Window Scroll Events with core.async&lt;/h2&gt;
 &lt;p&gt;The animation engine itself is completely separate from window scroll events. You could just as easily feed the engine via time, a slider on the page, button presses, etc. But using the window’s scroll position is a common approach, so that’s what I did in the demo.&lt;/p&gt;
 &lt;p&gt;Listening for the window scroll with &lt;code&gt;core.async&lt;/code&gt; is &lt;a href=&quot;https://github.com/city41/reagent-scroll-demo/blob/master/src/cljs/scroll_demo/scroll_chan.cljs&quot;&gt;really simple&lt;/a&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; get-scroll &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;dom/getDocumentScroll&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-y&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; get-scroll []
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;dom/getDocumentScroll&lt;/span&gt;) (&lt;span class=&quot;name&quot;&gt;.-y&lt;/span&gt;)))
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; events-&amp;gt;chan &lt;span class=&quot;collection&quot;&gt;[el event-type c]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;events/listen&lt;/span&gt; el event-type #&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;put!&lt;/span&gt; c %)&lt;/span&gt;)&lt;/span&gt;
-  c)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; events-&amp;gt;chan [el event-type c]
+  (&lt;span class=&quot;name&quot;&gt;events/listen&lt;/span&gt; el event-type #(&lt;span class=&quot;name&quot;&gt;put!&lt;/span&gt; c %))
+  c)
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; scroll-chan &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;events-&amp;gt;chan&lt;/span&gt; js/window EventType/SCROLL &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;chan&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;map&lt;/span&gt;&lt;/span&gt; get-scroll)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; scroll-chan []
+  (&lt;span class=&quot;name&quot;&gt;events-&amp;gt;chan&lt;/span&gt; js/window EventType/SCROLL (&lt;span class=&quot;name&quot;&gt;chan&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;map&lt;/span&gt;&lt;/span&gt; get-scroll))))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Every time the window produces a scroll event, we’ll jam it into a channel. The event object itself has no real scroll position information, so we throw it away and instead just query the document for its current position. That’s what’s happening with &lt;code&gt;(chan 1 (map get-scroll))&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&quot;callout wisdom&quot;&gt;
@@ -569,30 +569,30 @@ This is all a very simple application of core.async and transducers. If this is 
 &lt;/div&gt;
 
 &lt;p&gt;Now with the channel code in hand, the main file of the demo sets up a channel and pulls from it&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; listen! &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[chan &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;scroll-chan&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;go-loop&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-             &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[new-y &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&amp;lt;!&lt;/span&gt; chan)&lt;/span&gt;]&lt;/span&gt;
-               &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; prev-scroll-y @cur-scroll-y)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; listen! []
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [chan (&lt;span class=&quot;name&quot;&gt;scroll-chan&lt;/span&gt;)]
+    (&lt;span class=&quot;name&quot;&gt;go-loop&lt;/span&gt; []
+             (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [new-y (&lt;span class=&quot;name&quot;&gt;&amp;lt;!&lt;/span&gt; chan)]
+               (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; prev-scroll-y @cur-scroll-y)
                &lt;span class=&quot;comment&quot;&gt;;; not interested in negative values&lt;/span&gt;
-               &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; cur-scroll-y &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;max&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; new-y)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-               &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;recur&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+               (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; cur-scroll-y (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;max&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; new-y)))
+               (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;recur&lt;/span&gt;&lt;/span&gt;))))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;With one call to &lt;code&gt;(listen!)&lt;/code&gt;, the app will receive the new scroll position of the window and store it in &lt;code&gt;cur-scroll-y&lt;/code&gt;, and push the previous one over into &lt;code&gt;prev-scroll-y&lt;/code&gt;. These two values together are fed into the animation engine and allow the magic to happen.&lt;/p&gt;
 &lt;h2 id=&quot;declarative-animations&quot;&gt;Declarative Animations&lt;/h2&gt;
 &lt;p&gt;The animation system has an &lt;code&gt;animation-container&lt;/code&gt; component that takes two things: the actual Reagent component that should get animated, and an animation config that describes how the animations should occur.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; page &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.page&lt;/span&gt;
-   &lt;span class=&quot;collection&quot;&gt;[animation-container
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; page []
+  [&lt;span class=&quot;symbol&quot;&gt;:div.page&lt;/span&gt;
+   [animation-container
     @prev-scroll-y
     @cur-scroll-y
-    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;I'm going to move across the screen&quot;&lt;/span&gt;]&lt;/span&gt;
-    &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:style&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:top&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;100&lt;/span&gt;
-             &lt;span class=&quot;attribute&quot;&gt;:left&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;100&lt;/span&gt;
-             &lt;span class=&quot;attribute&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt;
-             &lt;span class=&quot;attribute&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt;}&lt;/span&gt;
-     &lt;span class=&quot;attribute&quot;&gt;:animations&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1000&lt;/span&gt;]&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:left&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;100&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;500&lt;/span&gt;]&lt;/span&gt;
-                            &lt;span class=&quot;attribute&quot;&gt;:opacity&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;]&lt;/span&gt;}&lt;/span&gt;}&lt;/span&gt;}&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+    [&lt;span class=&quot;symbol&quot;&gt;:div&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;I'm going to move across the screen&quot;&lt;/span&gt;]
+    {&lt;span class=&quot;symbol&quot;&gt;:style&lt;/span&gt; {&lt;span class=&quot;symbol&quot;&gt;:top&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;100&lt;/span&gt;
+             &lt;span class=&quot;symbol&quot;&gt;:left&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;100&lt;/span&gt;
+             &lt;span class=&quot;symbol&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt;
+             &lt;span class=&quot;symbol&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt;}
+     &lt;span class=&quot;symbol&quot;&gt;:animations&lt;/span&gt; {[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1000&lt;/span&gt;] {&lt;span class=&quot;symbol&quot;&gt;:left&lt;/span&gt; [&lt;span class=&quot;number&quot;&gt;100&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;500&lt;/span&gt;]
+                            &lt;span class=&quot;symbol&quot;&gt;:opacity&lt;/span&gt; [&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;]}}}]])
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Here we have a page component which contains an animation-container which contains a simple little div. That little div will be what gets animated.&lt;/p&gt;
 &lt;p&gt;The key bit here is &lt;code&gt;:animations {[0 1000] {:left [100 500] :opacity [1 0]}}&lt;/code&gt;. The &lt;code&gt;animations&lt;/code&gt; map has vector keys that indicate the scroll range of the window. Then the values are the animations that should occur. In this case we’re saying &lt;em&gt;“as the window scrolls from a y of 0 to 1000, move this element from 100px to 500px, and fade its opacity from 1 to 0 too.”&lt;/em&gt;&lt;/p&gt;
@@ -604,20 +604,20 @@ This is all a very simple application of core.async and transducers. If this is 
 &lt;p&gt;By “smooth scrolling” I mean keeping the animations moving smoothly forward even if the user forces the window to scroll really far at once. You can see this in the &lt;a href=&quot;http://mattgreer.org/reagent-scroll-demo&quot;&gt;demo&lt;/a&gt; by clicking in the brower’s scrollbar. This causes the scroll to jump forward, and the boxes respond by still smoothly proceeding, instead of jumping instantly to the new spot.&lt;/p&gt;
 &lt;p&gt;This requires the engine to keep track of how an element’s animations are progressing and adjust them as needed whenever new scroll values come in. An element could be moving from 100px to 110px and made it to 104px when the user scrolls some more. Now the element needs to move from say 104px to 120px.&lt;/p&gt;
 &lt;p&gt;This is what the call to &lt;a href=&quot;https://github.com/city41/reagent-scroll-demo/blob/31a2b5f997f3c907f971dab79b3e8f4bcb521329/src/cljs/scroll_demo/scroll_engine.cljs#L117&quot;&gt;animate!&lt;/a&gt; is doing. Whenever new scroll values come in, it’s up to &lt;code&gt;animate!&lt;/code&gt; to figure out where the element should go next. The new animation goals really get figured out in &lt;code&gt;update-tween-props&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; update-tween-props
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; update-tween-props
   &lt;span class=&quot;string&quot;&gt;&quot;Given a tween object and the new state of the world, updates
   the tween so it can now progress towards the new goal. Takes into
   account how far the tween already progressed when deciding the tweens new goals.&quot;&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[tween pv cv duration ani]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[current &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:current&lt;/span&gt; tween pv)&lt;/span&gt;
-        remaining &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:remaining&lt;/span&gt; tween &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;)&lt;/span&gt;
-        new-duration &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;+&lt;/span&gt;&lt;/span&gt; duration remaining)&lt;/span&gt;]&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;assoc&lt;/span&gt;&lt;/span&gt; tween
-           &lt;span class=&quot;attribute&quot;&gt;:ani&lt;/span&gt; ani
-           &lt;span class=&quot;attribute&quot;&gt;:slice&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[current cv]&lt;/span&gt;
-           &lt;span class=&quot;attribute&quot;&gt;:duration&lt;/span&gt; new-duration
-           &lt;span class=&quot;attribute&quot;&gt;:remaining&lt;/span&gt; new-duration
-           &lt;span class=&quot;attribute&quot;&gt;:current&lt;/span&gt; current)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+  [tween pv cv duration ani]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [current (&lt;span class=&quot;symbol&quot;&gt;:current&lt;/span&gt; tween pv)
+        remaining (&lt;span class=&quot;symbol&quot;&gt;:remaining&lt;/span&gt; tween &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;)
+        new-duration (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;+&lt;/span&gt;&lt;/span&gt; duration remaining)]
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;assoc&lt;/span&gt;&lt;/span&gt; tween
+           &lt;span class=&quot;symbol&quot;&gt;:ani&lt;/span&gt; ani
+           &lt;span class=&quot;symbol&quot;&gt;:slice&lt;/span&gt; [current cv]
+           &lt;span class=&quot;symbol&quot;&gt;:duration&lt;/span&gt; new-duration
+           &lt;span class=&quot;symbol&quot;&gt;:remaining&lt;/span&gt; new-duration
+           &lt;span class=&quot;symbol&quot;&gt;:current&lt;/span&gt; current)))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Each animating component has a &lt;code&gt;tween&lt;/code&gt; map that keeps track of its current animation state. This method is inspecting that map, and using the new scroll position (&lt;code&gt;pv&lt;/code&gt; for previous value and &lt;code&gt;cv&lt;/code&gt; for current value) as well as how long the new animation should take. From there the tween takes the remainder of its current animation, adds it onto the new needed animation, and then it’s all set.&lt;/p&gt;
 &lt;p&gt;The other piece of the puzzle is &lt;a href=&quot;https://github.com/city41/reagent-scroll-demo/blob/31a2b5f997f3c907f971dab79b3e8f4bcb521329/src/cljs/scroll_demo/scroll_engine.cljs#L112&quot;&gt;(start-loop!)&lt;/a&gt;. This part is a bit simpler. Whenever an animation-container is created, it calls &lt;code&gt;start-loop!&lt;/code&gt; to kick off a &lt;code&gt;requestAnimationFrame&lt;/code&gt; rendering loop. Inside the &lt;code&gt;requestAnimationFrame&lt;/code&gt; callback, that same tween object is told to tween itself, and move the CSS properties the appropriate amount to accomplish the animation.&lt;/p&gt;
@@ -637,49 +637,49 @@ This is all a very simple application of core.async and transducers. If this is 
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;h2 id=&quot;react-and-reagent-s-svg-support&quot;&gt;React and Reagent’s SVG support&lt;/h2&gt;
 &lt;p&gt;React supports SVG pretty well, you can directly place SVG in your React components, and that is true of Reagent as well&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; some-svg-component &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:svg&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:x&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:y&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt;}&lt;/span&gt;
-    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:rect&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:x&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:y&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt;}&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; some-svg-component []
+  [&lt;span class=&quot;symbol&quot;&gt;:svg&lt;/span&gt; {&lt;span class=&quot;symbol&quot;&gt;:x&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;symbol&quot;&gt;:y&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;symbol&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt; &lt;span class=&quot;symbol&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;50&lt;/span&gt;}
+    [&lt;span class=&quot;symbol&quot;&gt;:rect&lt;/span&gt; {&lt;span class=&quot;symbol&quot;&gt;:x&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt; &lt;span class=&quot;symbol&quot;&gt;:y&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt; &lt;span class=&quot;symbol&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt; &lt;span class=&quot;symbol&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt;}]])
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;but man, how often do you want to write out SVG by hand?&lt;/p&gt;
 &lt;h2 id=&quot;embedding-svg-directly-into-a-reagent-component&quot;&gt;Embedding SVG directly into a Reagent component&lt;/h2&gt;
 &lt;p&gt;With macros and &lt;a href=&quot;https://github.com/nathell/clj-tagsoup&quot;&gt;clj-tagsoup&lt;/a&gt; in hand, it’s super easy to embed an SVG file right into your Reagent code&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;ns&lt;/span&gt;&lt;/span&gt; embed.svg
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:require&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[pl.danieljanus.tagsoup &lt;span class=&quot;attribute&quot;&gt;:as&lt;/span&gt; ts]&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;ns&lt;/span&gt;&lt;/span&gt; embed.svg
+  (&lt;span class=&quot;symbol&quot;&gt;:require&lt;/span&gt; [pl.danieljanus.tagsoup &lt;span class=&quot;symbol&quot;&gt;:as&lt;/span&gt; ts]))
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defmacro&lt;/span&gt;&lt;/span&gt; embed-svg &lt;span class=&quot;collection&quot;&gt;[svg-file]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[hiccup &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;ts/parse-string&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;slurp&lt;/span&gt;&lt;/span&gt; svg-file)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-    `~hiccup)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defmacro&lt;/span&gt;&lt;/span&gt; embed-svg [svg-file]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [hiccup (&lt;span class=&quot;name&quot;&gt;ts/parse-string&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;slurp&lt;/span&gt;&lt;/span&gt; svg-file))]
+    `~hiccup))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;and then in the component&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; some-svg-component &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;embed-svg&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;cool-svg-image.svg&quot;&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; some-svg-component []
+  (&lt;span class=&quot;name&quot;&gt;embed-svg&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;cool-svg-image.svg&quot;&lt;/span&gt;))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;This works perfectly well. The output from &lt;code&gt;clj-tagsoup&lt;/code&gt; is perfectly compatible with Reagent (so great the Clojure community has largely agreed on &lt;a href=&quot;https://github.com/weavejester/hiccup&quot;&gt;hiccup&lt;/a&gt; syntax!)&lt;/p&gt;
 &lt;h2 id=&quot;taking-it-further-&quot;&gt;Taking It Further?&lt;/h2&gt;
 &lt;p&gt;The above doesn’t buy you much, you’re better off including the svg in an &lt;code&gt;img&lt;/code&gt; tag. So can we do more? I’m not sure yet …&lt;/p&gt;
 &lt;p&gt;I have one SVG diagram that I want users to be able to click on different parts of. From there, the page focuses on that part of the diagram. I was able to do this with macros&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; assoc-click-handler &lt;span class=&quot;collection&quot;&gt;[m]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;assoc&lt;/span&gt;&lt;/span&gt; m &lt;span class=&quot;attribute&quot;&gt;:class&lt;/span&gt; `&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;=&lt;/span&gt;&lt;/span&gt; ~'focused-id ~&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:id&lt;/span&gt; m)&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;focused&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;&quot;&lt;/span&gt;)&lt;/span&gt;
-           &lt;span class=&quot;attribute&quot;&gt;:on-click&lt;/span&gt;
-           `&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;fn&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;history/go-to&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;str&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;/basics/rink/&quot;&lt;/span&gt; ~&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:id&lt;/span&gt; m)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; assoc-click-handler [m]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;assoc&lt;/span&gt;&lt;/span&gt; m &lt;span class=&quot;symbol&quot;&gt;:class&lt;/span&gt; `(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;if&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;=&lt;/span&gt;&lt;/span&gt; ~'focused-id ~(&lt;span class=&quot;symbol&quot;&gt;:id&lt;/span&gt; m)) &lt;span class=&quot;string&quot;&gt;&quot;focused&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;&quot;&lt;/span&gt;)
+           &lt;span class=&quot;symbol&quot;&gt;:on-click&lt;/span&gt;
+           `(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;fn&lt;/span&gt;&lt;/span&gt; [] (&lt;span class=&quot;name&quot;&gt;history/go-to&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;str&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;/basics/rink/&quot;&lt;/span&gt; ~(&lt;span class=&quot;symbol&quot;&gt;:id&lt;/span&gt; m))))))
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;declare&lt;/span&gt;&lt;/span&gt; create-click-handlers)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;declare&lt;/span&gt;&lt;/span&gt; create-click-handlers)
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; add-click-handlers-for-ids &lt;span class=&quot;collection&quot;&gt;[obj]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;cond&lt;/span&gt;&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;vector?&lt;/span&gt;&lt;/span&gt; obj)&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;create-click-handlers&lt;/span&gt; obj)&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;and&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;map?&lt;/span&gt;&lt;/span&gt; obj)&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;contains?&lt;/span&gt;&lt;/span&gt; obj &lt;span class=&quot;attribute&quot;&gt;:id&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;assoc-click-handler&lt;/span&gt; obj)&lt;/span&gt;
-    &lt;span class=&quot;attribute&quot;&gt;:else&lt;/span&gt; obj)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; add-click-handlers-for-ids [obj]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;cond&lt;/span&gt;&lt;/span&gt;
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;vector?&lt;/span&gt;&lt;/span&gt; obj) (&lt;span class=&quot;name&quot;&gt;create-click-handlers&lt;/span&gt; obj)
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;and&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;map?&lt;/span&gt;&lt;/span&gt; obj) (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;contains?&lt;/span&gt;&lt;/span&gt; obj &lt;span class=&quot;symbol&quot;&gt;:id&lt;/span&gt;)) (&lt;span class=&quot;name&quot;&gt;assoc-click-handler&lt;/span&gt; obj)
+    &lt;span class=&quot;symbol&quot;&gt;:else&lt;/span&gt; obj))
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; create-click-handlers &lt;span class=&quot;collection&quot;&gt;[tags]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;map&lt;/span&gt;&lt;/span&gt; add-click-handlers-for-ids tags)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; create-click-handlers [tags]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;map&lt;/span&gt;&lt;/span&gt; add-click-handlers-for-ids tags)))
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defmacro&lt;/span&gt;&lt;/span&gt; embed-clickable &lt;span class=&quot;collection&quot;&gt;[svg-file]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[hiccup &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;slurp&lt;/span&gt;&lt;/span&gt; svg-file)&lt;/span&gt;
-                   &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;ts/parse-string&lt;/span&gt;)&lt;/span&gt;
-                   &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;create-click-handlers&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-  `~hiccup)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defmacro&lt;/span&gt;&lt;/span&gt; embed-clickable [svg-file]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [hiccup (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;slurp&lt;/span&gt;&lt;/span&gt; svg-file)
+                   (&lt;span class=&quot;name&quot;&gt;ts/parse-string&lt;/span&gt;)
+                   (&lt;span class=&quot;name&quot;&gt;create-click-handlers&lt;/span&gt;))]
+  `~hiccup))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Doing just about the same thing as before, but for any map inside of clj-tagsoup’s output that has an &lt;code&gt;id&lt;/code&gt; in it (in other words, the SVG element has an id), I also swoop in and throw a click handler on it. It’s bad practice that &lt;code&gt;assoc-click-handler&lt;/code&gt; makes assumption about its environment (&lt;code&gt;focused-id&lt;/code&gt; and &lt;code&gt;(history/go-to)&lt;/code&gt; live in the same file as where I call the macro), but I’m ok with that, at least for now.&lt;/p&gt;
 &lt;p&gt;Any elements in my SVG that have ids will be “focusable” by the user clicking on them. So I am free to build a very complicated SVG in a vector editor, and still get interactivity out of it pretty painlessly.&lt;/p&gt;
@@ -703,26 +703,26 @@ This is all a very simple application of core.async and transducers. If this is 
 &lt;p&gt;You can play it &lt;a href=&quot;http://city41.github.io/reagent-breakout&quot;&gt;here&lt;/a&gt;, and the repo is &lt;a href=&quot;https://github.com/city41/reagent-breakout&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 id=&quot;the-reagent-components&quot;&gt;The Reagent Components&lt;/h2&gt;
 &lt;p&gt;The components such as the ball and bricks are dead simple, there’s pretty much nothing to them. Here is the ball&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;ns&lt;/span&gt;&lt;/span&gt; breakout.cmp.ball)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;ns&lt;/span&gt;&lt;/span&gt; breakout.cmp.ball)
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; cmp &lt;span class=&quot;collection&quot;&gt;[pos size]&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.ball&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:style&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:background-image&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;url(img/tiles.png)&quot;&lt;/span&gt;
-                      &lt;span class=&quot;attribute&quot;&gt;:position&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;absolute&quot;&lt;/span&gt;
-                      &lt;span class=&quot;attribute&quot;&gt;:width&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:width&lt;/span&gt; size)&lt;/span&gt;
-                      &lt;span class=&quot;attribute&quot;&gt;:height&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:height&lt;/span&gt; size)&lt;/span&gt;
-                      &lt;span class=&quot;attribute&quot;&gt;:top&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:y&lt;/span&gt; pos)&lt;/span&gt;
-                      &lt;span class=&quot;attribute&quot;&gt;:left&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:x&lt;/span&gt; pos)&lt;/span&gt;}&lt;/span&gt;}&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; cmp [pos size]
+  [&lt;span class=&quot;symbol&quot;&gt;:div.ball&lt;/span&gt; {&lt;span class=&quot;symbol&quot;&gt;:style&lt;/span&gt; {&lt;span class=&quot;symbol&quot;&gt;:background-image&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;url(img/tiles.png)&quot;&lt;/span&gt;
+                      &lt;span class=&quot;symbol&quot;&gt;:position&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;absolute&quot;&lt;/span&gt;
+                      &lt;span class=&quot;symbol&quot;&gt;:width&lt;/span&gt; (&lt;span class=&quot;symbol&quot;&gt;:width&lt;/span&gt; size)
+                      &lt;span class=&quot;symbol&quot;&gt;:height&lt;/span&gt; (&lt;span class=&quot;symbol&quot;&gt;:height&lt;/span&gt; size)
+                      &lt;span class=&quot;symbol&quot;&gt;:top&lt;/span&gt; (&lt;span class=&quot;symbol&quot;&gt;:y&lt;/span&gt; pos)
+                      &lt;span class=&quot;symbol&quot;&gt;:left&lt;/span&gt; (&lt;span class=&quot;symbol&quot;&gt;:x&lt;/span&gt; pos)}}])
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;All of the animation is accomplished with &lt;a href=&quot;https://github.com/city41/reagent-breakout/blob/master/resources/public/css/site.css&quot;&gt;CSS&lt;/a&gt;, which helped make everything that much more simple. Small lesson learned, even on a tiny project like this I should have used a CSS generation tool. CSS, why are you so tedious?&lt;/p&gt;
 &lt;h3 id=&quot;using-react-s-csstransitiongroup-for-the-bricks&quot;&gt;Using React’s CSSTransitionGroup for the bricks&lt;/h3&gt;
 &lt;p&gt;Whenever a brick is hit, it fades out using a CSS animation. React’s &lt;a href=&quot;http://facebook.github.io/react/docs/animation.html&quot;&gt;CSSTransitionGroup&lt;/a&gt; is perfect for this, and easy to get going in Reagent. Just add it as one of your components, and underneath it place all the components that need animation&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; ctg &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;aget&lt;/span&gt; js/React &lt;span class=&quot;string&quot;&gt;&quot;addons&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;CSSTransitionGroup&quot;&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; ctg (&lt;span class=&quot;name&quot;&gt;aget&lt;/span&gt; js/React &lt;span class=&quot;string&quot;&gt;&quot;addons&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;CSSTransitionGroup&quot;&lt;/span&gt;))
 
 &lt;span class=&quot;comment&quot;&gt;;; ...&lt;/span&gt;
 
-&lt;span class=&quot;collection&quot;&gt;[ctg &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:transitionName&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;spawn&quot;&lt;/span&gt;}&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;for&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[brick @bricks]&lt;/span&gt;
-    &lt;span class=&quot;comment&quot;&gt;^{:key brick}&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[brick/cmp brick]&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
+[ctg {&lt;span class=&quot;symbol&quot;&gt;:transitionName&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;spawn&quot;&lt;/span&gt;}
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;for&lt;/span&gt;&lt;/span&gt; [brick @bricks]
+    &lt;span class=&quot;comment&quot;&gt;^{:key brick}&lt;/span&gt; [brick/cmp brick])]
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;I was really happy how seamlessly CSSTransitionGroup dropped right in.&lt;/p&gt;
 &lt;h2 id=&quot;the-game-logic&quot;&gt;The Game Logic&lt;/h2&gt;
@@ -736,24 +736,24 @@ This is all a very simple application of core.async and transducers. If this is 
 &lt;li&gt;the play phase: standard breakout gameplay&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;I was able to separate out these phases using multimethods, which made the code cleaner.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; update! &lt;span class=&quot;collection&quot;&gt;[ts]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;when&lt;/span&gt;&lt;/span&gt; @running
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[delta &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;-&lt;/span&gt;&lt;/span&gt; ts &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;or&lt;/span&gt;&lt;/span&gt; @last-ts ts)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-      &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; last-ts ts)&lt;/span&gt;
-      &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;update-phase!&lt;/span&gt; delta @phase)&lt;/span&gt;)&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;.&lt;/span&gt;&lt;/span&gt; js/window &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;requestAnimationFrame&lt;/span&gt; update!)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; update! [ts]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;when&lt;/span&gt;&lt;/span&gt; @running
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [delta (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;-&lt;/span&gt;&lt;/span&gt; ts (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;or&lt;/span&gt;&lt;/span&gt; @last-ts ts))]
+      (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; last-ts ts)
+      (&lt;span class=&quot;name&quot;&gt;update-phase!&lt;/span&gt; delta @phase))
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;.&lt;/span&gt;&lt;/span&gt; js/window (&lt;span class=&quot;name&quot;&gt;requestAnimationFrame&lt;/span&gt; update!))))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Here &lt;code&gt;update-phase!&lt;/code&gt; will end up calling the appropriate function for the current phase, for example here is what the countdown phase does&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defmethod&lt;/span&gt;&lt;/span&gt; update-phase! &lt;span class=&quot;attribute&quot;&gt;:countdown&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[delta _]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; countdown-duration - delta)&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;when&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;&amp;lt;=&lt;/span&gt;&lt;/span&gt; @countdown-duration &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;)&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; phase &lt;span class=&quot;attribute&quot;&gt;:gameplay&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defmethod&lt;/span&gt;&lt;/span&gt; update-phase! &lt;span class=&quot;symbol&quot;&gt;:countdown&lt;/span&gt; [delta _]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; countdown-duration - delta)
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;when&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;&amp;lt;=&lt;/span&gt;&lt;/span&gt; @countdown-duration &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;)
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; phase &lt;span class=&quot;symbol&quot;&gt;:gameplay&lt;/span&gt;)))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;By adding a watch to the &lt;code&gt;phase&lt;/code&gt; atom, it was really easy to set up a tiny little state machine in the game&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;add-watch&lt;/span&gt;&lt;/span&gt; phase &lt;span class=&quot;attribute&quot;&gt;:scene-phase&lt;/span&gt;
-           &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;fn&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[key r old-phase new-phase]&lt;/span&gt;
-             &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;when&lt;/span&gt;&lt;/span&gt; new-phase
-               &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;init-phase!&lt;/span&gt; new-phase)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;add-watch&lt;/span&gt;&lt;/span&gt; phase &lt;span class=&quot;symbol&quot;&gt;:scene-phase&lt;/span&gt;
+           (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;fn&lt;/span&gt;&lt;/span&gt; [key r old-phase new-phase]
+             (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;when&lt;/span&gt;&lt;/span&gt; new-phase
+               (&lt;span class=&quot;name&quot;&gt;init-phase!&lt;/span&gt; new-phase))))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Whenever switching phases, this watch handler kicks in and asks the new phase to do any initialization it needs (such as placing the ball back to its starting location). Again multimethods helped to separate the initialization of the phases into separate methods.&lt;/p&gt;
 &lt;h2 id=&quot;performance&quot;&gt;Performance&lt;/h2&gt;
@@ -804,36 +804,36 @@ This is all a very simple application of core.async and transducers. If this is 
 Before diving into the how, we need to talk about the why a little bit. If you’re not new to Clojure, feel free to &lt;a href=&quot;#inside-clojurescript-s-persistentvector&quot;&gt;skip to the next section&lt;/a&gt;.&lt;/p&gt;
 &lt;h3 id=&quot;persistent-data-structures&quot;&gt;Persistent Data Structures&lt;/h3&gt;
 &lt;p&gt;Clojure data structures are persistent and immutable.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;println&lt;/span&gt; a)&lt;/span&gt; &lt;span class=&quot;comment&quot;&gt;; [1 2 3]&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;println&lt;/span&gt; b)&lt;/span&gt; &lt;span class=&quot;comment&quot;&gt;; [1 2 3 4]&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a [&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;])
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;))
+(&lt;span class=&quot;name&quot;&gt;println&lt;/span&gt; a) &lt;span class=&quot;comment&quot;&gt;; [1 2 3]&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;println&lt;/span&gt; b) &lt;span class=&quot;comment&quot;&gt;; [1 2 3 4]&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;code&gt;a&lt;/code&gt; &lt;em&gt;persists on&lt;/em&gt; despite &lt;code&gt;b&lt;/code&gt; being created based off of it. &lt;code&gt;a&lt;/code&gt; can never change in the Clojure world. ClojureScript needs to maintain this promise of immutability and persistence too.&lt;/p&gt;
 &lt;h3 id=&quot;data-structure-characteristics&quot;&gt;Data Structure Characteristics&lt;/h3&gt;
 &lt;p&gt;Clojure’s different data structures have different tendencies. Vector’s claim to fame is it is efficient when working with the &lt;em&gt;back&lt;/em&gt; of the vector. Lists on the other hand optimize their efficiency at the front. &lt;code&gt;conj&lt;/code&gt; is the classic example of when these differences can come to light&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;  &lt;span class=&quot;comment&quot;&gt;; a vector&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b '&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;number&quot;&gt;4&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;6&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;comment&quot;&gt;; a list&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a [&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;])  &lt;span class=&quot;comment&quot;&gt;; a vector&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b '(&lt;span class=&quot;number&quot;&gt;4&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;6&lt;/span&gt;)) &lt;span class=&quot;comment&quot;&gt;; a list&lt;/span&gt;
 
 &lt;span class=&quot;comment&quot;&gt;;; vectors conj to the back&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;println&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;comment&quot;&gt;; [1 2 3 42]&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;println&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;)) &lt;span class=&quot;comment&quot;&gt;; [1 2 3 42]&lt;/span&gt;
 
 &lt;span class=&quot;comment&quot;&gt;;; and lists conj to the front&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;println&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; b &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;comment&quot;&gt;; (42 4 5 6)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;println&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; b &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;)) &lt;span class=&quot;comment&quot;&gt;; (42 4 5 6)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;When the ClojureScript team implemented vectors, they needed to maintain this characteristic. This will become apparent as we dig deeper.&lt;/p&gt;
 &lt;h2 id=&quot;inside-clojurescript-s-persistentvector&quot;&gt;Inside ClojureScript’s PersistentVector&lt;/h2&gt;
 &lt;p&gt;Whenever you create a vector in ClojureScript either with the literal form &lt;code&gt;[1 2 3]&lt;/code&gt; or perhaps by calling &lt;code&gt;(vector 4 5 6)&lt;/code&gt;, ultimately this becomes an instance of &lt;code&gt;cljs.core.PersistentVector&lt;/code&gt;. PersistentVector lives in the core ClojureScript namespace, which does mean it is accessible from standard ClojureScript code&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; my-vector &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;PersistentVector.&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; my-vector (&lt;span class=&quot;name&quot;&gt;PersistentVector.&lt;/span&gt;
                  &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;
                  &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;
                  &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;
-                 &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-EMPTY_NODE&lt;/span&gt; PersistentVector)&lt;/span&gt;
-                 #js &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;]&lt;/span&gt;
-                 &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+                 (&lt;span class=&quot;name&quot;&gt;.-EMPTY_NODE&lt;/span&gt; PersistentVector)
+                 #js [&lt;span class=&quot;number&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;]
+                 &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;))
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;println&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;first&lt;/span&gt;&lt;/span&gt; my-vector)&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;comment&quot;&gt;; 5&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;println&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;rest&lt;/span&gt;&lt;/span&gt; my-vector)&lt;/span&gt;)&lt;/span&gt;  &lt;span class=&quot;comment&quot;&gt;; [4 3 2]&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;println&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;first&lt;/span&gt;&lt;/span&gt; my-vector)) &lt;span class=&quot;comment&quot;&gt;; 5&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;println&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;rest&lt;/span&gt;&lt;/span&gt; my-vector))  &lt;span class=&quot;comment&quot;&gt;; [4 3 2]&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;This hints at the fact that &lt;code&gt;cljs.core&lt;/code&gt; is written in ClojureScript itself; and it is, you can see the implementation of PersistentVector &lt;a href=&quot;https://github.com/clojure/clojurescript/blob/22dd4fbeed72398cbc3336fccffe8196c56cd209/src/cljs/cljs/core.cljs#L4191&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;h3 id=&quot;the-vector-s-root-and-tail&quot;&gt;The vector’s root and tail&lt;/h3&gt;
@@ -862,23 +862,23 @@ This is simplified and not entirely true. It’s important that the tail never b
 &lt;h2 id=&quot;conj-ing-vectors&quot;&gt;Conj’ing Vectors&lt;/h2&gt;
 &lt;p&gt;Let’s get a feel for how the root and tail work by exploring &lt;code&gt;conj&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;Here is Vector’s conj implementation. Don’t worry about studying this block too much, we’re going to break it into pieces&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;-conj&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[coll o]&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;&amp;lt;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;-&lt;/span&gt;&lt;/span&gt; cnt &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;tail-off&lt;/span&gt; coll)&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;32&lt;/span&gt;)&lt;/span&gt;
-      &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[len &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;alength&lt;/span&gt; tail)&lt;/span&gt;
-            new-tail &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;make-array&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; len)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-        &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;dotimes&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[i len]&lt;/span&gt;
-          &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;aset&lt;/span&gt;&lt;/span&gt; new-tail i &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;aget&lt;/span&gt; tail i)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-        &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;aset&lt;/span&gt;&lt;/span&gt; new-tail len o)&lt;/span&gt;
-        &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;PersistentVector.&lt;/span&gt; meta &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; cnt)&lt;/span&gt; shift root new-tail &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-      &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[root-overflow? &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;bit-shift-right-zero-fill&lt;/span&gt; cnt &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;bit-shift-left&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; shift)&lt;/span&gt;)&lt;/span&gt;
-            new-shift &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; root-overflow? &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;+&lt;/span&gt;&lt;/span&gt; shift &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)&lt;/span&gt; shift)&lt;/span&gt;
-            new-root &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; root-overflow?
-                       &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[n-r &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;pv-fresh-node&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-                           &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; root)&lt;/span&gt;
-                           &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;new-path&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; shift &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;VectorNode.&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; tail)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-                           n-r)&lt;/span&gt;
-                       &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;push-tail&lt;/span&gt; coll shift root &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;VectorNode.&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; tail)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-        &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;PersistentVector.&lt;/span&gt; meta &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; cnt)&lt;/span&gt; new-shift new-root &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;array&lt;/span&gt; o)&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;-conj&lt;/span&gt; [coll o]
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;if&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;&amp;lt;&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;-&lt;/span&gt;&lt;/span&gt; cnt (&lt;span class=&quot;name&quot;&gt;tail-off&lt;/span&gt; coll)) &lt;span class=&quot;number&quot;&gt;32&lt;/span&gt;)
+      (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [len (&lt;span class=&quot;name&quot;&gt;alength&lt;/span&gt; tail)
+            new-tail (&lt;span class=&quot;name&quot;&gt;make-array&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; len))]
+        (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;dotimes&lt;/span&gt;&lt;/span&gt; [i len]
+          (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;aset&lt;/span&gt;&lt;/span&gt; new-tail i (&lt;span class=&quot;name&quot;&gt;aget&lt;/span&gt; tail i)))
+        (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;aset&lt;/span&gt;&lt;/span&gt; new-tail len o)
+        (&lt;span class=&quot;name&quot;&gt;PersistentVector.&lt;/span&gt; meta (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; cnt) shift root new-tail &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;))
+      (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [root-overflow? (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;bit-shift-right-zero-fill&lt;/span&gt; cnt &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;) (&lt;span class=&quot;name&quot;&gt;bit-shift-left&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; shift))
+            new-shift (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;if&lt;/span&gt;&lt;/span&gt; root-overflow? (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;+&lt;/span&gt;&lt;/span&gt; shift &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;) shift)
+            new-root (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;if&lt;/span&gt;&lt;/span&gt; root-overflow?
+                       (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [n-r (&lt;span class=&quot;name&quot;&gt;pv-fresh-node&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)]
+                           (&lt;span class=&quot;name&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; root)
+                           (&lt;span class=&quot;name&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;new-path&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; shift (&lt;span class=&quot;name&quot;&gt;VectorNode.&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; tail)))
+                           n-r)
+                       (&lt;span class=&quot;name&quot;&gt;push-tail&lt;/span&gt; coll shift root (&lt;span class=&quot;name&quot;&gt;VectorNode.&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; tail)))]
+        (&lt;span class=&quot;name&quot;&gt;PersistentVector.&lt;/span&gt; meta (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; cnt) new-shift new-root (&lt;span class=&quot;name&quot;&gt;array&lt;/span&gt; o) &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;))))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;(This code was taken from &lt;a href=&quot;https://github.com/clojure/clojurescript/blob/22dd4fbeed72398cbc3336fccffe8196c56cd209/src/cljs/cljs/core.cljs#L4226&quot;&gt;here&lt;/a&gt;)&lt;/p&gt;
 &lt;div class=&quot;callout addendum&quot;&gt;
@@ -900,38 +900,38 @@ else
         proceed similar to the &amp;quot;room in root&amp;quot; case from here
 &lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;when-the-tail-has-room&quot;&gt;When the tail has room&lt;/h3&gt;
 &lt;p&gt;Let’s start with a simple case&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;range&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;34&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;99&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;println&lt;/span&gt; b)&lt;/span&gt; &lt;span class=&quot;comment&quot;&gt;; [0 1 2 3 4 5 ... 31 32 33 99]&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;range&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;34&lt;/span&gt;)))
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;99&lt;/span&gt;))
+(&lt;span class=&quot;name&quot;&gt;println&lt;/span&gt; b) &lt;span class=&quot;comment&quot;&gt;; [0 1 2 3 4 5 ... 31 32 33 99]&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;code&gt;a&lt;/code&gt; is 34 elements long, with 32 elements sitting in the root and 2 hanging out in the tail. There’s plenty of room in the tail, so this is the first case inside &lt;code&gt;conj&lt;/code&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;comment&quot;&gt;;; the chunk of conj that handles the &quot;tail has room&quot; case&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[len &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;alength&lt;/span&gt; tail)&lt;/span&gt;
-      new-tail &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;make-array&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; len)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;dotimes&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[i len]&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;aset&lt;/span&gt;&lt;/span&gt; new-tail i &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;aget&lt;/span&gt; tail i)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;aset&lt;/span&gt;&lt;/span&gt; new-tail len o)&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;PersistentVector.&lt;/span&gt; meta &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; cnt)&lt;/span&gt; shift root new-tail &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [len (&lt;span class=&quot;name&quot;&gt;alength&lt;/span&gt; tail)
+      new-tail (&lt;span class=&quot;name&quot;&gt;make-array&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; len))]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;dotimes&lt;/span&gt;&lt;/span&gt; [i len]
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;aset&lt;/span&gt;&lt;/span&gt; new-tail i (&lt;span class=&quot;name&quot;&gt;aget&lt;/span&gt; tail i)))
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;aset&lt;/span&gt;&lt;/span&gt; new-tail len o)
+  (&lt;span class=&quot;name&quot;&gt;PersistentVector.&lt;/span&gt; meta (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; cnt) shift root new-tail &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;code&gt;make-array&lt;/code&gt; will create our new tail that is one larger than the original tail (&lt;code&gt;(inc len)&lt;/code&gt;), then we iterate over the original tail and copy its contents into the new tail. At the end of the new tail, the new value &lt;code&gt;o&lt;/code&gt; is placed and from there a new instance of &lt;code&gt;PersistentVector&lt;/code&gt; is returned.&lt;/p&gt;
 &lt;p&gt;&lt;img class=&quot;diagram&quot; src=&quot;/articles/clojurescript-internals-vectors/img/vector-34-conj-diagram.svg&quot; /&gt;&lt;/p&gt;
 &lt;h2 id=&quot;no-room-in-the-tail-but-room-in-the-root&quot;&gt;No room in the tail, but room in the root&lt;/h2&gt;
 &lt;p&gt;This time let’s consider conj’ing onto a vector that has 64 elements&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;range&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;64&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;99&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;range&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;64&lt;/span&gt;)))
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;99&lt;/span&gt;))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;This time the tail is full, so that makes the tail a candidate to become a new leaf in the root’s tree. And from there we just create a brand new tail containing the new element. We can see this happening in the &lt;code&gt;conj&lt;/code&gt; code&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;comment&quot;&gt;;; the part of conj that deals with the &quot;tail is full&quot; case&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[root-overflow? &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;bit-shift-right-zero-fill&lt;/span&gt; cnt &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)&lt;/span&gt;
-                        &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;bit-shift-left&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; shift)&lt;/span&gt;)&lt;/span&gt;
-      new-shift &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; root-overflow? &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;+&lt;/span&gt;&lt;/span&gt; shift &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)&lt;/span&gt; shift)&lt;/span&gt;
-      new-root &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; root-overflow?
-                  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[n-r &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;pv-fresh-node&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-                    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; root)&lt;/span&gt;
-                    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;new-path&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; shift &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;VectorNode.&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; tail)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-                    n-r)&lt;/span&gt;
-                  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;push-tail&lt;/span&gt; coll shift root &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;VectorNode.&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; tail)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;PersistentVector.&lt;/span&gt; meta &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; cnt)&lt;/span&gt; new-shift new-root &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;array&lt;/span&gt; o)&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [root-overflow? (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;bit-shift-right-zero-fill&lt;/span&gt; cnt &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)
+                        (&lt;span class=&quot;name&quot;&gt;bit-shift-left&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; shift))
+      new-shift (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;if&lt;/span&gt;&lt;/span&gt; root-overflow? (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;+&lt;/span&gt;&lt;/span&gt; shift &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;) shift)
+      new-root (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;if&lt;/span&gt;&lt;/span&gt; root-overflow?
+                  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [n-r (&lt;span class=&quot;name&quot;&gt;pv-fresh-node&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)]
+                    (&lt;span class=&quot;name&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; root)
+                    (&lt;span class=&quot;name&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;new-path&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; shift (&lt;span class=&quot;name&quot;&gt;VectorNode.&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; tail)))
+                    n-r)
+                  (&lt;span class=&quot;name&quot;&gt;push-tail&lt;/span&gt; coll shift root (&lt;span class=&quot;name&quot;&gt;VectorNode.&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; tail)))]
+  (&lt;span class=&quot;name&quot;&gt;PersistentVector.&lt;/span&gt; meta (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;inc&lt;/span&gt;&lt;/span&gt; cnt) new-shift new-root (&lt;span class=&quot;name&quot;&gt;array&lt;/span&gt; o) &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The above code has both root cases (whether the root is full or not) intertwined. If &lt;code&gt;root-overflow?&lt;/code&gt; is false, then our root still has some room in it. In that case all that really happens is &lt;code&gt;new-root&lt;/code&gt; gets set by the call to &lt;code&gt;push-tail&lt;/code&gt;, which returns a new root with our existing tail added to it. Then ultimately we return a new vector housing the new root and we quickly whip up a new tail for it that contains the appended element with &lt;code&gt;(array o)&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;img class=&quot;diagram&quot; src=&quot;/articles/clojurescript-internals-vectors/img/vector-64-conj-diagram.svg&quot; /&gt;&lt;/p&gt;
@@ -943,32 +943,32 @@ else
 &lt;p&gt;Each vector has a &lt;code&gt;shift&lt;/code&gt; property, which is a multiple of 5, &lt;code&gt;1 &amp;lt;&amp;lt; 5&lt;/code&gt; is 32. Basically the shift is telling us how many elements the root can hold. When shift is 5, the root has a depth of 1, 10 means a depth of 2, and so on. Way up there when we manually created our own PersistentVector, we passed in &lt;code&gt;5&lt;/code&gt; as our shift. Shift also tells other things about the vector, as we’ll see later on when we index into one (its name will make more sense then too).&lt;/p&gt;
 &lt;p&gt;When a vector has a shift of 5, its root can at most hold 32 * 32 elements (1024). That is, the root contains 32 VectorNodes, and each VectorNode holds 32 elements of the vector.&lt;/p&gt;
 &lt;p&gt;Now we can begin to understand how vectors determine if their root is full&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[root-overflow? &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;bit-shift-right-zero-fill&lt;/span&gt; cnt &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)&lt;/span&gt;
-                        &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;bit-shift-left&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; shift)&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [root-overflow? (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;bit-shift-right-zero-fill&lt;/span&gt; cnt &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)
+                        (&lt;span class=&quot;name&quot;&gt;bit-shift-left&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; shift))])
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Take the case of a vector having 1056 elements&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;range&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1056&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;9999&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;range&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1056&lt;/span&gt;)))
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;9999&lt;/span&gt;))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img class=&quot;diagram&quot; src=&quot;/articles/clojurescript-internals-vectors/img/vector-1056-diagram.svg&quot; /&gt;&lt;/p&gt;
 &lt;p&gt;This vector is packed to the gills, &lt;code&gt;root-overflow?&lt;/code&gt; will be true. Before it can proceed, the root needs to grow by one level&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;comment&quot;&gt;;; creation of the new root.&lt;/span&gt;
 &lt;span class=&quot;comment&quot;&gt;;; the root not overflowing case removed for better clarity&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[new-shift &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;+&lt;/span&gt;&lt;/span&gt; shift &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[new-root &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[n-r &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;pv-fresh-node&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-              &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; root)&lt;/span&gt;
-              &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;new-path&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; shift &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;VectorNode.&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; tail)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-              n-r)&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt;
+  [new-shift (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;+&lt;/span&gt;&lt;/span&gt; shift &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)
+  [new-root (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [n-r (&lt;span class=&quot;name&quot;&gt;pv-fresh-node&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;)]
+              (&lt;span class=&quot;name&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; root)
+              (&lt;span class=&quot;name&quot;&gt;pv-aset&lt;/span&gt; n-r &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;new-path&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; shift (&lt;span class=&quot;name&quot;&gt;VectorNode.&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt; tail)))
+              n-r))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Here a new root node is created with &lt;code&gt;pv-fresh-node&lt;/code&gt;, then the existing root is  pushed down to become a child, and then the tail becomes the second child with &lt;code&gt;new-path&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img class=&quot;diagram&quot; src=&quot;/articles/clojurescript-internals-vectors/img/vector-1056-conj-diagram.svg&quot; /&gt;&lt;/p&gt;
 &lt;p&gt;This last diagram’s a little noisy, but again everything gets shared between &lt;code&gt;a&lt;/code&gt; and &lt;code&gt;b&lt;/code&gt;.&lt;/p&gt;
 &lt;h2 id=&quot;advantages-to-the-root-tail-design&quot;&gt;Advantages to the Root/Tail Design&lt;/h2&gt;
 &lt;p&gt;This is a lot of hoopla just to add a new element onto a vector. Why all the fuss?&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;range&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;100000&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; a (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;range&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;100000&lt;/span&gt;)))
 &lt;span class=&quot;comment&quot;&gt;; this conj happens quickly&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; b (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;conj&lt;/span&gt;&lt;/span&gt; a &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Big deal! In JavaScript &lt;code&gt;myGiantArray.push(1)&lt;/code&gt; is also very fast! In fact, it’s faster! But ClojureScript is maintaining immutability (and persistence), where &lt;code&gt;push&lt;/code&gt; mutates in place. A naive approach to accomplishing immutability in JavaScript would be&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;arrayConj&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;array, x&lt;/span&gt;)
@@ -981,22 +981,22 @@ else
 &lt;p&gt;Fair enough, but can’t the root just be an array? Not ideally, because as we saw in the above case where the vector had 64 elements, we were able to create a second root very efficiently. The first root is maintained, as the first vector still needs it. The second root was just a matter of moving some tree nodes around. If the root was a flat array, then this would have called for more cloning.&lt;/p&gt;
 &lt;h3 id=&quot;indexing-into-the-vector&quot;&gt;Indexing into the vector&lt;/h3&gt;
 &lt;p&gt;Since the root is a tree, some performance is lost when we need to look up an element. With an array, finding an element is a matter of simple arithmetic. But &lt;code&gt;(nth my-giant-vector 200)&lt;/code&gt; will require the vector to dig inside the root and figure out where its 200th element lives before it can return it. This requires a little tree traversal, and is done with the &lt;a href=&quot;https://github.com/clojure/clojurescript/blob/22dd4fbeed72398cbc3336fccffe8196c56cd209/src/cljs/cljs/core.cljs#L4129&quot;&gt;&lt;code&gt;unchecked-array-for&lt;/code&gt; function&lt;/a&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; unchecked-array-for &lt;span class=&quot;collection&quot;&gt;[pv i]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;&amp;gt;=&lt;/span&gt;&lt;/span&gt; i &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;tail-off&lt;/span&gt; pv)&lt;/span&gt;)&lt;/span&gt;
-      &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-tail&lt;/span&gt; pv)&lt;/span&gt;
-      &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;loop&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[node &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-root&lt;/span&gt; pv)&lt;/span&gt;
-             level &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-shift&lt;/span&gt; pv)&lt;/span&gt;]&lt;/span&gt;
-        &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;pos?&lt;/span&gt;&lt;/span&gt; level)&lt;/span&gt;
-          &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;recur&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;pv-aget&lt;/span&gt; node &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;bit-and&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;bit-shift-right-zero-fill&lt;/span&gt; i level)&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;x01f)&lt;/span&gt;)&lt;/span&gt;
-                 &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;-&lt;/span&gt;&lt;/span&gt; level &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
-          &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-arr&lt;/span&gt; node)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn-&lt;/span&gt;&lt;/span&gt; unchecked-array-for [pv i]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;if&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;&amp;gt;=&lt;/span&gt;&lt;/span&gt; i (&lt;span class=&quot;name&quot;&gt;tail-off&lt;/span&gt; pv))
+      (&lt;span class=&quot;name&quot;&gt;.-tail&lt;/span&gt; pv)
+      (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;loop&lt;/span&gt;&lt;/span&gt; [node (&lt;span class=&quot;name&quot;&gt;.-root&lt;/span&gt; pv)
+             level (&lt;span class=&quot;name&quot;&gt;.-shift&lt;/span&gt; pv)]
+        (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;if&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;pos?&lt;/span&gt;&lt;/span&gt; level)
+          (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;recur&lt;/span&gt;&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;pv-aget&lt;/span&gt; node (&lt;span class=&quot;name&quot;&gt;bit-and&lt;/span&gt; (&lt;span class=&quot;name&quot;&gt;bit-shift-right-zero-fill&lt;/span&gt; i level) &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;x01f))
+                 (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;-&lt;/span&gt;&lt;/span&gt; level &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;))
+          (&lt;span class=&quot;name&quot;&gt;.-arr&lt;/span&gt; node)))))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Ultimately a vector is a tree of arrays, so &lt;code&gt;unchecked-array-for&lt;/code&gt; is finding the array that contains the queried index, and from there it’s just a matter of indexing into a standard JavaScript array. The top of the &lt;code&gt;if&lt;/code&gt; first figures out if the index is in the tail, if so the answer is easy. Otherwise &lt;code&gt;loop&lt;/code&gt; is used to move down through the tree. Again, clever use of bitwise operations enables finding the path through the tree to be efficient.&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;pv-aget&lt;/code&gt; is a simple method that knows a VectorNode contains an array, it effectively does &lt;code&gt;node.arr[i]&lt;/code&gt;, and determining what &lt;code&gt;i&lt;/code&gt; is relies on some bit-wise logic. &lt;code&gt;(bit-and (bit-shift-right-zero-fill i level) 0x01f)&lt;/code&gt; works out to be &lt;code&gt;(i &amp;gt;&amp;gt;&amp;gt; level) &amp;amp; 31&lt;/code&gt;, which tells us which array at each level is the one we need to traverse down into.&lt;/p&gt;
 &lt;p&gt;That was pretty dense, no? To put that nonsense another way, the index contains its own path into the tree. Let’s take a look at&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; my-giant-vector &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;range&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1048586&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; my-giant-vector (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;apply&lt;/span&gt;&lt;/span&gt; vector (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;range&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1048586&lt;/span&gt;)))
 &lt;span class=&quot;comment&quot;&gt;;; grab the 142600th element&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; n &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;nth&lt;/span&gt;&lt;/span&gt; my-giant-vector &lt;span class=&quot;number&quot;&gt;142600&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; n (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;nth&lt;/span&gt;&lt;/span&gt; my-giant-vector &lt;span class=&quot;number&quot;&gt;142600&lt;/span&gt;))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;This looks like:&lt;/p&gt;
 &lt;p&gt;&lt;img class=&quot;diagram&quot; src=&quot;/articles/clojurescript-internals-vectors/img/vector-traversal.svg&quot; /&gt;&lt;/p&gt;
@@ -1041,8 +1041,8 @@ else
 &lt;p&gt;If you’re at all familiar with Clojure, go ahead and &lt;a href=&quot;#on-to-reagent&quot;&gt;skip to the next section&lt;/a&gt;. This is a &lt;em&gt;very&lt;/em&gt; quick introduction to the language, it will help make the Reagent bits coming later more clear.&lt;/p&gt;
 &lt;h3 id=&quot;functions&quot;&gt;Functions&lt;/h3&gt;
 &lt;p&gt;Functions are created with &lt;code&gt;defn&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; add &lt;span class=&quot;collection&quot;&gt;[a b]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;+&lt;/span&gt;&lt;/span&gt; a b)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; add [a b]
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;+&lt;/span&gt;&lt;/span&gt; a b))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;is roughly equivalent to:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; add = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;a, b&lt;/span&gt;) &lt;/span&gt;{
@@ -1052,7 +1052,7 @@ else
 &lt;p&gt;ClojureScript functions always return the last expression that was evaluated.&lt;/p&gt;
 &lt;h3 id=&quot;maps&quot;&gt;Maps&lt;/h3&gt;
 &lt;p&gt;Maps are similar to JavaScript objects, they are collections of key/value pairs:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;string&quot;&gt;&quot;name&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;Calvin&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;position&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;goalie&quot;&lt;/span&gt;}&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;{&lt;span class=&quot;string&quot;&gt;&quot;name&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;Calvin&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;position&quot;&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;goalie&quot;&lt;/span&gt;}
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;is roughly equivalent to:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;{
@@ -1062,15 +1062,15 @@ else
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h3 id=&quot;keywords&quot;&gt;Keywords&lt;/h3&gt;
 &lt;p&gt;Notice how the map above used strings for keys? That’s a little awkward. More commonly keywords are used. Think of them as simple constants:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:name&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;Calvin&quot;&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:position&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;goalie&quot;&lt;/span&gt;}&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;{&lt;span class=&quot;symbol&quot;&gt;:name&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;Calvin&quot;&lt;/span&gt; &lt;span class=&quot;symbol&quot;&gt;:position&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;goalie&quot;&lt;/span&gt;}
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h3 id=&quot;vectors&quot;&gt;Vectors&lt;/h3&gt;
 &lt;p&gt;Vectors are similar to JavaScript arrays:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;comment&quot;&gt;;; simple vector&lt;/span&gt;
-&lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;]&lt;/span&gt;
+[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;]
 
 &lt;span class=&quot;comment&quot;&gt;;; you can put anything in a vector&lt;/span&gt;
-&lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;string&quot;&gt;&quot;a string&quot;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:even&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:another&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;:vector&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt;
+[&lt;span class=&quot;string&quot;&gt;&quot;a string&quot;&lt;/span&gt; [&lt;span class=&quot;symbol&quot;&gt;:even&lt;/span&gt; &lt;span class=&quot;symbol&quot;&gt;:another&lt;/span&gt; &lt;span class=&quot;symbol&quot;&gt;:vector&lt;/span&gt;]]
 &lt;/code&gt;&lt;/pre&gt;
 &lt;div class=&quot;callout pitfall&quot;&gt;
 This crash course glossed over many many things. Clojure fans are clenching their teeth right about now. If you want more information, I recommend starting with David Nolen’s &lt;a href=&quot;https://github.com/swannodette/lt-cljs-tutorial&quot;&gt;ClojureScript tutorial&lt;/a&gt;
@@ -1078,11 +1078,11 @@ This crash course glossed over many many things. Clojure fans are clenching thei
 
 &lt;h2 id=&quot;on-to-reagent&quot;&gt;On to Reagent&lt;/h2&gt;
 &lt;p&gt;Phew! Now let’s start building some Reagent components. Here’s a very simple one:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; hello &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;hello world&quot;&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; hello []
+  [&lt;span class=&quot;symbol&quot;&gt;:div&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;hello world&quot;&lt;/span&gt;])
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;By itself it doesn’t do much, but we can render it to the page like so&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;reagent/render&lt;/span&gt; hello &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.getElementById&lt;/span&gt; js/document &lt;span class=&quot;string&quot;&gt;&quot;my-container&quot;&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;reagent/render&lt;/span&gt; hello (&lt;span class=&quot;name&quot;&gt;.getElementById&lt;/span&gt; js/document &lt;span class=&quot;string&quot;&gt;&quot;my-container&quot;&lt;/span&gt;))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Take another look at the &lt;code&gt;hello&lt;/code&gt; component. It’s simply a function that returns a vector containing a keyword and a string. Nothing more than bread and butter Clojure. If you’re familiar with React, you might be wondering where &lt;code&gt;createClass&lt;/code&gt;, &lt;code&gt;componentDidMount&lt;/code&gt;, &lt;code&gt;render&lt;/code&gt; and all of that other hoopla went. &lt;em&gt;There’s no boilerplate at all!&lt;/em&gt;&lt;/p&gt;
 &lt;div class=&quot;callout wisdom&quot;&gt;
@@ -1093,49 +1093,49 @@ React fans might be crying fowl about now. The above would be &lt;code&gt;React.
 &lt;p&gt;Of course you’ll be doing more than rendering “hello world” into your webpages, and Reagent doesn’t manage to keep this abstraction up indefinitely. But it does a great job overall. If you need to, dropping down to the “metal” of React is possible, as is integrating Reagent with native React components. Reagent covers all the bases.&lt;/p&gt;
 &lt;h3 id=&quot;getting-more-involved&quot;&gt;Getting More Involved&lt;/h3&gt;
 &lt;p&gt;Components can take parameters&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; hello &lt;span class=&quot;collection&quot;&gt;[name]&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;hello &quot;&lt;/span&gt; name]&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; hello [name]
+  [&lt;span class=&quot;symbol&quot;&gt;:div&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;hello &quot;&lt;/span&gt; name])
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;reagent/render&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[hello &lt;span class=&quot;string&quot;&gt;&quot;Bob&quot;&lt;/span&gt;]&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-body&lt;/span&gt; js/document)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;reagent/render&lt;/span&gt; [hello &lt;span class=&quot;string&quot;&gt;&quot;Bob&quot;&lt;/span&gt;] (&lt;span class=&quot;name&quot;&gt;.-body&lt;/span&gt; js/document))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Notice &lt;code&gt;hello&lt;/code&gt; was passed to &lt;code&gt;render&lt;/code&gt; inside a vector? Since hello is just a function, shouldn’t it be &lt;code&gt;(hello &amp;quot;Bob&amp;quot;)&lt;/code&gt;? Technically you can get away with that in simple scenarios, but by handing Reagent a vector, Reagent can then only invoke your component when it needs to, allowing for more efficient rendering.&lt;/p&gt;
 &lt;p&gt;Components can also contain other components:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; page &lt;span class=&quot;collection&quot;&gt;[body]&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.page&lt;/span&gt;
-    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.header&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;This is the header&quot;&lt;/span&gt;]&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; page [body]
+  [&lt;span class=&quot;symbol&quot;&gt;:div.page&lt;/span&gt;
+    [&lt;span class=&quot;symbol&quot;&gt;:div.header&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;This is the header&quot;&lt;/span&gt;]
     body
-    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.footer&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;This is the footer&quot;&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+    [&lt;span class=&quot;symbol&quot;&gt;:div.footer&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;This is the footer&quot;&lt;/span&gt;]])
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;reagent/render&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[page &lt;span class=&quot;collection&quot;&gt;[hello &lt;span class=&quot;string&quot;&gt;&quot;Bob&quot;&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.-body&lt;/span&gt; js/document)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;reagent/render&lt;/span&gt; [page [hello &lt;span class=&quot;string&quot;&gt;&quot;Bob&quot;&lt;/span&gt;]] (&lt;span class=&quot;name&quot;&gt;.-body&lt;/span&gt; js/document))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;And yeah, adding classes to elements is as simple as appending them to the keyword, ie &lt;code&gt;:div.header&lt;/code&gt;&lt;/p&gt;
 &lt;h2 id=&quot;clojurescript-crash-course-part-two&quot;&gt;ClojureScript Crash Course Part Two&lt;/h2&gt;
 &lt;p&gt;Almost everything in ClojureScript is immutable. You can’t alter a vector after it’s been created, for example. To accomplish mutability, ClojureScript has atoms:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; my-atom &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;atom&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; my-atom (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;atom&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;An atom is a reference to an object. You can get at the object by dereferencing the atom:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.log&lt;/span&gt; js/console &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;deref&lt;/span&gt;&lt;/span&gt; my-atom)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;.log&lt;/span&gt; js/console (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;deref&lt;/span&gt;&lt;/span&gt; my-atom))
 
 &lt;span class=&quot;comment&quot;&gt;;; or, use the @ sugar&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.log&lt;/span&gt; js/console @my-atom)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;.log&lt;/span&gt; js/console @my-atom)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;It’s very similar to dereferencing a pointer in C.&lt;/p&gt;
 &lt;p&gt;You can update the atom with &lt;code&gt;reset!&lt;/code&gt; or &lt;code&gt;swap!&lt;/code&gt;:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;comment&quot;&gt;;; reset! causes the atom to point at a different object&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; my-atom &lt;span class=&quot;number&quot;&gt;6&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;reset!&lt;/span&gt;&lt;/span&gt; my-atom &lt;span class=&quot;number&quot;&gt;6&lt;/span&gt;)
 
 &lt;span class=&quot;comment&quot;&gt;;; this now prints 6&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.log&lt;/span&gt; js/console @my-atom)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;.log&lt;/span&gt; js/console @my-atom)
 
 &lt;span class=&quot;comment&quot;&gt;;; swap is a little trickier&lt;/span&gt;
 &lt;span class=&quot;comment&quot;&gt;;; you give it a function and any needed arguments to update the atom&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; my-atom + &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; my-atom + &lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)
 
 &lt;span class=&quot;comment&quot;&gt;;; the above is effectively this:&lt;/span&gt;
 &lt;span class=&quot;comment&quot;&gt;;; (reset! my-atom (+ @my-atom 5))&lt;/span&gt;
 
 &lt;span class=&quot;comment&quot;&gt;;; this will print 11&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;.log&lt;/span&gt; js/console @my-atom)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;.log&lt;/span&gt; js/console @my-atom)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;div class=&quot;callout pitfall&quot;&gt;
 And again, this is super glossed over
@@ -1143,22 +1143,22 @@ And again, this is super glossed over
 
 &lt;h2 id=&quot;atoms-and-reagent&quot;&gt;Atoms and Reagent&lt;/h2&gt;
 &lt;p&gt;Not surprisingly, atoms are how Reagent deals with state too. Let’s create a component that expands and collapses whenever the user clicks it:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; expanded &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;atom&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; expanded (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;atom&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;))
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; on-header-click &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; expanded not)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; on-header-click []
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; expanded not))
 
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; expandable-view &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.expandable&lt;/span&gt;
-    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.header&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:on-click&lt;/span&gt; on-header-click}&lt;/span&gt;
-      &lt;span class=&quot;string&quot;&gt;&quot;Click me to expand and collapse the body&quot;&lt;/span&gt;]&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; @expanded
-      &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.body&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;I am the body&quot;&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; expandable-view []
+  [&lt;span class=&quot;symbol&quot;&gt;:div.expandable&lt;/span&gt;
+    [&lt;span class=&quot;symbol&quot;&gt;:div.header&lt;/span&gt; {&lt;span class=&quot;symbol&quot;&gt;:on-click&lt;/span&gt; on-header-click}
+      &lt;span class=&quot;string&quot;&gt;&quot;Click me to expand and collapse the body&quot;&lt;/span&gt;]
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;if&lt;/span&gt;&lt;/span&gt; @expanded
+      [&lt;span class=&quot;symbol&quot;&gt;:div.body&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;I am the body&quot;&lt;/span&gt;])])
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Here the header div gets a map, allowing us to add a click handler. Every time the header gets clicked, the atom alternates between &lt;code&gt;true&lt;/code&gt; and &lt;code&gt;false&lt;/code&gt; (that’s what &lt;code&gt;swap!&lt;/code&gt; and &lt;code&gt;not&lt;/code&gt; are up to, &lt;code&gt;not&lt;/code&gt; flips booleans). Whether the body is present depends on the state of the &lt;code&gt;expanded&lt;/code&gt; atom.&lt;/p&gt;
 &lt;p&gt;Except this isn’t &lt;em&gt;entirely&lt;/em&gt; true. In order to pull off the above, we need to swap out the native atom with an atom that Reagent provides:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;comment&quot;&gt;;; use a Reagent atom instead&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;def&lt;/span&gt;&lt;/span&gt; expanded &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;reagent/atom&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;def&lt;/span&gt;&lt;/span&gt; expanded (&lt;span class=&quot;name&quot;&gt;reagent/atom&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;))
 
 &lt;span class=&quot;comment&quot;&gt;;; as before ...&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
@@ -1168,29 +1168,29 @@ And again, this is super glossed over
 &lt;p&gt;Notice in the last component the call to &lt;code&gt;if&lt;/code&gt;? It’s trivial to build up your components using just about anything in your ClojureScript toolbox as you see fit. Atoms are a simple, straightforward way to deal with state, and at the end of the day your code just describes your components and how they should behave. It’s easy to reason about and a pleasure to work with.&lt;/p&gt;
 &lt;h3 id=&quot;ratom-flavors&quot;&gt;Ratom Flavors&lt;/h3&gt;
 &lt;p&gt;Ratoms tend to come in two flavors, and roughly correspond to props and state in React. Prop-like ratoms contain data, typically pulled down from your server with an AJAX call. And state-like ratoms just keep track of things like “expanded or collapsed”. I tend to couple state-like ratoms directly into my components:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; expandable-view &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-  &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;let&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[expanded &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;reagent/atom&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;fn&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[]&lt;/span&gt;
-      &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.expandable&lt;/span&gt;
-        &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.header&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;{&lt;span class=&quot;attribute&quot;&gt;:on-click&lt;/span&gt; #&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; expanded not)&lt;/span&gt;}&lt;/span&gt;
-         &lt;span class=&quot;string&quot;&gt;&quot;Click me to expand and collapse&quot;&lt;/span&gt;]&lt;/span&gt;
-        &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;if&lt;/span&gt;&lt;/span&gt; @expanded
-          &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.body&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;I am the body&quot;&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; expandable-view []
+  (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;let&lt;/span&gt;&lt;/span&gt; [expanded (&lt;span class=&quot;name&quot;&gt;reagent/atom&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;)]
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;fn&lt;/span&gt;&lt;/span&gt; []
+      [&lt;span class=&quot;symbol&quot;&gt;:div.expandable&lt;/span&gt;
+        [&lt;span class=&quot;symbol&quot;&gt;:div.header&lt;/span&gt; {&lt;span class=&quot;symbol&quot;&gt;:on-click&lt;/span&gt; #(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;swap!&lt;/span&gt;&lt;/span&gt; expanded not)}
+         &lt;span class=&quot;string&quot;&gt;&quot;Click me to expand and collapse&quot;&lt;/span&gt;]
+        (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;if&lt;/span&gt;&lt;/span&gt; @expanded
+          [&lt;span class=&quot;symbol&quot;&gt;:div.body&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;I am the body&quot;&lt;/span&gt;])])))
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;In the above the &lt;code&gt;expanded&lt;/code&gt; atom got pulled inside of the component. This is a bit more advanced than the other examples, but the general concept should be clear.&lt;/p&gt;
 &lt;p&gt;And I tend to decouple my prop-like data ratoms from my components. I instead manage them elsewhere and simply pass them to the component as a parameter. This makes reusing and testing components very easy:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; comment-view &lt;span class=&quot;collection&quot;&gt;[comment]&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.comment&lt;/span&gt;
-    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:span.author&lt;/span&gt; &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:author&lt;/span&gt; comment)&lt;/span&gt;]&lt;/span&gt;
-    &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:span.body&lt;/span&gt;   &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;attribute&quot;&gt;:body&lt;/span&gt; comment)&lt;/span&gt;]&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-clojure&quot;&gt;(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; comment-view [comment]
+  [&lt;span class=&quot;symbol&quot;&gt;:div.comment&lt;/span&gt;
+    [&lt;span class=&quot;symbol&quot;&gt;:span.author&lt;/span&gt; (&lt;span class=&quot;symbol&quot;&gt;:author&lt;/span&gt; comment)]
+    [&lt;span class=&quot;symbol&quot;&gt;:span.body&lt;/span&gt;   (&lt;span class=&quot;symbol&quot;&gt;:body&lt;/span&gt; comment)]])
 
 &lt;span class=&quot;comment&quot;&gt;;; here comments is a ratom that probably got populated&lt;/span&gt;
 &lt;span class=&quot;comment&quot;&gt;;; with an AJAX call. But comment-list doesn't care,&lt;/span&gt;
 &lt;span class=&quot;comment&quot;&gt;;; it just takes the comments and runs with them&lt;/span&gt;
-&lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; comment-list &lt;span class=&quot;collection&quot;&gt;[comments]&lt;/span&gt;
-  &lt;span class=&quot;collection&quot;&gt;[&lt;span class=&quot;attribute&quot;&gt;:div.comment-list&lt;/span&gt;
-    &lt;span class=&quot;list&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;for&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;collection&quot;&gt;[comment @comments]&lt;/span&gt;
-      &lt;span class=&quot;collection&quot;&gt;[comment-view comment]&lt;/span&gt;)&lt;/span&gt;]&lt;/span&gt;)&lt;/span&gt;
+(&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;defn&lt;/span&gt;&lt;/span&gt; comment-list [comments]
+  [&lt;span class=&quot;symbol&quot;&gt;:div.comment-list&lt;/span&gt;
+    (&lt;span class=&quot;name&quot;&gt;&lt;span class=&quot;builtin-name&quot;&gt;for&lt;/span&gt;&lt;/span&gt; [comment @comments]
+      [comment-view comment])])
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Again, Reagent simplifies things and lets you construct your components in whatever way works best for you. The hard distinction between props and state is completely gone, instead just use ratoms however you prefer.&lt;/p&gt;
 &lt;p&gt;That about wraps it up for now. If you’re on the fence about ClojureScript,  I’m hoping I piqued your interest a little bit.&lt;/p&gt;
@@ -1231,7 +1231,7 @@ body goes here
     &lt;span class=&quot;keyword&quot;&gt;super&lt;/span&gt;(ALL, &lt;span class=&quot;number&quot;&gt;1000l&lt;/span&gt;, DefaultParseRunnerProvider);
   }
 
-  &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
+  &lt;span class=&quot;meta&quot;&gt;@Override&lt;/span&gt;
   &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Rule[] blockPluginRules() {
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Rule[] { component() };
   }
@@ -1448,12 +1448,12 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
     &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.body = body;
   }
 
-  &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
+  &lt;span class=&quot;meta&quot;&gt;@Override&lt;/span&gt;
   &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;accept&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Visitor visitor)&lt;/span&gt; &lt;/span&gt;{
     visitor.visit((Node) &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);
   }
 
-  &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
+  &lt;span class=&quot;meta&quot;&gt;@Override&lt;/span&gt;
   &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; List&amp;lt;Node&amp;gt; &lt;span class=&quot;title&quot;&gt;getChildren&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;;
   }
@@ -1473,7 +1473,7 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
 &lt;p&gt;And of course &lt;code&gt;ComponentSerializer&lt;/code&gt; is a class I wrote to handle my custom stuff:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentSerializer&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ToHtmlSerializerPlugin&lt;/span&gt; &lt;/span&gt;{
 
-  &lt;span class=&quot;annotation&quot;&gt;@Override&lt;/span&gt;
+  &lt;span class=&quot;meta&quot;&gt;@Override&lt;/span&gt;
   &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;visit&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Node node, Visitor visitor, Printer printer)&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (node &lt;span class=&quot;keyword&quot;&gt;instanceof&lt;/span&gt; ComponentNode) {
       ComponentNode cNode = (ComponentNode)node;
@@ -1610,7 +1610,7 @@ sandbox/
 
 ...
 
-&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; $__default = RectEntity;
+var $__default = RectEntity;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;What I really wanted was effectively &lt;code&gt;module.exports = RectEntity&lt;/code&gt;, but I’m pretty convinced Traceur just won’t do that. In ES6, &lt;code&gt;export &amp;lt;name&amp;gt; &amp;lt;value&amp;gt;&lt;/code&gt; is how it works, and Traceur will use that name verbatim. Even if you do this in ES6&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;export class RectEntity ... {
@@ -2497,9 +2497,9 @@ That’s all well and good, but how do you have normal vectors in a 2d game? The
 &lt;p&gt;&lt;img src=&quot;/articles/dynamic-lighting-and-shadows/mansionNormals.png&quot; alt=&quot;mansion normals&quot;&gt;&lt;/p&gt;
 &lt;p&gt;For starters, you can see the actual house sprite has no shading drawn into it. Then the normal map encodes the normals for each pixel into a color. A vector needs to be specified with (x,y,z) coordinates, and an image has r,g and b values. So the encoding into the image is easy to do. Take the front face of the house, which is facing due south giving the normal vector values of &lt;code&gt;[x:0, y:0.5, z:0]&lt;/code&gt;. RGB values are positive, so need to shift the values up by 0.5 to force everything positive:  &lt;code&gt;[x:0.5, y:1, z:0.5]&lt;/code&gt;. And RGB values are normally represented as bytes, so multiply each value by &lt;code&gt;255&lt;/code&gt;, yielding (rounded up): &lt;code&gt;[x:128, y:255, z:128]&lt;/code&gt;, or in other words, this bright green &lt;span style=&quot;display:inline-block; width: 30px; height: 15px; background-color: rgb(128, 255, 128)&quot;&gt;&amp;nbsp;&lt;/span&gt;, the same green in the normal map image.&lt;/p&gt;
 &lt;p&gt;With our normals in tow, we’re ready to have the graphics card do its magic. My game is using &lt;a href=&quot;http://www.impactjs.com&quot;&gt;ImpactJS&lt;/a&gt;, which is very compatibile with &lt;a href=&quot;https://github.com/gameclosure/webgl-2d&quot;&gt;WebGL2D&lt;/a&gt; Using WebGL2D, it was easy to add an additional fragment shader to implement the lighting:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;preprocessor&quot;&gt;#&lt;span class=&quot;keyword&quot;&gt;ifdef&lt;/span&gt; GL_ES&lt;/span&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;meta&quot;&gt;#&lt;span class=&quot;meta-keyword&quot;&gt;ifdef&lt;/span&gt; GL_ES&lt;/span&gt;
   precision highp &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt;;
-&lt;span class=&quot;preprocessor&quot;&gt;#&lt;span class=&quot;keyword&quot;&gt;endif&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;meta&quot;&gt;#&lt;span class=&quot;meta-keyword&quot;&gt;endif&lt;/span&gt;&lt;/span&gt;
 
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;

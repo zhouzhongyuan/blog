@@ -53,9 +53,9 @@ That’s all well and good, but how do you have normal vectors in a 2d game? The
 <p><img src="/articles/dynamic-lighting-and-shadows/mansionNormals.png" alt="mansion normals"></p>
 <p>For starters, you can see the actual house sprite has no shading drawn into it. Then the normal map encodes the normals for each pixel into a color. A vector needs to be specified with (x,y,z) coordinates, and an image has r,g and b values. So the encoding into the image is easy to do. Take the front face of the house, which is facing due south giving the normal vector values of <code>[x:0, y:0.5, z:0]</code>. RGB values are positive, so need to shift the values up by 0.5 to force everything positive:  <code>[x:0.5, y:1, z:0.5]</code>. And RGB values are normally represented as bytes, so multiply each value by <code>255</code>, yielding (rounded up): <code>[x:128, y:255, z:128]</code>, or in other words, this bright green <span style="display:inline-block; width: 30px; height: 15px; background-color: rgb(128, 255, 128)">&nbsp;</span>, the same green in the normal map image.</p>
 <p>With our normals in tow, we’re ready to have the graphics card do its magic. My game is using <a href="http://www.impactjs.com">ImpactJS</a>, which is very compatibile with <a href="https://github.com/gameclosure/webgl-2d">WebGL2D</a> Using WebGL2D, it was easy to add an additional fragment shader to implement the lighting:</p>
-<pre><code class="lang-c"><span class="preprocessor">#<span class="keyword">ifdef</span> GL_ES</span>
+<pre><code class="lang-c"><span class="meta">#<span class="meta-keyword">ifdef</span> GL_ES</span>
   precision highp <span class="keyword">float</span>;
-<span class="preprocessor">#<span class="keyword">endif</span></span>
+<span class="meta">#<span class="meta-keyword">endif</span></span>
 
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
