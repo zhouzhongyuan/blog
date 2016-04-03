@@ -67,9 +67,9 @@
     res.send(renderToString(
       <span class="comment">// notice that store doesn't actually exist, yet ...</span>
       &lt;Provider store={store}&gt;
-        <span class="xml"><span class="tag">&lt;<span class="title">RoutingContext</span> {<span class="attribute">...renderProps</span>}/&gt;</span>
-      <span class="tag">&lt;/<span class="title">Provider</span>&gt;</span>
-    )</span>;
+        <span class="xml"><span class="tag">&lt;<span class="name">RoutingContext</span> {<span class="attr">...renderProps</span>}/&gt;</span>
+      <span class="tag">&lt;/<span class="name">Provider</span>&gt;</span></span>
+    );
   });
 });
 </code></pre>
@@ -113,9 +113,9 @@ HelloPage.serverFalcorPaths = [
         res.send(renderToString(
           <span class="comment">// the store prop here is the gotcha</span>
           &lt;Provider store={store}&gt;
-            <span class="xml"><span class="tag">&lt;<span class="title">RoutingContext</span> {<span class="attribute">...renderProps</span>}/&gt;</span>
-          <span class="tag">&lt;/<span class="title">Provider</span>&gt;</span>
-        )</span>;
+            <span class="xml"><span class="tag">&lt;<span class="name">RoutingContext</span> {<span class="attr">...renderProps</span>}/&gt;</span>
+          <span class="tag">&lt;/<span class="name">Provider</span>&gt;</span></span>
+        );
       });
   });
 });
