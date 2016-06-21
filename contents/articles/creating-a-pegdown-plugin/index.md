@@ -9,15 +9,15 @@ I recently found myself needing to create a [Pegdown](http://pegdown.org) plugin
 
 <span class="more"></span>
 
-##What is Pegdown?
+## What is Pegdown?
 
 [Pegdown](http://pegdown.org) is a Markdown parser and HTML generator for the JVM. Converting Markdown to HTML is as simple as `new PegDownProcessor().markdownToHtml(markdown);`, which is awesome. If you want to extend Markdown with your own syntax, Pegdown's got you covered with its plugin system. However creating a Pegdown plugin is not quite as simple.
 
-##The Two Phases of Pegdown
+## The Two Phases of Pegdown
 
 Pegdown works in two phases. First it converts Markdown into an abstract syntax tree, then it takes that AST and serializes it into HTML. Your plugin probably needs to be involved in both phases, but you are free to only work with one phase if it suits you.
 
-##The Parsing Plugin
+## The Parsing Plugin
 
 First, create a plugin that participates in the parsing/AST phase. In my case, I wanted to parse this extension to Markdown
 
@@ -272,7 +272,7 @@ It's using `StringBuilderVar`s again, which come with Parboiled. But `ParamVar` 
 
 That's as far as I needed to take Vars, I'm sure they get more involved if you need to do fancier stuff.
 
-##Having Pegdown Use Your Parser Plugin
+## Having Pegdown Use Your Parser Plugin
 
 Now with the parser plugin written, I need to tell Pegdown to use it:
 
