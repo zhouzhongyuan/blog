@@ -8,7 +8,7 @@ For the past 3 years, I have almost exclusively pair programmed at my job. I hav
 
 <span class="more"></span>
 
-##If You're Going to Start Pairing...
+## If You're Going to Start Pairing...
 
 Before I really begin, I want to point out it's important to create a proper pairing environment. Sticking two people at one desk with a laptop won't cut it. Start with two desks, arranged at 90 degrees. One computer feeds two mirrored monitors (or four), two keyboards and two mice.
 
@@ -18,7 +18,7 @@ Before I really begin, I want to point out it's important to create a proper pai
 
 This gives each participant their own space, a comfortable neutral zone, and sets them up as equals as far as the environment is concerned. You don't want the environment itself to cause any inhibitions.
 
-##When Pairing Is Great
+## When Pairing Is Great
 
 Knowledge transfer is pairing's killer feature.
 
@@ -34,11 +34,11 @@ When you need help from someone, often the two of you end up crowded around one 
 
 This is the other circumstance I have found where pairing is highly effective. When the two members gel well. Their personalities slide together just right, and the end result is a super being that is more than the sum of its parts. Sometimes way more. When this happens, it almost doesn't matter what they are working on, they tend to do it very well.
 
-##That Super Being is Mythical Most of the Time
+## That Super Being is Mythical Most of the Time
 
 Throwing two random people together and expecting magic is optimistic at best. We see this all the time in the real world. A star studded cast yet the movie is a dud. Baseball's all-star game rarely leads to two unstoppable teams. More is not necessarily better, and relationships are tricky.
 
-##Exploring the Unknown and Solving Hard Problems
+## Exploring the Unknown and Solving Hard Problems
 
 Tough problems are also where companies might gravitate towards pairing. Surely if one smart person can solve a difficult problem, two can solve it faster and better?
 
@@ -52,7 +52,7 @@ I don't want to have to constantly explain everything I'm thinking about when di
 
 Regardless of your personality or comfort level with other people, it's hard to deny that keeping both people in the loop slows down and can even prevent deep thought. Being in the zone and really digging deep into a problem requires quiet and focus. Something pairing actively takes away from you. The recent backlash against open offices (such as [here](http://www.theguardian.com/news/2013/nov/18/open-plan-offices-bad-harvard-business-review), [here](http://www.newyorker.com/online/blogs/currency/2014/01/the-open-office-trap.html) and [here](http://www.fastcompany.com/3022456/dialed/the-10-worst-things-about-working-in-an-open-office-in-your-words)) largely applies to pairing too.
 
-##I *am* an introvert
+## I *am* an introvert
 
 I'm totally an introvert. For sure, my disposition makes me more critical of pairing.
 
@@ -62,7 +62,7 @@ Pairing lets the loud idea win. Which might be the correct idea, or ... it might
 
 Many of us just don't shine in this situation. Heck for many of us this situation is down right uncomfortable. Programming has stereotypically attracted the quieter, more introverted types. It's clearly not a loud or very social activity. Pairing may be shutting this type of person down, which is not what you want.
 
-##Other Pairing Problems
+## Other Pairing Problems
 
 Leaving behind the whole introversion/extroversion arguments, there are problems with pairing that affect everyone.
 
@@ -75,12 +75,12 @@ In my experience pairing almost always takes more chronological time to complete
 ### Physical Space
 Proper pairing stations take more space and hardware. That can be hard to justify sometimes. I've even seen more pairing stations meaning the removal of personal desks and personal space, leaving fewer places people can escape to for some solitude.
 
-##Pairing is Not Necessarily Collaboration
+## Pairing is Not Necessarily Collaboration
 
 Pairing leads to collaboration much like blind dates lead to romance. The act of pairing itself has little influence on the actual collaboration that may or may not happen. There are more natural and more efficient ways to collaborate, such as code reviews and ad hoc conversations. Rather than confine yourself to one person, workers should feel free to seek out the input they are after.
 
 More recently, a focus on office spaces that balance open spaces with private coves are becoming more common. This gives people the power to decide when to be collaborative, and when to work in quiet focus. Letting people naturally make this decision seems much more effective.
 
-##Pairing is a Tool
+## Pairing is a Tool
 
 In the end that's all it is and all I am really arguing. Sometimes pairing is great, other times it's costly and ineffective. The key is to recognize this and utilize pairing intelligently. If your company is new to pairing, you need to get familiar with it and find out for yourself when it's effective. This is no different from any other tool. But please don't propose it as the new default for all work going forward, it probably won't work.

@@ -36,7 +36,7 @@ Today we're taking a look at how vectors are implemented in ClojureScript. We'll
 }
 </style>
 
-##A Little Background
+## A Little Background
 Before diving into the how, we need to talk about the why a little bit. If you're not new to Clojure, feel free to <a href="#inside-clojurescript-s-persistentvector">skip to the next section</a>.
 
 ### Persistent Data Structures

@@ -14,7 +14,7 @@ I'm working on a stealth action game where shadows will play a big role in the g
 
 <iframe width="560" height="315" style="margin-top: 3em; margin-bottom: 3em;" src="http://www.youtube.com/embed/ZMyg5erp-vk" frameborder="0" allowfullscreen></iframe>
 
-##Part one: dynamic lighting
+## Part one: dynamic lighting
 I was inspired by [this post](http://www.reddit.com/r/gamedev/comments/115f3y/how_to_dynamic_lighting_on_sprites/) on Reddit, where aionskull used normal maps in Unity to dynamically light up his sprites. gpillow also posted in the comments how he had done [something similar](https://love2d.org/forums/viewtopic.php?f=5&t=11076) in Love2D. [Here's a large gif illustrating gpillow's results](pixel_shading.gif). I'd just include the gif here, but it's 8 megs. Thanks to jusksmit for making the gif.
 
 So, what is dynamic lighting? It's a 3D graphics technique where a light source lights up objects in the scene. It's dynamic as the lighting effects update in real time as the light source moves around. This is pretty standard stuff in the 3D world and easy to translate into a 2D environment, assuming you can take advantage of shaders.
@@ -24,7 +24,7 @@ The key is the angle the light hits a surface indicates how much the surface lig
 ![lighting diagram](lighting.gif)
 
 and the key to *that* is the normal vector. A vector which indicates which way a surface is facing. In the above diagram, the arrow sticking out of the center of the panel is the normal vector. You can see that when the light's rays come in at a shallower angle, the panel is less influenced by the light and not lit up as much. So in the end, the algorithm is quite simple, as that angle increases, have the light source influence less. A simple way to calculate the influence is to calculate the dot product between the light vector and the normal vector.
-###dynamic lighting in a 2d environment
+### dynamic lighting in a 2d environment
 That's all well and good, but how do you have normal vectors in a 2d game? There aren't any real 3D objects in the traditional sense, but textures can step in to provide the needed info. I created *normal maps* for the two houses in the above video, and use them to calculate the lighting:
 
 ![mansion normals](mansionNormals.png)
@@ -74,7 +74,7 @@ is because lighting the pixels up makes them looked washed out. There are ways t
 
 ![lighting examples](lightingExamples.png)
 
-##part two: casting shadows
+## part two: casting shadows
 Casting shadows in 3D environments is a well solved problem, using techniques like [raytracing](http://en.wikipedia.org/wiki/Ray_tracing_(graphics)) or [shadow mapping](http://en.wikipedia.org/wiki/Shadow_mapping) casting shadows in the scene is pretty easy to accomplish. I struggled to find an implementation in my 2D environment that I was happy with. I think I came up with a good solution, but for sure it has drawbacks.
 
 In short, draw a line from a fragment (aka pixel) in the scene to the sun and see if anything gets in the way. if something does, that pixel is in the shade, else it's in the sun. In the end it's actually pretty simple.
@@ -198,7 +198,7 @@ void main(void) {
 
 The `uTexStep` uniform is how far to move over each time we check a nearby pixel. This is set to either `1/heightMap.width` or `1/heightMap.height` before invoking the shader. This is because textures in OpenGL are typically mapped from 0 to 1, so the inverse is how far to move to get to the next pixel.
 
-###shadow wrap up
+### shadow wrap up
 Truth be told there are some minor details I'm leaving out in the above code, but the core idea is definitely there. One major problem with this approach is each pixel in the scene can only have one height. A good example of how this is a limitation is trees. I can tell the engine to cast a really low, long shadow for a tree, but the trunk will never show up in the shadow. This is because the overhang area at the bottom of the leaves is not recorded in the height map.
 
 ![shadow example 1](shadow1.png)  

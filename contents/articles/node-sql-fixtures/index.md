@@ -8,11 +8,11 @@ I don't think a fixture generator for PostgreSQL exists in NPM. If one does, I c
 
 <span class="more"></span>
 
-##Fixtures?
+## Fixtures?
 
 "Fixture" is just a fancy word for "sample data". I first encountered the idea of fixtures in Ruby on Rails almost a decade ago (egads!). Typically in Ruby you lay out some sample data using YAML, and this data then gets populated into your database. This is ideal for integration tests, dummy data and end-to-end tests.
 
-##SQL Fixtures for Node
+## SQL Fixtures for Node
 
 [sql-fixtures](https://github.com/city41/node-sql-fixtures) applies the same idea, except this time for Node. Since JavaScript is such a flexible language, no need for something like YAML, it's easy to just define the fixture data in JavaScript itself.
 
@@ -41,7 +41,7 @@ sqlFixtures.create(databaseConfig, fixtures).then(function(result) {
 
 The `databaseConfig` parameter tells sql-fixtures how to connect to your database, more info on that in the [README](https://github.com/city41/node-sql-fixtures/blob/master/README.md)
 
-##Foreign Key Resolution
+## Foreign Key Resolution
 
 The neatest feature of sql-fixtures is automatic foreign key resolution. If you want to insert data into two tables and have their keys point at each other, it can be tedious to do manually. With sql-fixtures you can specify the relation in the fixture spec:
 
@@ -80,9 +80,9 @@ var fixtures = {
 
 and with the specId, the association is made just like when using an index.
 
-##That's it!
+## That's it!
 
 Not much to this one. And a shout out to [Knex.js](http://knexjs.org/) which is the library that sql-fixtures uses to communicate with the database. I'm a fan of Knex.js and the ORM built on top of it, [Bookshelf.js](http://bookshelfjs.org/).
 
-###By the way
+### By the way
 Knex.js is why I make the claim this works with Postgres, MySql, Maria and sqlite, as Knex.js supports all of them. However, I only need Postgres so far, so Postgres is the only database that's seen any real usage. If you use sql-fixtures with one of the other database engines, let me know if you hit any problems.
