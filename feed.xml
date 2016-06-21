@@ -1204,11 +1204,11 @@ And again, this is super glossed over
       <author></author>
       <description>&lt;p&gt;I recently found myself needing to create a &lt;a href=&quot;http://pegdown.org&quot;&gt;Pegdown&lt;/a&gt; plugin. The documentation was a bit all over the place on this, so I figured I’d dump my end-to-end experience into a blog post for Google to consume.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;##What is Pegdown?&lt;/p&gt;
+&lt;h2 id=&quot;what-is-pegdown-&quot;&gt;What is Pegdown?&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&quot;http://pegdown.org&quot;&gt;Pegdown&lt;/a&gt; is a Markdown parser and HTML generator for the JVM. Converting Markdown to HTML is as simple as &lt;code&gt;new PegDownProcessor().markdownToHtml(markdown);&lt;/code&gt;, which is awesome. If you want to extend Markdown with your own syntax, Pegdown’s got you covered with its plugin system. However creating a Pegdown plugin is not quite as simple.&lt;/p&gt;
-&lt;p&gt;##The Two Phases of Pegdown&lt;/p&gt;
+&lt;h2 id=&quot;the-two-phases-of-pegdown&quot;&gt;The Two Phases of Pegdown&lt;/h2&gt;
 &lt;p&gt;Pegdown works in two phases. First it converts Markdown into an abstract syntax tree, then it takes that AST and serializes it into HTML. Your plugin probably needs to be involved in both phases, but you are free to only work with one phase if it suits you.&lt;/p&gt;
-&lt;p&gt;##The Parsing Plugin&lt;/p&gt;
+&lt;h2 id=&quot;the-parsing-plugin&quot;&gt;The Parsing Plugin&lt;/h2&gt;
 &lt;p&gt;First, create a plugin that participates in the parsing/AST phase. In my case, I wanted to parse this extension to Markdown&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-markdown&quot;&gt;%%% someMethod(someParam=someValue)
 body goes here
@@ -1423,7 +1423,7 @@ Pegdown has one expectation here: &lt;em&gt;your plugin should finish its job wi
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;That’s as far as I needed to take Vars, I’m sure they get more involved if you need to do fancier stuff.&lt;/p&gt;
-&lt;p&gt;##Having Pegdown Use Your Parser Plugin&lt;/p&gt;
+&lt;h2 id=&quot;having-pegdown-use-your-parser-plugin&quot;&gt;Having Pegdown Use Your Parser Plugin&lt;/h2&gt;
 &lt;p&gt;Now with the parser plugin written, I need to tell Pegdown to use it:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-java&quot;&gt;  PegDownPlugins plugins = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; PegDownPlugins.Builder()
     .withPlugin(ComponentParser.class).build();
