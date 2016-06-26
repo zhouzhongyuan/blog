@@ -5,7 +5,7 @@ date: 2016-06-26
 template: article.jade
 ---
 
-Try as I might, I could not get TypeScript and Redux to play nice together. I finally pulled it off with a tiny hack, and thought I'd dump what I did. If anyone has a better approach, please <a href="mailto:matt.e.greer@gmail.com">I'm all ears</a>
+Try as I might, I could not get TypeScript and Redux to play nice. I finally pulled it off with a tiny hack, and thought I'd dump what I did. If anyone has a better approach, please <a href="mailto:matt.e.greer@gmail.com">I'm all ears</a>
 
 <span class="more"></span>
 
