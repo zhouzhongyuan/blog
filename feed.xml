@@ -5,9 +5,211 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Sat, 30 Jan 2016 16:00:00 -0800</pubDate>
+    <pubDate>Sat, 25 Jun 2016 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>TypeScript, React and Redux</title>
+      <link>http://mattgreer.org/articles/typescript-react-and-redux/</link>
+      <pubDate>Sat, 25 Jun 2016 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/typescript-react-and-redux/</guid>
+      <author></author>
+      <description>&lt;p&gt;Try as I might, I could not get TypeScript and Redux to play nice together. I finally pulled it off with a tiny hack, and thought I’d dump what I did. If anyone has a better approach, please &lt;a href=&quot;mailto:matt.e.greer@gmail.com&quot;&gt;I’m all ears&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&quot;setting-up-your-actions&quot;&gt;Setting Up Your Actions&lt;/h2&gt;
+&lt;p&gt;Somewhere in a Redux GitHub issue I found someone who took the approach of using &lt;a href=&quot;https://github.com/acdlite/redux-actions&quot;&gt;redux-actions&lt;/a&gt; and I liked it and adopted it.&lt;/p&gt;
+&lt;p&gt;For starters, define an &lt;code&gt;Action&amp;lt;T&amp;gt;&lt;/code&gt; interface that your actions will conform to&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;interface&lt;/span&gt; Action&amp;lt;T&amp;gt;{
+  &lt;span class=&quot;keyword&quot;&gt;type&lt;/span&gt;: &lt;span class=&quot;built_in&quot;&gt;string&lt;/span&gt;;
+  payload: T;
+  error?: &lt;span class=&quot;built_in&quot;&gt;boolean&lt;/span&gt;;
+  meta?: &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;;
+}
+
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; Action;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So far I’m not using &lt;code&gt;error&lt;/code&gt; or &lt;code&gt;meta&lt;/code&gt;, but that’s what redux-actions calls for so going with it. With this we get statically typed Actions&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action from &lt;span class=&quot;string&quot;&gt;&quot;./action&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; MY_ACTION = &lt;span class=&quot;string&quot;&gt;&quot;MY_ACTION&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;type&lt;/span&gt; MY_ACTION = { foo: &lt;span class=&quot;built_in&quot;&gt;number&lt;/span&gt;, message: &lt;span class=&quot;built_in&quot;&gt;string&lt;/span&gt; }
+
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doMyAction&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;message: &lt;span class=&quot;built_in&quot;&gt;string&lt;/span&gt;&lt;/span&gt;): &lt;span class=&quot;title&quot;&gt;Action&lt;/span&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;MY_ACTION&lt;/span&gt;&amp;gt; &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
+        &lt;span class=&quot;keyword&quot;&gt;type&lt;/span&gt;: MY_ACTION,
+        payload: {
+            foo: &lt;span class=&quot;number&quot;&gt;123&lt;/span&gt;,
+            message
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Exporting both a string and a type named &lt;code&gt;MY_ACTION&lt;/code&gt; felt a little weird. But since TypeScript can distinguish them by their type, it works. It reduces the cognitive load a bit when defining actions.&lt;/p&gt;
+&lt;h2 id=&quot;and-the-reducer&quot;&gt;And The Reducer&lt;/h2&gt;
+&lt;p&gt;And now with the action set up, the reducer can consume it&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action from &lt;span class=&quot;string&quot;&gt;&quot;../actions/action&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { MY_ACTION } from &lt;span class=&quot;string&quot;&gt;&quot;../actions/myAction&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { handleActions } from &lt;span class=&quot;string&quot;&gt;&quot;redux-actions&quot;&lt;/span&gt;;
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; reducer = handleActions({
+  [MY_ACTION]: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state, action: Action&amp;lt;MY_ACTION&amp;gt;&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; massagedFoo = doSomething(action.payload.foo);
+
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.assign({}, state, {
+      massagedFoo,
+      message: action.payload.message
+    });
+  }
+}, {});
+
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; reducer;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Since TypeScript doesn’t yet support &lt;a href=&quot;https://github.com/Microsoft/TypeScript/issues/2103&quot;&gt;spread on objects&lt;/a&gt;, need to resort to &lt;code&gt;Object.assign&lt;/code&gt;, which is not a big deal. I also left &lt;code&gt;state&lt;/code&gt; as &lt;code&gt;any&lt;/code&gt;, but defining its type is doable if you feel like it.&lt;/p&gt;
+&lt;p&gt;Also a minor point, but I like how redux-actions lets me avoid a switch statement.&lt;/p&gt;
+&lt;h2 id=&quot;time-to-connect-it-all&quot;&gt;Time To connect it all&lt;/h2&gt;
+&lt;h3 id=&quot;step-one-the-component&quot;&gt;Step One, the component&lt;/h3&gt;
+&lt;p&gt;Your root component that will receive props from redux is a bit verbose to set up, lots of typing to make everyone happy&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;import * as React from &amp;quot;react&amp;quot;;
+import { connect } from &amp;quot;react-redux&amp;quot;;
+
+import { bindActionCreators } from &amp;quot;redux&amp;quot;;
+import * as MyActions from &amp;quot;../actions/myAction&amp;quot;;
+
+interface StateProps {
+  massagedFoo: number,
+  message: string
+}
+
+interface DispatchProps {
+  doMyAction(message: string)
+}
+
+type Props = StateProps &amp;amp; DispatchProps;
+
+function mapStateToProps(state) {
+  return {
+    massagedFoo: state.myAction.massagedFoo,
+    message: state.myAction.message
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators(MyActions, dispatch)
+}
+
+@connect&amp;lt;StateProps, DispatchProps, any&amp;gt;(mapStateToProps, mapDispatchToProps)
+export default class Home extends React.Component&amp;lt;Props, any&amp;gt; {
+  render() {
+    const {
+      massagedFoo,
+      message,
+      doMyAction
+    } = this.props;
+
+    return (
+      &amp;lt;div&amp;gt;
+        &amp;lt;div&amp;gt;foo: {massagedFoo} message: {message}&amp;lt;/div&amp;gt;
+        &amp;lt;button onClick={doMyAction.bind(this, &amp;quot;my cool message&amp;quot;)} /&amp;gt;
+      &amp;lt;/div&amp;gt;
+    );
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I like hooking up &lt;code&gt;connect&lt;/code&gt; via decorator, reduces the boilerplate nicely. I also like that my props are all statically typed and how easy it was to combine the state and dispatcher props into one with &lt;code&gt;Props = StateProps &amp;amp; DispatchProps&lt;/code&gt;. All in all I’m impressed with how the TypeScript team managed to overlay a typing system that doesn’t get in the way and still lets JavaScript shine through.&lt;/p&gt;
+&lt;h3 id=&quot;step-two-component-meets-store&quot;&gt;Step Two, component meets store&lt;/h3&gt;
+&lt;p&gt;Here is where I found Redux (technically react-redux) and TypeScript disagreed with each other. Hooking up your component to your store just can’t be accomplished in such a way that the TypeScript compiler will be happy with. Here’s the “out of the box” approach&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;import * as React from &quot;react&quot;;
+import * as ReactDOM from &quot;react-dom&quot;;
+import { Provider } from &quot;react-redux&quot;;
+import Home from &quot;./components/Home&quot;;
+import configureStore from &quot;./store/configureStore&quot;;
+import { Store } from &quot;redux&quot;;
+
+const store: Store = configureStore();
+
+class App extends React.Component&amp;lt;any, any&amp;gt; {
+  render() {
+    return (
+      &amp;lt;Provider store={store}&amp;gt;
+        &amp;lt;Home /&amp;gt;
+      &amp;lt;/Provider&amp;gt;
+    );
+  }
+}
+
+ReactDOM.render(&amp;lt;App/&amp;gt;, document.querySelector(&quot;#myApp&quot;));
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The problem is TypeScript thinks &lt;code&gt;Home&lt;/code&gt; requires &lt;code&gt;massagedFoo&lt;/code&gt;, &lt;code&gt;message&lt;/code&gt; and &lt;code&gt;doMyAction&lt;/code&gt; as props&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ERROR in ./src/index.tsx
+(16,9): error TS2324: Property &amp;#39;massagedFoo&amp;#39; is missing in type &amp;#39;IntrinsicAttributes &amp;amp; IntrinsicClassAttributes&amp;lt;Home&amp;gt; &amp;amp; StateProps &amp;amp; DispatchProps &amp;amp; { children?: ...&amp;#39;.
+
+...
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I banged my head on this for a while and I’m willing to bet a kosher Redux/TypeScript solution exists somewhere, but I sure couldn’t find it.&lt;/p&gt;
+&lt;h2 id=&quot;cheating-a-little-bit&quot;&gt;Cheating A Little Bit&lt;/h2&gt;
+&lt;p&gt;Redux itself is getting along just fine with TypeScript. The problem is only in react-redux’s &lt;code&gt;Provider&lt;/code&gt;. react-redux is a tiny library, it’s just a little bit of glue to get a Redux store into a React component and have the React component update properly whenever the store changes. Even better, react-redux is almost entirely inside &lt;code&gt;connect&lt;/code&gt;, if you look at &lt;a href=&quot;https://github.com/reactjs/react-redux/blob/master/src/components/Provider.js&quot;&gt;Provider’s source&lt;/a&gt;, it’s almost doing nothing at all!&lt;/p&gt;
+&lt;p&gt;All Provider is doing is placing the Redux store on the context, so that the component that &lt;code&gt;connect()&lt;/code&gt; generated can find it. So I just wrote my own Provider that does the same thing, in a way that skirts around TypeScript&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider extends React.Component&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
+  &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; childContextTypes = {
+    store: React.PropTypes.object.isRequired
+  }
+
+  getChildContext() {
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; { store: &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props.store };
+  }
+
+  render() {
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; React.createElement(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props.target);
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This is enough to make everyone happy. But it’s a little irksome that the Provider is completely relying on &lt;code&gt;any&lt;/code&gt;. By using generics, you can fix that&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { Store } from &lt;span class=&quot;string&quot;&gt;&quot;redux&quot;&lt;/span&gt;;
+
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;createProvider&lt;/span&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;P&lt;/span&gt;&amp;gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;interface&lt;/span&gt; ProviderProps&amp;lt;P&amp;gt; {
+    store: Store,
+    target: React.ComponentClass&amp;lt;P&amp;gt;
+  }
+
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider extends React.Component&amp;lt;ProviderProps&amp;lt;P&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
+    &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; childContextTypes = {
+      store: React.PropTypes.object.isRequired
+    }
+
+    getChildContext() {
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; { store: &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props.store };
+    }
+
+    render() {
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; React.createElement(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props.target);
+    }
+  };
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;then over in index.tsx&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as ReactDOM from &lt;span class=&quot;string&quot;&gt;&quot;react-dom&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Sample from &lt;span class=&quot;string&quot;&gt;&quot;./components/Sample&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; createProvider from &lt;span class=&quot;string&quot;&gt;&quot;./createProvider&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Home, { HomeProps } from &lt;span class=&quot;string&quot;&gt;&quot;./components/Home&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; configureStore from &lt;span class=&quot;string&quot;&gt;&quot;./store/configureStore&quot;&lt;/span&gt;;
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = configureStore();
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Provider = createProvider&amp;lt;HomeProps&amp;gt;();
+
+&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; App extends React.Component&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
+  render() {
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (
+      &amp;lt;Provider store={store} target={Home} /&amp;gt;
+    );
+  }
+}
+
+ReactDOM.render(&amp;lt;App/&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.querySelector(&lt;span class=&quot;string&quot;&gt;&quot;#myApp&quot;&lt;/span&gt;));
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     <item>
       <title>Electron, Redux and Persistence</title>
       <link>http://mattgreer.org/articles/electron-redux-and-persistence/</link>
@@ -2575,70 +2777,70 @@ is because lighting the pixels up makes them looked washed out. There are ways t
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;And here is the whole shebang:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;#ifdef GL_ES
-  precision highp float;
-#endif
+&lt;pre&gt;&lt;code class=&quot;lang-c&quot;&gt;&lt;span class=&quot;meta&quot;&gt;#&lt;span class=&quot;meta-keyword&quot;&gt;ifdef&lt;/span&gt; GL_ES&lt;/span&gt;
+  precision highp &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt;;
+&lt;span class=&quot;meta&quot;&gt;#&lt;span class=&quot;meta-keyword&quot;&gt;endif&lt;/span&gt;&lt;/span&gt;
 
-vec2 extrude(vec2 other, float angle, float length) {
-  float x = length * cos(angle);
-  float y = length * sin(angle);
+&lt;span class=&quot;function&quot;&gt;vec2 &lt;span class=&quot;title&quot;&gt;extrude&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(vec2 other, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; angle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; length)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; x = length * &lt;span class=&quot;built_in&quot;&gt;cos&lt;/span&gt;(angle);
+  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; y = length * &lt;span class=&quot;built_in&quot;&gt;sin&lt;/span&gt;(angle);
 
-  return vec2(other.x + x, other.y + y);
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; vec2(other.x + x, other.y + y);
 }
 
-float getHeightAt(vec2 texCoord, float xyAngle, float distance,
-    sampler2D heightMap) {
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getHeightAt&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(vec2 texCoord, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; xyAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance,
+    sampler2D heightMap)&lt;/span&gt; &lt;/span&gt;{
 
   vec2 newTexCoord = extrude(texCoord, xyAngle, distance);
-  return texture2D(heightMap, newTexCoord).r;
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; texture2D(heightMap, newTexCoord).r;
 }
 
-float getTraceHeight(float height, float zAngle, float distance) {
-  return distance * tan(zAngle) + height;
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getTraceHeight&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; height, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; zAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; distance * &lt;span class=&quot;built_in&quot;&gt;tan&lt;/span&gt;(zAngle) + height;
 }
 
-bool isInShadow(float xyAngle, float zAngle, sampler2D heightMap,
-    vec2 texCoord, float step) {
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;isInShadow&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; xyAngle, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; zAngle, sampler2D heightMap,
+    vec2 texCoord, &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; step)&lt;/span&gt; &lt;/span&gt;{
 
-  float distance;
-  float height;
-  float otherHeight;
-  float traceHeight;
+  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; distance;
+  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; height;
+  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; otherHeight;
+  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; traceHeight;
 
   height = texture2D(heightMap, texCoord).r;
 
-  for(int i = 0; i &amp;lt; 100; ++i) {
-    distance = step * float(i);
+  &lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt;(&lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; i = &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span class=&quot;number&quot;&gt;100&lt;/span&gt;; ++i) {
+    distance = step * &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt;(i);
     otherHeight = getHeightAt(texCoord, xyAngle, distance, heightMap);
 
-    if(otherHeight &amp;gt; height) {
+    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(otherHeight &amp;gt; height) {
       traceHeight = getTraceHeight(height, zAngle, distance);
-      if(traceHeight &amp;lt;= otherHeight) {
-        return true;
+      &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(traceHeight &amp;lt;= otherHeight) {
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;;
       }
     }
   }
 
-  return false;
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;;
 }
 
 varying vec2 vTextureCoord;
 uniform sampler2D uHeightMap;
-uniform float uXYAngle;
-uniform float uZAngle;
-uniform int uMaxShadowSteps;
-uniform float uTexStep;
+uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uXYAngle;
+uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uZAngle;
+uniform &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; uMaxShadowSteps;
+uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
 
-void main(void) {
-  float alpha = 0.0;
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt;)&lt;/span&gt; &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; alpha = &lt;span class=&quot;number&quot;&gt;0.0&lt;/span&gt;;
 
-  if(isInShadow(uXYAngle, uZAngle, uHeightMap, uMaxShadowSteps,
+  &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(isInShadow(uXYAngle, uZAngle, uHeightMap, uMaxShadowSteps,
      vTextureCoord, uTexStep)) {
 
-    alpha = 0.5;
+    alpha = &lt;span class=&quot;number&quot;&gt;0.5&lt;/span&gt;;
   }
 
-  gl_FragColor = vec4(0, 0, 0, alpha);
+  gl_FragColor = vec4(&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, alpha);
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The &lt;code&gt;uTexStep&lt;/code&gt; uniform is how far to move over each time we check a nearby pixel. This is set to either &lt;code&gt;1/heightMap.width&lt;/code&gt; or &lt;code&gt;1/heightMap.height&lt;/code&gt; before invoking the shader. This is because textures in OpenGL are typically mapped from 0 to 1, so the inverse is how far to move to get to the next pixel.&lt;/p&gt;

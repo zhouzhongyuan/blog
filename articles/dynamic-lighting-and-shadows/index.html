@@ -131,70 +131,70 @@ is because lighting the pixels up makes them looked washed out. There are ways t
 }
 </code></pre>
 <p>And here is the whole shebang:</p>
-<pre><code class="lang-c">#ifdef GL_ES
-  precision highp float;
-#endif
+<pre><code class="lang-c"><span class="meta">#<span class="meta-keyword">ifdef</span> GL_ES</span>
+  precision highp <span class="keyword">float</span>;
+<span class="meta">#<span class="meta-keyword">endif</span></span>
 
-vec2 extrude(vec2 other, float angle, float length) {
-  float x = length * cos(angle);
-  float y = length * sin(angle);
+<span class="function">vec2 <span class="title">extrude</span><span class="params">(vec2 other, <span class="keyword">float</span> angle, <span class="keyword">float</span> length)</span> </span>{
+  <span class="keyword">float</span> x = length * <span class="built_in">cos</span>(angle);
+  <span class="keyword">float</span> y = length * <span class="built_in">sin</span>(angle);
 
-  return vec2(other.x + x, other.y + y);
+  <span class="keyword">return</span> vec2(other.x + x, other.y + y);
 }
 
-float getHeightAt(vec2 texCoord, float xyAngle, float distance,
-    sampler2D heightMap) {
+<span class="function"><span class="keyword">float</span> <span class="title">getHeightAt</span><span class="params">(vec2 texCoord, <span class="keyword">float</span> xyAngle, <span class="keyword">float</span> distance,
+    sampler2D heightMap)</span> </span>{
 
   vec2 newTexCoord = extrude(texCoord, xyAngle, distance);
-  return texture2D(heightMap, newTexCoord).r;
+  <span class="keyword">return</span> texture2D(heightMap, newTexCoord).r;
 }
 
-float getTraceHeight(float height, float zAngle, float distance) {
-  return distance * tan(zAngle) + height;
+<span class="function"><span class="keyword">float</span> <span class="title">getTraceHeight</span><span class="params">(<span class="keyword">float</span> height, <span class="keyword">float</span> zAngle, <span class="keyword">float</span> distance)</span> </span>{
+  <span class="keyword">return</span> distance * <span class="built_in">tan</span>(zAngle) + height;
 }
 
-bool isInShadow(float xyAngle, float zAngle, sampler2D heightMap,
-    vec2 texCoord, float step) {
+<span class="function"><span class="keyword">bool</span> <span class="title">isInShadow</span><span class="params">(<span class="keyword">float</span> xyAngle, <span class="keyword">float</span> zAngle, sampler2D heightMap,
+    vec2 texCoord, <span class="keyword">float</span> step)</span> </span>{
 
-  float distance;
-  float height;
-  float otherHeight;
-  float traceHeight;
+  <span class="keyword">float</span> distance;
+  <span class="keyword">float</span> height;
+  <span class="keyword">float</span> otherHeight;
+  <span class="keyword">float</span> traceHeight;
 
   height = texture2D(heightMap, texCoord).r;
 
-  for(int i = 0; i &lt; 100; ++i) {
-    distance = step * float(i);
+  <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; ++i) {
+    distance = step * <span class="keyword">float</span>(i);
     otherHeight = getHeightAt(texCoord, xyAngle, distance, heightMap);
 
-    if(otherHeight &gt; height) {
+    <span class="keyword">if</span>(otherHeight &gt; height) {
       traceHeight = getTraceHeight(height, zAngle, distance);
-      if(traceHeight &lt;= otherHeight) {
-        return true;
+      <span class="keyword">if</span>(traceHeight &lt;= otherHeight) {
+        <span class="keyword">return</span> <span class="literal">true</span>;
       }
     }
   }
 
-  return false;
+  <span class="keyword">return</span> <span class="literal">false</span>;
 }
 
 varying vec2 vTextureCoord;
 uniform sampler2D uHeightMap;
-uniform float uXYAngle;
-uniform float uZAngle;
-uniform int uMaxShadowSteps;
-uniform float uTexStep;
+uniform <span class="keyword">float</span> uXYAngle;
+uniform <span class="keyword">float</span> uZAngle;
+uniform <span class="keyword">int</span> uMaxShadowSteps;
+uniform <span class="keyword">float</span> uTexStep;
 
-void main(void) {
-  float alpha = 0.0;
+<span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>{
+  <span class="keyword">float</span> alpha = <span class="number">0.0</span>;
 
-  if(isInShadow(uXYAngle, uZAngle, uHeightMap, uMaxShadowSteps,
+  <span class="keyword">if</span>(isInShadow(uXYAngle, uZAngle, uHeightMap, uMaxShadowSteps,
      vTextureCoord, uTexStep)) {
 
-    alpha = 0.5;
+    alpha = <span class="number">0.5</span>;
   }
 
-  gl_FragColor = vec4(0, 0, 0, alpha);
+  gl_FragColor = vec4(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, alpha);
 }
 </code></pre>
 <p>The <code>uTexStep</code> uniform is how far to move over each time we check a nearby pixel. This is set to either <code>1/heightMap.width</code> or <code>1/heightMap.height</code> before invoking the shader. This is because textures in OpenGL are typically mapped from 0 to 1, so the inverse is how far to move to get to the next pixel.</p>
