@@ -14,7 +14,7 @@
       <pubDate>Sat, 25 Jun 2016 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/typescript-react-and-redux/</guid>
       <author></author>
-      <description>&lt;p&gt;Try as I might, I could not get TypeScript and Redux to play nice together. I finally pulled it off with a tiny hack, and thought I’d dump what I did. If anyone has a better approach, please &lt;a href=&quot;mailto:matt.e.greer@gmail.com&quot;&gt;I’m all ears&lt;/a&gt;&lt;/p&gt;
+      <description>&lt;p&gt;Try as I might, I could not get TypeScript and Redux to play nice. I finally pulled it off with a tiny hack, and thought I’d dump what I did. If anyone has a better approach, please &lt;a href=&quot;mailto:matt.e.greer@gmail.com&quot;&gt;I’m all ears&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;h2 id=&quot;setting-up-your-actions&quot;&gt;Setting Up Your Actions&lt;/h2&gt;
 &lt;p&gt;Somewhere in a Redux GitHub issue I found someone who took the approach of using &lt;a href=&quot;https://github.com/acdlite/redux-actions&quot;&gt;redux-actions&lt;/a&gt; and I liked it and adopted it.&lt;/p&gt;
