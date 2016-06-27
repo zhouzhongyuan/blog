@@ -144,15 +144,11 @@ type HomeProps = StateProps &amp; DispatchProps;
 
 <span class="keyword">const</span> store = configureStore();
 
-<span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span>&lt;<span class="title">any</span>, <span class="title">any</span>&gt; </span>{
-  render() {
-    <span class="keyword">return</span> (
-      <span class="xml"><span class="tag">&lt;<span class="name">Provider</span> <span class="attr">store</span>=<span class="string">{store}</span>&gt;</span>
-        <span class="tag">&lt;<span class="name">Home</span> /&gt;</span>
-      <span class="tag">&lt;/<span class="name">Provider</span>&gt;</span></span>
-    );
-  }
-}
+<span class="keyword">const</span> App: React.StatelessComponent&lt;any&gt; = () =&gt; (
+  <span class="xml"><span class="tag">&lt;<span class="name">Provider</span> <span class="attr">store</span>=<span class="string">{store}</span>&gt;</span>
+    <span class="tag">&lt;<span class="name">Home</span> /&gt;</span>
+  <span class="tag">&lt;/<span class="name">Provider</span>&gt;</span></span>
+);
 
 ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="name">App</span>/&gt;</span></span>, <span class="built_in">document</span>.querySelector(<span class="string">"#myApp"</span>));
 </code></pre>
@@ -216,13 +212,9 @@ ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="name">App</
 <span class="keyword">const</span> store = configureStore();
 <span class="keyword">const</span> Provider = createProvider&lt;HomeProps&gt;();
 
-<span class="keyword">class</span> App extends React.Component&lt;<span class="built_in">any</span>, <span class="built_in">any</span>&gt; {
-  render() {
-    <span class="keyword">return</span> (
-      &lt;Provider store={store} target={Home} /&gt;
-    );
-  }
-}
+<span class="keyword">const</span> App: React.StatelessComponent&lt;<span class="built_in">any</span>&gt; = () =&gt; (
+  &lt;Provider store={store} target={Home} /&gt;
+);
 
 ReactDOM.render(&lt;App/&gt;, <span class="built_in">document</span>.querySelector(<span class="string">"#myApp"</span>));
 </code></pre>
