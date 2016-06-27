@@ -70,7 +70,7 @@ export default reducer;
 
 Since TypeScript doesn't yet support [spread on objects](https://github.com/Microsoft/TypeScript/issues/2103), need to resort to `Object.assign`.
 
-## Time To connect it all
+## Time to connect it all
 
 ### Step One, the component
 

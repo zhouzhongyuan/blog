@@ -64,7 +64,7 @@
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; reducer;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Since TypeScript doesn’t yet support &lt;a href=&quot;https://github.com/Microsoft/TypeScript/issues/2103&quot;&gt;spread on objects&lt;/a&gt;, need to resort to &lt;code&gt;Object.assign&lt;/code&gt;.&lt;/p&gt;
-&lt;h2 id=&quot;time-to-connect-it-all&quot;&gt;Time To connect it all&lt;/h2&gt;
+&lt;h2 id=&quot;time-to-connect-it-all&quot;&gt;Time to connect it all&lt;/h2&gt;
 &lt;h3 id=&quot;step-one-the-component&quot;&gt;Step One, the component&lt;/h3&gt;
 &lt;p&gt;Here’s the component that will be &lt;code&gt;connect&lt;/code&gt;ed to Redux&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; React &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
