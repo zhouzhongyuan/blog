@@ -223,7 +223,6 @@ then over in index.tsx
 ```typescript
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import Sample from "./components/Sample";
 import createProvider from "./createProvider";
 import Home, { HomeProps } from "./components/Home";
 import configureStore from "./store/configureStore";
