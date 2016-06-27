@@ -5,13 +5,13 @@ date: 2016-06-26
 template: article.jade
 ---
 
-Try as I might, I could not get TypeScript and Redux to play nice. I finally pulled it off with a tiny hack, and thought I'd dump what I did. If anyone has a better approach, please <a href="mailto:matt.e.greer@gmail.com">I'm all ears</a>
+Try as I might, I could not get TypeScript and Redux to play nice. I finally pulled it off with a little surgery, and thought I'd dump what I did. If anyone has a better approach, please <a href="mailto:matt.e.greer@gmail.com">I'm all ears</a>
 
 <span class="more"></span>
 
 ## Setting Up Your Actions
 
-Somewhere in a Redux GitHub issue I found someone who took the approach of using [redux-actions](https://github.com/acdlite/redux-actions) and I liked it and adopted it.
+Somewhere in a Redux GitHub issue I found someone who took the approach of using [redux-actions](https://github.com/acdlite/redux-actions). I liked this approach so I adopted it.
 
 For starters, define an `Action<T>` interface that your actions will conform to
 
@@ -44,7 +44,7 @@ export function doMyAction(message: string): Action<MY_ACTION> {
 }
 ```
 
-Exporting both a string and a type named `MY_ACTION` felt a little weird. But since TypeScript can distinguish them by their type, it works. It reduces the cognitive load a bit when defining actions.
+Exporting both a string and a type named `MY_ACTION` felt a little weird. But since TypeScript can distinguish them by their type, it works. It reduces the cognitive load a bit when working with actions.
 
 ## And The Reducer
 And now with the action set up, the reducer can consume it
@@ -68,17 +68,15 @@ const reducer = handleActions({
 export default reducer;
 ```
 
-Since TypeScript doesn't yet support [spread on objects](https://github.com/Microsoft/TypeScript/issues/2103), need to resort to `Object.assign`, which is not a big deal. I also left `state` as `any`, but defining its type is doable if you feel like it.
-
-Also a minor point, but I like how redux-actions lets me avoid a switch statement.
+Since TypeScript doesn't yet support [spread on objects](https://github.com/Microsoft/TypeScript/issues/2103), need to resort to `Object.assign`.
 
 ## Time To connect it all
 
 ### Step One, the component
 
-Your root component that will receive props from redux is a bit verbose to set up, lots of typing to make everyone happy
+Here's the component that will be `connect`ed to Redux
 
-```
+```javascript
 import * as React from "react";
 import { connect } from "react-redux";
 
@@ -94,7 +92,7 @@ interface DispatchProps {
   doMyAction(message: string)
 }
 
-type Props = StateProps & DispatchProps;
+type HomeProps = StateProps & DispatchProps;
 
 function mapStateToProps(state) {
   return {
@@ -108,7 +106,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 @connect<StateProps, DispatchProps, any>(mapStateToProps, mapDispatchToProps)
-export default class Home extends React.Component<Props, any> {
+export default class Home extends React.Component<HomeProps, any> {
   render() {
     const {
       massagedFoo,
@@ -126,21 +124,20 @@ export default class Home extends React.Component<Props, any> {
 }
 ```
 
-I like hooking up `connect` via decorator, reduces the boilerplate nicely. I also like that my props are all statically typed and how easy it was to combine the state and dispatcher props into one with `Props = StateProps & DispatchProps`. All in all I'm impressed with how the TypeScript team managed to overlay a typing system that doesn't get in the way and still lets JavaScript shine through.
+I like hooking up `connect` via a decorator, reduces the boilerplate nicely. I also like that my props are all statically typed and how easy it was to combine the state and dispatcher props into one with `HomeProps = StateProps & DispatchProps`. All in all I'm impressed with how the TypeScript team managed to overlay a typing system that doesn't get in the way and still lets JavaScript shine through.
 
 ### Step Two, component meets store
 
-Here is where I found Redux (technically react-redux) and TypeScript disagreed with each other. Hooking up your component to your store just can't be accomplished in such a way that the TypeScript compiler will be happy with. Here's the "out of the box" approach
+Here is where I found react-redux and TypeScript disagreed with each other. Hooking up your component to your store just can't be accomplished in such a way that the TypeScript compiler will be happy with. Here's the standard approach
 
-```typescript
+```javascript
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import Home from "./components/Home";
 import configureStore from "./store/configureStore";
-import { Store } from "redux";
 
-const store: Store = configureStore();
+const store = configureStore();
 
 class App extends React.Component<any, any> {
   render() {
@@ -155,7 +152,7 @@ class App extends React.Component<any, any> {
 ReactDOM.render(<App/>, document.querySelector("#myApp"));
 ```
 
-The problem is TypeScript thinks `Home` requires `massagedFoo`, `message` and `doMyAction` as props
+The problem is TypeScript thinks `Home` requires `massagedFoo`, `message` and `doMyAction` as props, as it doesn't realize Home has been wrapped by `connect`.
 
 ```
 ERROR in ./src/index.tsx
@@ -164,13 +161,13 @@ ERROR in ./src/index.tsx
 ...
 ```
 
-I banged my head on this for a while and I'm willing to bet a kosher Redux/TypeScript solution exists somewhere, but I sure couldn't find it.
+I banged my head on this for a while and I'm willing to bet a solid solution exists somewhere, but I sure couldn't find it. I'm still new to TypeScript.
 
 ## Cheating A Little Bit
 
-Redux itself is getting along just fine with TypeScript. The problem is only in react-redux's `Provider`. react-redux is a tiny library, it's just a little bit of glue to get a Redux store into a React component and have the React component update properly whenever the store changes. Even better, react-redux is almost entirely inside `connect`, if you look at [Provider's source](https://github.com/reactjs/react-redux/blob/master/src/components/Provider.js), it's almost doing nothing at all!
+Redux itself is getting along just fine with TypeScript. The problem is only in react-redux's `Provider`. react-redux is a tiny library, gluing a Redux store to a React component. Even better, react-redux is almost entirely inside `connect`, if you look at [Provider's source](https://github.com/reactjs/react-redux/blob/master/src/components/Provider.js), it's nice and simple!
 
-All Provider is doing is placing the Redux store on the context, so that the component that `connect()` generated can find it. So I just wrote my own Provider that does the same thing, in a way that skirts around TypeScript
+All Provider is doing is placing the Redux store on the child context, so that the component that `connect()` generated can find it. So I just wrote my own Provider that does the same thing, in a way that skirts around TypeScript
 
 ```typescript
 import * as React from "react";

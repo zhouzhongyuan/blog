@@ -14,10 +14,10 @@
       <pubDate>Sat, 25 Jun 2016 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/typescript-react-and-redux/</guid>
       <author></author>
-      <description>&lt;p&gt;Try as I might, I could not get TypeScript and Redux to play nice. I finally pulled it off with a tiny hack, and thought I’d dump what I did. If anyone has a better approach, please &lt;a href=&quot;mailto:matt.e.greer@gmail.com&quot;&gt;I’m all ears&lt;/a&gt;&lt;/p&gt;
+      <description>&lt;p&gt;Try as I might, I could not get TypeScript and Redux to play nice. I finally pulled it off with a little surgery, and thought I’d dump what I did. If anyone has a better approach, please &lt;a href=&quot;mailto:matt.e.greer@gmail.com&quot;&gt;I’m all ears&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;h2 id=&quot;setting-up-your-actions&quot;&gt;Setting Up Your Actions&lt;/h2&gt;
-&lt;p&gt;Somewhere in a Redux GitHub issue I found someone who took the approach of using &lt;a href=&quot;https://github.com/acdlite/redux-actions&quot;&gt;redux-actions&lt;/a&gt; and I liked it and adopted it.&lt;/p&gt;
+&lt;p&gt;Somewhere in a Redux GitHub issue I found someone who took the approach of using &lt;a href=&quot;https://github.com/acdlite/redux-actions&quot;&gt;redux-actions&lt;/a&gt;. I liked this approach so I adopted it.&lt;/p&gt;
 &lt;p&gt;For starters, define an &lt;code&gt;Action&amp;lt;T&amp;gt;&lt;/code&gt; interface that your actions will conform to&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;interface&lt;/span&gt; Action&amp;lt;T&amp;gt;{
   &lt;span class=&quot;keyword&quot;&gt;type&lt;/span&gt;: &lt;span class=&quot;built_in&quot;&gt;string&lt;/span&gt;;
@@ -43,7 +43,7 @@
     }
 }
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Exporting both a string and a type named &lt;code&gt;MY_ACTION&lt;/code&gt; felt a little weird. But since TypeScript can distinguish them by their type, it works. It reduces the cognitive load a bit when defining actions.&lt;/p&gt;
+&lt;p&gt;Exporting both a string and a type named &lt;code&gt;MY_ACTION&lt;/code&gt; felt a little weird. But since TypeScript can distinguish them by their type, it works. It reduces the cognitive load a bit when working with actions.&lt;/p&gt;
 &lt;h2 id=&quot;and-the-reducer&quot;&gt;And The Reducer&lt;/h2&gt;
 &lt;p&gt;And now with the action set up, the reducer can consume it&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action from &lt;span class=&quot;string&quot;&gt;&quot;../actions/action&quot;&lt;/span&gt;;
@@ -63,16 +63,15 @@
 
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; reducer;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Since TypeScript doesn’t yet support &lt;a href=&quot;https://github.com/Microsoft/TypeScript/issues/2103&quot;&gt;spread on objects&lt;/a&gt;, need to resort to &lt;code&gt;Object.assign&lt;/code&gt;, which is not a big deal. I also left &lt;code&gt;state&lt;/code&gt; as &lt;code&gt;any&lt;/code&gt;, but defining its type is doable if you feel like it.&lt;/p&gt;
-&lt;p&gt;Also a minor point, but I like how redux-actions lets me avoid a switch statement.&lt;/p&gt;
+&lt;p&gt;Since TypeScript doesn’t yet support &lt;a href=&quot;https://github.com/Microsoft/TypeScript/issues/2103&quot;&gt;spread on objects&lt;/a&gt;, need to resort to &lt;code&gt;Object.assign&lt;/code&gt;.&lt;/p&gt;
 &lt;h2 id=&quot;time-to-connect-it-all&quot;&gt;Time To connect it all&lt;/h2&gt;
 &lt;h3 id=&quot;step-one-the-component&quot;&gt;Step One, the component&lt;/h3&gt;
-&lt;p&gt;Your root component that will receive props from redux is a bit verbose to set up, lots of typing to make everyone happy&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;import * as React from &amp;quot;react&amp;quot;;
-import { connect } from &amp;quot;react-redux&amp;quot;;
+&lt;p&gt;Here’s the component that will be &lt;code&gt;connect&lt;/code&gt;ed to Redux&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; React &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { connect } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react-redux&quot;&lt;/span&gt;;
 
-import { bindActionCreators } from &amp;quot;redux&amp;quot;;
-import * as MyActions from &amp;quot;../actions/myAction&amp;quot;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { bindActionCreators } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;redux&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; MyActions &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;../actions/myAction&quot;&lt;/span&gt;;
 
 interface StateProps {
   massagedFoo: number,
@@ -83,69 +82,69 @@ interface DispatchProps {
   doMyAction(message: string)
 }
 
-type Props = StateProps &amp;amp; DispatchProps;
+type HomeProps = StateProps &amp;amp; DispatchProps;
 
-function mapStateToProps(state) {
-  return {
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapStateToProps&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
     massagedFoo: state.myAction.massagedFoo,
     message: state.myAction.message
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(MyActions, dispatch)
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapDispatchToProps&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;dispatch&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; bindActionCreators(MyActions, dispatch)
 }
 
 @connect&amp;lt;StateProps, DispatchProps, any&amp;gt;(mapStateToProps, mapDispatchToProps)
-export default class Home extends React.Component&amp;lt;Props, any&amp;gt; {
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Home&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;React&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;Component&lt;/span&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;HomeProps&lt;/span&gt;, &lt;span class=&quot;title&quot;&gt;any&lt;/span&gt;&amp;gt; &lt;/span&gt;{
   render() {
-    const {
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; {
       massagedFoo,
       message,
       doMyAction
-    } = this.props;
+    } = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props;
 
-    return (
-      &amp;lt;div&amp;gt;
-        &amp;lt;div&amp;gt;foo: {massagedFoo} message: {message}&amp;lt;/div&amp;gt;
-        &amp;lt;button onClick={doMyAction.bind(this, &amp;quot;my cool message&amp;quot;)} /&amp;gt;
-      &amp;lt;/div&amp;gt;
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (
+      &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;foo: {massagedFoo} message: {message}&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;button&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;onClick&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;{doMyAction.bind(this,&lt;/span&gt; &quot;&lt;span class=&quot;attr&quot;&gt;my&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;cool&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;message&lt;/span&gt;&quot;)} /&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
     );
   }
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I like hooking up &lt;code&gt;connect&lt;/code&gt; via decorator, reduces the boilerplate nicely. I also like that my props are all statically typed and how easy it was to combine the state and dispatcher props into one with &lt;code&gt;Props = StateProps &amp;amp; DispatchProps&lt;/code&gt;. All in all I’m impressed with how the TypeScript team managed to overlay a typing system that doesn’t get in the way and still lets JavaScript shine through.&lt;/p&gt;
-&lt;h3 id=&quot;step-two-component-meets-store&quot;&gt;Step Two, component meets store&lt;/h3&gt;
-&lt;p&gt;Here is where I found Redux (technically react-redux) and TypeScript disagreed with each other. Hooking up your component to your store just can’t be accomplished in such a way that the TypeScript compiler will be happy with. Here’s the “out of the box” approach&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;import * as React from &quot;react&quot;;
-import * as ReactDOM from &quot;react-dom&quot;;
-import { Provider } from &quot;react-redux&quot;;
-import Home from &quot;./components/Home&quot;;
-import configureStore from &quot;./store/configureStore&quot;;
-import { Store } from &quot;redux&quot;;
-
-const store: Store = configureStore();
-
-class App extends React.Component&amp;lt;any, any&amp;gt; {
-  render() {
-    return (
-      &amp;lt;Provider store={store}&amp;gt;
-        &amp;lt;Home /&amp;gt;
-      &amp;lt;/Provider&amp;gt;
-    );
-  }
-}
-
-ReactDOM.render(&amp;lt;App/&amp;gt;, document.querySelector(&quot;#myApp&quot;));
+}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The problem is TypeScript thinks &lt;code&gt;Home&lt;/code&gt; requires &lt;code&gt;massagedFoo&lt;/code&gt;, &lt;code&gt;message&lt;/code&gt; and &lt;code&gt;doMyAction&lt;/code&gt; as props&lt;/p&gt;
+&lt;p&gt;I like hooking up &lt;code&gt;connect&lt;/code&gt; via a decorator, reduces the boilerplate nicely. I also like that my props are all statically typed and how easy it was to combine the state and dispatcher props into one with &lt;code&gt;HomeProps = StateProps &amp;amp; DispatchProps&lt;/code&gt;. All in all I’m impressed with how the TypeScript team managed to overlay a typing system that doesn’t get in the way and still lets JavaScript shine through.&lt;/p&gt;
+&lt;h3 id=&quot;step-two-component-meets-store&quot;&gt;Step Two, component meets store&lt;/h3&gt;
+&lt;p&gt;Here is where I found react-redux and TypeScript disagreed with each other. Hooking up your component to your store just can’t be accomplished in such a way that the TypeScript compiler will be happy with. Here’s the standard approach&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; React &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; ReactDOM &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react-dom&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { Provider } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react-redux&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Home &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;./components/Home&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; configureStore &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;./store/configureStore&quot;&lt;/span&gt;;
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = configureStore();
+
+&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;App&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;React&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;Component&lt;/span&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;any&lt;/span&gt;, &lt;span class=&quot;title&quot;&gt;any&lt;/span&gt;&amp;gt; &lt;/span&gt;{
+  render() {
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (
+      &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;Provider&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;store&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;{store}&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;Home&lt;/span&gt; /&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;
+    );
+  }
+}
+
+ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;App&lt;/span&gt;/&amp;gt;&lt;/span&gt;&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.querySelector(&lt;span class=&quot;string&quot;&gt;&quot;#myApp&quot;&lt;/span&gt;));
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The problem is TypeScript thinks &lt;code&gt;Home&lt;/code&gt; requires &lt;code&gt;massagedFoo&lt;/code&gt;, &lt;code&gt;message&lt;/code&gt; and &lt;code&gt;doMyAction&lt;/code&gt; as props, as it doesn’t realize Home has been wrapped by &lt;code&gt;connect&lt;/code&gt;.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;ERROR in ./src/index.tsx
 (16,9): error TS2324: Property &amp;#39;massagedFoo&amp;#39; is missing in type &amp;#39;IntrinsicAttributes &amp;amp; IntrinsicClassAttributes&amp;lt;Home&amp;gt; &amp;amp; StateProps &amp;amp; DispatchProps &amp;amp; { children?: ...&amp;#39;.
 
 ...
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I banged my head on this for a while and I’m willing to bet a kosher Redux/TypeScript solution exists somewhere, but I sure couldn’t find it.&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I banged my head on this for a while and I’m willing to bet a solid solution exists somewhere, but I sure couldn’t find it. I’m still new to TypeScript.&lt;/p&gt;
 &lt;h2 id=&quot;cheating-a-little-bit&quot;&gt;Cheating A Little Bit&lt;/h2&gt;
-&lt;p&gt;Redux itself is getting along just fine with TypeScript. The problem is only in react-redux’s &lt;code&gt;Provider&lt;/code&gt;. react-redux is a tiny library, it’s just a little bit of glue to get a Redux store into a React component and have the React component update properly whenever the store changes. Even better, react-redux is almost entirely inside &lt;code&gt;connect&lt;/code&gt;, if you look at &lt;a href=&quot;https://github.com/reactjs/react-redux/blob/master/src/components/Provider.js&quot;&gt;Provider’s source&lt;/a&gt;, it’s almost doing nothing at all!&lt;/p&gt;
-&lt;p&gt;All Provider is doing is placing the Redux store on the context, so that the component that &lt;code&gt;connect()&lt;/code&gt; generated can find it. So I just wrote my own Provider that does the same thing, in a way that skirts around TypeScript&lt;/p&gt;
+&lt;p&gt;Redux itself is getting along just fine with TypeScript. The problem is only in react-redux’s &lt;code&gt;Provider&lt;/code&gt;. react-redux is a tiny library, gluing a Redux store to a React component. Even better, react-redux is almost entirely inside &lt;code&gt;connect&lt;/code&gt;, if you look at &lt;a href=&quot;https://github.com/reactjs/react-redux/blob/master/src/components/Provider.js&quot;&gt;Provider’s source&lt;/a&gt;, it’s nice and simple!&lt;/p&gt;
+&lt;p&gt;All Provider is doing is placing the Redux store on the child context, so that the component that &lt;code&gt;connect()&lt;/code&gt; generated can find it. So I just wrote my own Provider that does the same thing, in a way that skirts around TypeScript&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
 
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider extends React.Component&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
