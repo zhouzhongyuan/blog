@@ -190,7 +190,6 @@ ReactDOM.render(&amp;lt;App/&amp;gt;, document.querySelector(&quot;#myApp&quot;)
 &lt;p&gt;then over in index.tsx&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
 &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as ReactDOM from &lt;span class=&quot;string&quot;&gt;&quot;react-dom&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Sample from &lt;span class=&quot;string&quot;&gt;&quot;./components/Sample&quot;&lt;/span&gt;;
 &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; createProvider from &lt;span class=&quot;string&quot;&gt;&quot;./createProvider&quot;&lt;/span&gt;;
 &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Home, { HomeProps } from &lt;span class=&quot;string&quot;&gt;&quot;./components/Home&quot;&lt;/span&gt;;
 &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; configureStore from &lt;span class=&quot;string&quot;&gt;&quot;./store/configureStore&quot;&lt;/span&gt;;
