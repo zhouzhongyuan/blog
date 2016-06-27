@@ -139,15 +139,11 @@ import configureStore from "./store/configureStore";
 
 const store = configureStore();
 
-class App extends React.Component<any, any> {
-  render() {
-    return (
-      <Provider store={store}>
-        <Home />
-      </Provider>
-    );
-  }
-}
+const App: React.StatelessComponent<any> = () => (
+  <Provider store={store}>
+    <Home />
+  </Provider>
+);
 
 ReactDOM.render(<App/>, document.querySelector("#myApp"));
 ```
@@ -227,13 +223,9 @@ import configureStore from "./store/configureStore";
 const store = configureStore();
 const Provider = createProvider<HomeProps>();
 
-class App extends React.Component<any, any> {
-  render() {
-    return (
-      <Provider store={store} target={Home} />
-    );
-  }
-}
+const App: React.StatelessComponent<any> = () => (
+  <Provider store={store} target={Home} />
+);
 
 ReactDOM.render(<App/>, document.querySelector("#myApp"));
 ```

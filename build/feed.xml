@@ -124,15 +124,11 @@ type HomeProps = StateProps &amp;amp; DispatchProps;
 
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = configureStore();
 
-&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;App&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;React&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;Component&lt;/span&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;any&lt;/span&gt;, &lt;span class=&quot;title&quot;&gt;any&lt;/span&gt;&amp;gt; &lt;/span&gt;{
-  render() {
-    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (
-      &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;Provider&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;store&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;{store}&lt;/span&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;Home&lt;/span&gt; /&amp;gt;&lt;/span&gt;
-      &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;
-    );
-  }
-}
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; App: React.StatelessComponent&amp;lt;any&amp;gt; = () =&amp;gt; (
+  &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;Provider&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;store&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;{store}&lt;/span&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;Home&lt;/span&gt; /&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;
+);
 
 ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;App&lt;/span&gt;/&amp;gt;&lt;/span&gt;&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.querySelector(&lt;span class=&quot;string&quot;&gt;&quot;#myApp&quot;&lt;/span&gt;));
 &lt;/code&gt;&lt;/pre&gt;
@@ -196,13 +192,9 @@ ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = configureStore();
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Provider = createProvider&amp;lt;HomeProps&amp;gt;();
 
-&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; App extends React.Component&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
-  render() {
-    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (
-      &amp;lt;Provider store={store} target={Home} /&amp;gt;
-    );
-  }
-}
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; App: React.StatelessComponent&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; = () =&amp;gt; (
+  &amp;lt;Provider store={store} target={Home} /&amp;gt;
+);
 
 ReactDOM.render(&amp;lt;App/&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.querySelector(&lt;span class=&quot;string&quot;&gt;&quot;#myApp&quot;&lt;/span&gt;));
 &lt;/code&gt;&lt;/pre&gt;
