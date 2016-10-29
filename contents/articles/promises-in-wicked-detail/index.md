@@ -785,7 +785,11 @@ Promises always require at least one more iteration of the event loop to resolve
 
 ## Before We Wrap Up ... then/promise
 
-There are many, full featured, promise libraries out there. The [then](https://github.com/then) organization's [promise](https://github.com/then/promise) library takes a simpler approach. It is meant to be a simple implementation that meets the spec and nothing more. If you take a look at [their implementation](https://github.com/then/promise/blob/master/lib/core.js), you should see it looks quite familiar. then/promise was the basis of the code for this article, we've *almost* built up the same promise implementation. Thanks to Nathan Zadoks and Forbes Lindsay for their great library and work on JavaScript promises. Forbes Lindsay is also the guy behind the [promisejs.org](http://promisejs.org) site mentioned at the start.
+There are many, full featured, promise libraries out there. The [then](https://github.com/then) organization's [promise](https://github.com/then/promise) library takes a simpler approach. It is meant to be a simple implementation that meets the spec and nothing more. If you take a look at [their implementation](https://github.com/then/promise/blob/master/src/core.js), you should see it looks quite familiar.
+
+<div class="callout pitfall">
+At the time this article was written, the final result looked very much like the then/promise implementation. That's no longer true, they've completely rewritten their promise implementation
+</div>
 
 There are some differences in the real implementation and what is here in this article. That is because there are more details in the Promises/A+ spec that I have not addressed. I recommend [reading the spec](http://promises-aplus.github.io/promises-spec/), it is short and pretty straightforward.
 
