@@ -799,7 +799,7 @@ If you made it this far, then thanks for reading! We've covered the core of prom
 
 Once I came to understand how promises worked and their caveats, I came to really like them. They have led to very clean and elegant code in my projects. There's so much more to talk about too, this article is just the beginning!
 
-If you enjoyed this, you should [follow me on Twitter](http://twitter.com/cityfortyone) to find out when I write another guide like this.
+If you enjoyed this, you should [follow me on Twitter](http://twitter.com/mattegreer) to find out when I write another guide like this.
 
 ## Further Reading
 

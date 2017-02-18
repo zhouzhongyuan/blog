@@ -2590,7 +2590,7 @@ At the time this article was written, the final result looked very much like the
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;If you made it this far, then thanks for reading! We’ve covered the core of promises, which is the only thing the spec addresses. Most implementations offer much more functionality, such as &lt;code&gt;all()&lt;/code&gt;, &lt;code&gt;spread()&lt;/code&gt;, &lt;code&gt;race()&lt;/code&gt;, &lt;code&gt;denodeify()&lt;/code&gt; and much more. I recommend browsing the &lt;a href=&quot;https://github.com/petkaantonov/bluebird/blob/master/API.md&quot;&gt;API docs for Bluebird&lt;/a&gt; to see what all is possible with promises.&lt;/p&gt;
 &lt;p&gt;Once I came to understand how promises worked and their caveats, I came to really like them. They have led to very clean and elegant code in my projects. There’s so much more to talk about too, this article is just the beginning!&lt;/p&gt;
-&lt;p&gt;If you enjoyed this, you should &lt;a href=&quot;http://twitter.com/cityfortyone&quot;&gt;follow me on Twitter&lt;/a&gt; to find out when I write another guide like this.&lt;/p&gt;
+&lt;p&gt;If you enjoyed this, you should &lt;a href=&quot;http://twitter.com/mattegreer&quot;&gt;follow me on Twitter&lt;/a&gt; to find out when I write another guide like this.&lt;/p&gt;
 &lt;h2 id=&quot;further-reading&quot;&gt;Further Reading&lt;/h2&gt;
 &lt;p&gt;More great articles on promises&lt;/p&gt;
 &lt;ul&gt;

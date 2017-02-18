@@ -27,7 +27,7 @@ EntityTwitter = ig.Entity.extend({
 		if (!clickHandlerSetup) {
 			clickHandlerSetup = true;
 			this.onClick = function() {
-				window.open('http://twitter.com/cityfortyone');
+				window.open('http://twitter.com/mattegreer');
 			};
 		}
 	}
