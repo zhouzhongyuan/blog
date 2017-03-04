@@ -39,12 +39,12 @@
 <p>I am working on a little toy project involving Legos. I needed to gather all colors available for bricks into a JavaScript object, something like this:</p>
 <pre><code class="lang-javascript"><span class="keyword">var</span> brickColors = {
   <span class="string">"Medium Blue"</span>: {
-    id: <span class="number">102</span>,
-    color: <span class="string">"rgb(71, 140, 198)"</span>
+    <span class="attr">id</span>: <span class="number">102</span>,
+    <span class="attr">color</span>: <span class="string">"rgb(71, 140, 198)"</span>
   },
   <span class="string">"Sand Blue"</span>: {
-    id: <span class="number">135</span>,
-    color: <span class="string">"rgb(94, 116, 140)"</span>
+    <span class="attr">id</span>: <span class="number">135</span>,
+    <span class="attr">color</span>: <span class="string">"rgb(94, 116, 140)"</span>
   },
   ...
 };
@@ -80,9 +80,9 @@ I got really lucky here, on some webpages narrowing down your query to just the 
   .reduce(<span class="function"><span class="keyword">function</span>(<span class="params">accum, tr</span>) </span>{
     <span class="comment">// fallback to the official name if the color lacks a common name</span>
     accum[tr.children[<span class="number">2</span>].innerText || tr.children[<span class="number">1</span>].innerText] = {
-      id: <span class="built_in">Number</span>(tr.children[<span class="number">0</span>].innerText),
-      officialName: tr.children[<span class="number">1</span>].innerText,
-      color: tr.children[<span class="number">3</span>].style.backgroundColor
+      <span class="attr">id</span>: <span class="built_in">Number</span>(tr.children[<span class="number">0</span>].innerText),
+      <span class="attr">officialName</span>: tr.children[<span class="number">1</span>].innerText,
+      <span class="attr">color</span>: tr.children[<span class="number">3</span>].style.backgroundColor
     };
     <span class="keyword">return</span> accum
   }, {});

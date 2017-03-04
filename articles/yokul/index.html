@@ -76,7 +76,7 @@
 <p>Yokul is very early at this point, you will certainly run into issues. Mostly you’ll find some of your favorite chart types and/or parameters aren’t implemented yet. Yokul will let you know if you set up a debug output div for it.</p>
 <p>Create a div on your page that Yokul can write to. Tell Yokul where this div is with </p>
 <pre><code class="lang-javascript">  YOKUL.debugOutput = <span class="string">"idOfYourDebugDiv"</span>;
-  YOKUL.logOutput = { info: <span class="literal">false</span>, warning: <span class="literal">true</span>, error: <span class="literal">true</span> };
+  YOKUL.logOutput = { <span class="attr">info</span>: <span class="literal">false</span>, <span class="attr">warning</span>: <span class="literal">true</span>, <span class="attr">error</span>: <span class="literal">true</span> };
 </code></pre>
 <p>Ideally do this before you do anything else with Yokul. Here is the debug output from creating the above chart:</p>
 <div id="debugOutputDiv"></div>

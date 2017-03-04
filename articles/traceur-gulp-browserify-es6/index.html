@@ -69,10 +69,10 @@ sandbox/
 <p>In the ES6 world, this all works just fine and as you’d expect. Traceur, however, does not quite turn this into a CommonJS module in the way I wanted.</p>
 <p>Traceur will define the export from above as</p>
 <pre><code class="lang-javascript"><span class="built_in">Object</span>.defineProperties(exports, {
-  <span class="keyword">default</span>: {get: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+  <span class="attr">default</span>: {<span class="attr">get</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
       <span class="keyword">return</span> $__default;
     }},
-  __esModule: {value: <span class="literal">true</span>}
+  <span class="attr">__esModule</span>: {<span class="attr">value</span>: <span class="literal">true</span>}
 });
 
 ...
@@ -85,13 +85,13 @@ var $__default = RectEntity;
 }
 </code></pre><p>which is perfectly legal, but still Traceur will give you an exports with a <code>RectEntity</code> property defined on it. I don’t want a property, I just want <code>RectEntity</code> itself to be the export.</p>
 <p>In ES6 land, <code>export default &lt;value&gt;</code> basically means “this is the default thing we are exporting from this module, if someone just imports this module, give them this”. So you’d think <code>default</code> would translate into effectively <code>module.exports = RectEntity</code>, but it doesn’t, it puts a <code>default</code> property on there. You can even see this in Traceur’s code when you import another module:</p>
-<pre><code class="lang-javascript"><span class="keyword">var</span> BaseEntity = ($__base_45_entity__ = <span class="built_in">require</span>(<span class="string">"./base-entity"</span>), $__base_45_entity__ &amp;&amp; $__base_45_entity__.__esModule &amp;&amp; $__base_45_entity__ || {<span class="keyword">default</span>: $__base_45_entity__}).default;
+<pre><code class="lang-javascript"><span class="keyword">var</span> BaseEntity = ($__base_45_entity__ = <span class="built_in">require</span>(<span class="string">"./base-entity"</span>), $__base_45_entity__ &amp;&amp; $__base_45_entity__.__esModule &amp;&amp; $__base_45_entity__ || {<span class="attr">default</span>: $__base_45_entity__}).default;
 </code></pre>
 <p>That long line of generated code basically boils down to – in CommonJS speak – <code>var BaseEntity = require(&#39;./base-entity&#39;).default</code></p>
 <p>This meant my <code>index.js</code> ended up looking like this</p>
 <pre><code class="lang-javascript"><span class="built_in">module</span>.exports = {
-  Engine: <span class="built_in">require</span>(<span class="string">'./lib/engine'</span>).default,
-  RectEntity: <span class="built_in">require</span>(<span class="string">'./lib/rect-entity'</span>).default
+  <span class="attr">Engine</span>: <span class="built_in">require</span>(<span class="string">'./lib/engine'</span>).default,
+  <span class="attr">RectEntity</span>: <span class="built_in">require</span>(<span class="string">'./lib/rect-entity'</span>).default
 };
 </code></pre>
 <p>Which is weird, but I can live with it.</p>
@@ -102,8 +102,8 @@ var $__default = RectEntity;
 <pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'traceur/bin/traceur-runtime'</span>);
 
 <span class="built_in">module</span>.exports = {
-  Engine: <span class="built_in">require</span>(<span class="string">'./lib/engine'</span>).default,
-  RectEntity: <span class="built_in">require</span>(<span class="string">'./lib/rect-entity'</span>).default
+  <span class="attr">Engine</span>: <span class="built_in">require</span>(<span class="string">'./lib/engine'</span>).default,
+  <span class="attr">RectEntity</span>: <span class="built_in">require</span>(<span class="string">'./lib/rect-entity'</span>).default
 };
 </code></pre>
 <p>It will define the runtime on <code>global</code> and from there the rest of your transpiled code will be happy. Pretty simple.</p>
@@ -111,14 +111,14 @@ var $__default = RectEntity;
 <p>I am transpiling from ES6-&gt;ES5 using <a href="https://github.com/sindresorhus/gulp-traceur">gulp-traceur</a></p>
 <pre><code class="lang-javascript">gulp.task(<span class="string">'build:lib'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
   <span class="keyword">return</span> gulp.src(<span class="string">'src/**/*.js'</span>)
-    .pipe(traceur({modules:<span class="string">'commonjs'</span>}))
+    .pipe(traceur({<span class="attr">modules</span>:<span class="string">'commonjs'</span>}))
     .pipe(gulp.dest(<span class="string">'./lib'</span>));
 });
 </code></pre>
 <p>the above will transpile the code but not include the runtime. gulp-traceur makes it available at <code>traceur.RUNTIME_PATH</code>, so you can just do</p>
 <pre><code class="lang-javascript">gulp.task(<span class="string">'build:lib'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
   <span class="keyword">return</span> gulp.src([traceur.RUNTIME_PATH, <span class="string">'src/**/*.js'</span>])
-    .pipe(traceur({modules:<span class="string">'commonjs'</span>}))
+    .pipe(traceur({<span class="attr">modules</span>:<span class="string">'commonjs'</span>}))
     .pipe(gulp.dest(<span class="string">'./lib'</span>));
 });
 </code></pre>
@@ -144,7 +144,7 @@ gulp.task(&#39;build:lib&#39;, [&#39;traceur:runtime&#39;], function() {
   <span class="keyword">return</span> browserify()
     .add(es6ify.runtime)
     .transform(es6ify)
-    .require(<span class="built_in">require</span>.resolve(<span class="string">'./sandbox/sandbox.js'</span>), { entry: <span class="literal">true</span> })
+    .require(<span class="built_in">require</span>.resolve(<span class="string">'./sandbox/sandbox.js'</span>), { <span class="attr">entry</span>: <span class="literal">true</span> })
     .bundle()
     .pipe(source(<span class="string">'sandbox-bundle.js'</span>))
     .pipe(gulp.dest(<span class="string">'./sandbox/'</span>));

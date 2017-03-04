@@ -42,10 +42,10 @@
 <p><a href="https://github.com/city41/node-sql-fixtures">sql-fixtures</a> applies the same idea, except this time for Node. Since JavaScript is such a flexible language, no need for something like YAML, it’s easy to just define the fixture data in JavaScript itself.</p>
 <p>For example, here’s how to populate some data in a Users table in your database:</p>
 <pre><code class="lang-javascript"><span class="keyword">var</span> fixtures = {
-  Users: [{
-    username: <span class="string">'Henry'</span>
+  <span class="attr">Users</span>: [{
+    <span class="attr">username</span>: <span class="string">'Henry'</span>
   }, {
-    username: <span class="string">'Catherine'</span>
+    <span class="attr">username</span>: <span class="string">'Catherine'</span>
   }]
 };
 
@@ -64,12 +64,12 @@ sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span c
 <h2 id="foreign-key-resolution">Foreign Key Resolution</h2>
 <p>The neatest feature of sql-fixtures is automatic foreign key resolution. If you want to insert data into two tables and have their keys point at each other, it can be tedious to do manually. With sql-fixtures you can specify the relation in the fixture spec:</p>
 <pre><code class="lang-javascript"><span class="keyword">var</span> fixtures = {
-  Users: {
-    username: <span class="string">'Henry'</span>
+  <span class="attr">Users</span>: {
+    <span class="attr">username</span>: <span class="string">'Henry'</span>
   },
-  Purchase: {
-    purchaseDate: <span class="keyword">new</span> <span class="built_in">Date</span>(),
-    userId: <span class="string">"Users:0"</span>
+  <span class="attr">Purchase</span>: {
+    <span class="attr">purchaseDate</span>: <span class="keyword">new</span> <span class="built_in">Date</span>(),
+    <span class="attr">userId</span>: <span class="string">"Users:0"</span>
   }
 };
 
@@ -80,13 +80,13 @@ sqlFixtures.create(databaseConfig, fixtures).then(<span class="function"><span c
 <p>In the above, sql-fixtures will create the User row first, then circle back and populate <code>Purchase.userId</code> with Henry’s actual id before adding the new row in the Purchase table.</p>
 <p>The default is to use indices to indicate which record you want to point to, but you can also use a <code>specId</code>. This is useful if you’re generating a lot of data or complex data, as keeping track of which index is which can get tedious:</p>
 <pre><code class="lang-javascript"><span class="keyword">var</span> fixtures = {
-  Users: {
-    username: <span class="string">'Henry'</span>,
-    specId: <span class="string">'mySpecialUser'</span>
+  <span class="attr">Users</span>: {
+    <span class="attr">username</span>: <span class="string">'Henry'</span>,
+    <span class="attr">specId</span>: <span class="string">'mySpecialUser'</span>
   },
-  Purchase: {
-    purchaseDate: <span class="keyword">new</span> <span class="built_in">Date</span>(),
-    userId: <span class="string">"Users:mySpecialUser"</span>
+  <span class="attr">Purchase</span>: {
+    <span class="attr">purchaseDate</span>: <span class="keyword">new</span> <span class="built_in">Date</span>(),
+    <span class="attr">userId</span>: <span class="string">"Users:mySpecialUser"</span>
   }
 };
 </code></pre>

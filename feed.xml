@@ -74,8 +74,8 @@
 &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; MyActions &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;../actions/myAction&quot;&lt;/span&gt;;
 
 interface StateProps {
-  massagedFoo: number,
-  message: string
+  &lt;span class=&quot;attr&quot;&gt;massagedFoo&lt;/span&gt;: number,
+  &lt;span class=&quot;attr&quot;&gt;message&lt;/span&gt;: string
 }
 
 interface DispatchProps {
@@ -86,8 +86,8 @@ type HomeProps = StateProps &amp;amp; DispatchProps;
 
 &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapStateToProps&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
-    massagedFoo: state.myAction.massagedFoo,
-    message: state.myAction.message
+    &lt;span class=&quot;attr&quot;&gt;massagedFoo&lt;/span&gt;: state.myAction.massagedFoo,
+    &lt;span class=&quot;attr&quot;&gt;message&lt;/span&gt;: state.myAction.message
   };
 }
 
@@ -124,7 +124,7 @@ type HomeProps = StateProps &amp;amp; DispatchProps;
 
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = configureStore();
 
-&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; App: React.StatelessComponent&amp;lt;any&amp;gt; = () =&amp;gt; (
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; App: React.StatelessComponent&amp;lt;any&amp;gt; = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; =&amp;gt;&lt;/span&gt; (
   &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;Provider&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;store&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;{store}&lt;/span&gt;&amp;gt;&lt;/span&gt;
     &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;Home&lt;/span&gt; /&amp;gt;&lt;/span&gt;
   &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;
@@ -214,14 +214,14 @@ ReactDOM.render(&amp;lt;App/&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;doc
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// the action&lt;/span&gt;
 &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;receiveError&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;error&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
-    type: RECEIVE_ERROR,
+    &lt;span class=&quot;attr&quot;&gt;type&lt;/span&gt;: RECEIVE_ERROR,
     error
   };
 }
 
 &lt;span class=&quot;comment&quot;&gt;// and over in the reducer&lt;/span&gt;
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; initialState = {
-  hasError: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;
+  &lt;span class=&quot;attr&quot;&gt;hasError&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;
 };
 
 &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;error&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state = initialState, action&lt;/span&gt;) &lt;/span&gt;{
@@ -229,9 +229,9 @@ ReactDOM.render(&amp;lt;App/&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;doc
     &lt;span class=&quot;keyword&quot;&gt;case&lt;/span&gt; RECEIVE_ERROR:
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
         ...state,
-        hasError: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
-        message: action.error.message || action.error,
-        stack: action.error.stack
+        &lt;span class=&quot;attr&quot;&gt;hasError&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
+        &lt;span class=&quot;attr&quot;&gt;message&lt;/span&gt;: action.error.message || action.error,
+        &lt;span class=&quot;attr&quot;&gt;stack&lt;/span&gt;: action.error.stack
       };
     &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;:
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; state;
@@ -258,7 +258,7 @@ ReactDOM.render(&amp;lt;App/&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;doc
 &lt;p&gt;My initial stab at this was to just take the entire app state via &lt;code&gt;store.getState()&lt;/code&gt;, then start strategically &lt;code&gt;delete&lt;/code&gt;ing properties I don’t want persisted. This is ugly, doesn’t scale, error prone, all kinds of bad stuff.&lt;/p&gt;
 &lt;p&gt;A better approach is to have a &lt;code&gt;PERSISTING&lt;/code&gt; action. Send this action through all of your reducers, and let them decide what should stay and what should go&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; initialState = {
-    hasError: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;
+    &lt;span class=&quot;attr&quot;&gt;hasError&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;
   };
 
   &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;error&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state = initialState, action&lt;/span&gt;) &lt;/span&gt;{
@@ -266,9 +266,9 @@ ReactDOM.render(&amp;lt;App/&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;doc
       &lt;span class=&quot;keyword&quot;&gt;case&lt;/span&gt; RECEIVE_ERROR:
         &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
           ...state,
-          hasError: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
-          message: action.error.message || action.error,
-          stack: action.error.stack
+          &lt;span class=&quot;attr&quot;&gt;hasError&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
+          &lt;span class=&quot;attr&quot;&gt;message&lt;/span&gt;: action.error.message || action.error,
+          &lt;span class=&quot;attr&quot;&gt;stack&lt;/span&gt;: action.error.stack
         };
       &lt;span class=&quot;keyword&quot;&gt;case&lt;/span&gt; PERSISTING:
         &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {...initialState};
@@ -280,7 +280,7 @@ ReactDOM.render(&amp;lt;App/&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;doc
 &lt;p&gt;I like this little pattern. Who better to decide how to clean the state than the reducer? For most reducers you just reset back to the beginning using &lt;code&gt;initialState&lt;/code&gt;, and so there’s confidence that the state going into localStorage is well formed.&lt;/p&gt;
 &lt;p&gt;And with that, my persistence code is now&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;save&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state&lt;/span&gt;) &lt;/span&gt;{
-  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; stateForPersistence = rootReducer(state, { type: PERSISTING });
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; stateForPersistence = rootReducer(state, { &lt;span class=&quot;attr&quot;&gt;type&lt;/span&gt;: PERSISTING });
 
   &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; serialized = &lt;span class=&quot;built_in&quot;&gt;JSON&lt;/span&gt;.stringify(stateForPersistence);
   localStorage[localStorageKey] = serialized;
@@ -389,12 +389,12 @@ In other words, every pixel in the VDP1 frame buffer can have a corresponding pr
 &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; DemoRouter &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'./Router'&lt;/span&gt;;
 
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; demoRouter = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; DemoRouter();
-&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; model = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Model({ source: demoRouter });
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; model = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Model({ &lt;span class=&quot;attr&quot;&gt;source&lt;/span&gt;: demoRouter });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;So the same router that will serve my client can double to serve my server too. Cool. Technically you can get away with just using the router directly, as both &lt;code&gt;model.get(...)&lt;/code&gt; and &lt;code&gt;router.get(...)&lt;/code&gt; do roughly the same thing. But if you go through a Model, you gain caching, de-duping, the ability to use path syntax strings among other advantages.&lt;/p&gt;
 &lt;h2 id=&quot;some-wrenches-redux-and-react-router&quot;&gt;Some Wrenches: Redux and React Router&lt;/h2&gt;
 &lt;p&gt;I’m also using these two libraries, and they complicate hooking up my Falcor model to my server side React components a bit. Here is my Express handler that is using react-router (simplified a bit)&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;app.use((req, res, next) =&amp;gt; {
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;app.use(&lt;span class=&quot;function&quot;&gt;(&lt;span class=&quot;params&quot;&gt;req, res, next&lt;/span&gt;) =&amp;gt;&lt;/span&gt; {
   &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; location = history.createLocation(req.path);
   match({
     routes,
@@ -422,15 +422,15 @@ In other words, every pixel in the VDP1 frame buffer can have a corresponding pr
 
 &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapStateToProps&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
-    hellofalcor: state.hello.hellofalcor,
-    helloagain: state.hello.helloagain
+    &lt;span class=&quot;attr&quot;&gt;hellofalcor&lt;/span&gt;: state.hello.hellofalcor,
+    &lt;span class=&quot;attr&quot;&gt;helloagain&lt;/span&gt;: state.hello.helloagain
   };
 }
 
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; HelloPage = connect(mapStateToProps)(Hello);
 
 HelloPage.serverFalcorPaths = [
-  { namespace: &lt;span class=&quot;string&quot;&gt;'hello'&lt;/span&gt;, paths: [[&lt;span class=&quot;string&quot;&gt;'hellofalcor'&lt;/span&gt;], [&lt;span class=&quot;string&quot;&gt;'helloagain'&lt;/span&gt;]] }
+  { &lt;span class=&quot;attr&quot;&gt;namespace&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hello'&lt;/span&gt;, &lt;span class=&quot;attr&quot;&gt;paths&lt;/span&gt;: [[&lt;span class=&quot;string&quot;&gt;'hellofalcor'&lt;/span&gt;], [&lt;span class=&quot;string&quot;&gt;'helloagain'&lt;/span&gt;]] }
 ];
 
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; HelloPage;
@@ -438,7 +438,7 @@ HelloPage.serverFalcorPaths = [
 &lt;p&gt;If you’ve not used Redux this probably look nuts. &lt;code&gt;Hello&lt;/code&gt; is a vanilla React component, and redux’s &lt;code&gt;connect()&lt;/code&gt; creates a new component which marries &lt;code&gt;Hello&lt;/code&gt; to data in the store.&lt;/p&gt;
 &lt;p&gt;The new thing here is &lt;code&gt;serverFalcorPaths&lt;/code&gt;, which is my hook to hint to Falcor what data it should grab when doing the server side render. Notice how &lt;code&gt;mapStateToProps&lt;/code&gt; has its data down in a &lt;code&gt;hello&lt;/code&gt; subobject? That’s also a common redux thing. My goal is to create an initial set of state data that I can feed into Redux, then into the components, then finally out via &lt;code&gt;renderToString&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;So back to the Express handler, let’s grab &lt;code&gt;serverFalcorPaths&lt;/code&gt; and get our data&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;app.use((req, res, next) =&amp;gt; {
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;app.use(&lt;span class=&quot;function&quot;&gt;(&lt;span class=&quot;params&quot;&gt;req, res, next&lt;/span&gt;) =&amp;gt;&lt;/span&gt; {
   &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; location = history.createLocation(req.path);
   match({
     routes,
@@ -449,7 +449,7 @@ HelloPage.serverFalcorPaths = [
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; next(err);
     }
     getFalcorDataForComponents(renderProps.components)
-      .then(initialStoreData =&amp;gt; {
+      .then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;params&quot;&gt;initialStoreData&lt;/span&gt; =&amp;gt;&lt;/span&gt; {
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = createStore(reducers, initialStoreData);
         res.send(renderToString(
           &lt;span class=&quot;comment&quot;&gt;// the store prop here is the gotcha&lt;/span&gt;
@@ -464,11 +464,11 @@ HelloPage.serverFalcorPaths = [
 &lt;p&gt;&lt;code&gt;renderProps&lt;/code&gt; from &lt;code&gt;match()&lt;/code&gt; contains everything needed to pull off the render, including the React components themselves. So if I find &lt;code&gt;renderProps.components[i].serverFalcorPaths&lt;/code&gt;, then I know that component needs a little Falcor love before continuing. That’s what &lt;code&gt;getFalcorDataForComponents&lt;/code&gt; is up to.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getFalcorDataForComponents&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;components = []&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; falcorRouter = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FalcorRouter();
-  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; model = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Model({ source: falcorRouter });
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; model = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Model({ &lt;span class=&quot;attr&quot;&gt;source&lt;/span&gt;: falcorRouter });
 
   &lt;span class=&quot;comment&quot;&gt;// grab all the falcor paths the components&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// are requesting into one large bag&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; falcorPaths = components.reduce((paths, cmp) =&amp;gt; {
+  &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; falcorPaths = components.reduce(&lt;span class=&quot;function&quot;&gt;(&lt;span class=&quot;params&quot;&gt;paths, cmp&lt;/span&gt;) =&amp;gt;&lt;/span&gt; {
     &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (cmp &amp;amp;&amp;amp; cmp.serverFalcorPaths) {
       &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; cmpPaths = _.pluck(cmp.serverFalcorPaths, &lt;span class=&quot;string&quot;&gt;'paths'&lt;/span&gt;);
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; paths.concat(...cmpPaths);
@@ -480,7 +480,7 @@ HelloPage.serverFalcorPaths = [
   &lt;span class=&quot;comment&quot;&gt;// blindly get all the needed data, we ignore&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// the result because we are really&lt;/span&gt;
   &lt;span class=&quot;comment&quot;&gt;// just populating the model's cache&lt;/span&gt;
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; model.get(...falcorPaths).then(() =&amp;gt; {
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; model.get(...falcorPaths).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; =&amp;gt;&lt;/span&gt; {
     &lt;span class=&quot;comment&quot;&gt;// and now that we have it (in the cache), sort it out&lt;/span&gt;
     &lt;span class=&quot;comment&quot;&gt;// into the namespaces the components specified&lt;/span&gt;
     &lt;span class=&quot;comment&quot;&gt;// this enables the store to be populated the same&lt;/span&gt;
@@ -489,7 +489,7 @@ HelloPage.serverFalcorPaths = [
 
     &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentPromises = components.map(getComponentData.bind(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;, model));
 
-    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;.all(_.flatten(componentPromises)).then(results =&amp;gt; {
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;.all(_.flatten(componentPromises)).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;params&quot;&gt;results&lt;/span&gt; =&amp;gt;&lt;/span&gt; {
       &lt;span class=&quot;comment&quot;&gt;// assign could lead to clobbered data depending on&lt;/span&gt;
       &lt;span class=&quot;comment&quot;&gt;// how your data is set up, better to use a deep merge.&lt;/span&gt;
       &lt;span class=&quot;comment&quot;&gt;// But this suffices for blog post/demo purposes&lt;/span&gt;
@@ -530,12 +530,12 @@ HelloPage.serverFalcorPaths = [
 &lt;p&gt;I am working on a little toy project involving Legos. I needed to gather all colors available for bricks into a JavaScript object, something like this:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; brickColors = {
   &lt;span class=&quot;string&quot;&gt;&quot;Medium Blue&quot;&lt;/span&gt;: {
-    id: &lt;span class=&quot;number&quot;&gt;102&lt;/span&gt;,
-    color: &lt;span class=&quot;string&quot;&gt;&quot;rgb(71, 140, 198)&quot;&lt;/span&gt;
+    &lt;span class=&quot;attr&quot;&gt;id&lt;/span&gt;: &lt;span class=&quot;number&quot;&gt;102&lt;/span&gt;,
+    &lt;span class=&quot;attr&quot;&gt;color&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;rgb(71, 140, 198)&quot;&lt;/span&gt;
   },
   &lt;span class=&quot;string&quot;&gt;&quot;Sand Blue&quot;&lt;/span&gt;: {
-    id: &lt;span class=&quot;number&quot;&gt;135&lt;/span&gt;,
-    color: &lt;span class=&quot;string&quot;&gt;&quot;rgb(94, 116, 140)&quot;&lt;/span&gt;
+    &lt;span class=&quot;attr&quot;&gt;id&lt;/span&gt;: &lt;span class=&quot;number&quot;&gt;135&lt;/span&gt;,
+    &lt;span class=&quot;attr&quot;&gt;color&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;rgb(94, 116, 140)&quot;&lt;/span&gt;
   },
   ...
 };
@@ -571,9 +571,9 @@ I got really lucky here, on some webpages narrowing down your query to just the 
   .reduce(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;accum, tr&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;comment&quot;&gt;// fallback to the official name if the color lacks a common name&lt;/span&gt;
     accum[tr.children[&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;].innerText || tr.children[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;].innerText] = {
-      id: &lt;span class=&quot;built_in&quot;&gt;Number&lt;/span&gt;(tr.children[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].innerText),
-      officialName: tr.children[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;].innerText,
-      color: tr.children[&lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;].style.backgroundColor
+      &lt;span class=&quot;attr&quot;&gt;id&lt;/span&gt;: &lt;span class=&quot;built_in&quot;&gt;Number&lt;/span&gt;(tr.children[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;].innerText),
+      &lt;span class=&quot;attr&quot;&gt;officialName&lt;/span&gt;: tr.children[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;].innerText,
+      &lt;span class=&quot;attr&quot;&gt;color&lt;/span&gt;: tr.children[&lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;].style.backgroundColor
     };
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; accum
   }, {});
@@ -685,7 +685,7 @@ clamp(&lt;span class=&quot;number&quot;&gt;200&lt;/span&gt;, &lt;span class=&quo
 }
 
 &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; myObj = {
-  foo: &lt;span class=&quot;string&quot;&gt;&quot;original value&quot;&lt;/span&gt;
+  &lt;span class=&quot;attr&quot;&gt;foo&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;original value&quot;&lt;/span&gt;
 };
 
 mutateObject(myObj);
@@ -1164,7 +1164,7 @@ else
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Big deal! In JavaScript &lt;code&gt;myGiantArray.push(1)&lt;/code&gt; is also very fast! In fact, it’s faster! But ClojureScript is maintaining immutability (and persistence), where &lt;code&gt;push&lt;/code&gt; mutates in place. A naive approach to accomplishing immutability in JavaScript would be&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;arrayConj&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;array, x&lt;/span&gt;)
-  &lt;span class=&quot;title&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;newArray&lt;/span&gt; = &lt;span class=&quot;title&quot;&gt;array&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;slice&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;0&lt;/span&gt;);
+  &lt;span class=&quot;title&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;newArray&lt;/span&gt; = &lt;span class=&quot;title&quot;&gt;array&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;slice&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;&lt;/span&gt;);
   &lt;span class=&quot;title&quot;&gt;newArray&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;push&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;x&lt;/span&gt;);
   &lt;span class=&quot;title&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;newArray&lt;/span&gt;;
 }&lt;/span&gt;
@@ -1248,8 +1248,8 @@ else
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;is roughly equivalent to:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;{
-  name: &lt;span class=&quot;string&quot;&gt;&quot;Calvin&quot;&lt;/span&gt;,
-  position: &lt;span class=&quot;string&quot;&gt;&quot;goalie&quot;&lt;/span&gt;
+  &lt;span class=&quot;attr&quot;&gt;name&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;Calvin&quot;&lt;/span&gt;,
+  &lt;span class=&quot;attr&quot;&gt;position&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;goalie&quot;&lt;/span&gt;
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h3 id=&quot;keywords&quot;&gt;Keywords&lt;/h3&gt;
@@ -1698,10 +1698,10 @@ You need to give Pegdown your parser’s &lt;strong&gt;class&lt;/strong&gt;, thi
 &lt;p&gt;&lt;a href=&quot;https://github.com/city41/node-sql-fixtures&quot;&gt;sql-fixtures&lt;/a&gt; applies the same idea, except this time for Node. Since JavaScript is such a flexible language, no need for something like YAML, it’s easy to just define the fixture data in JavaScript itself.&lt;/p&gt;
 &lt;p&gt;For example, here’s how to populate some data in a Users table in your database:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; fixtures = {
-  Users: [{
-    username: &lt;span class=&quot;string&quot;&gt;'Henry'&lt;/span&gt;
+  &lt;span class=&quot;attr&quot;&gt;Users&lt;/span&gt;: [{
+    &lt;span class=&quot;attr&quot;&gt;username&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'Henry'&lt;/span&gt;
   }, {
-    username: &lt;span class=&quot;string&quot;&gt;'Catherine'&lt;/span&gt;
+    &lt;span class=&quot;attr&quot;&gt;username&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'Catherine'&lt;/span&gt;
   }]
 };
 
@@ -1720,12 +1720,12 @@ sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&
 &lt;h2 id=&quot;foreign-key-resolution&quot;&gt;Foreign Key Resolution&lt;/h2&gt;
 &lt;p&gt;The neatest feature of sql-fixtures is automatic foreign key resolution. If you want to insert data into two tables and have their keys point at each other, it can be tedious to do manually. With sql-fixtures you can specify the relation in the fixture spec:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; fixtures = {
-  Users: {
-    username: &lt;span class=&quot;string&quot;&gt;'Henry'&lt;/span&gt;
+  &lt;span class=&quot;attr&quot;&gt;Users&lt;/span&gt;: {
+    &lt;span class=&quot;attr&quot;&gt;username&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'Henry'&lt;/span&gt;
   },
-  Purchase: {
-    purchaseDate: &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Date&lt;/span&gt;(),
-    userId: &lt;span class=&quot;string&quot;&gt;&quot;Users:0&quot;&lt;/span&gt;
+  &lt;span class=&quot;attr&quot;&gt;Purchase&lt;/span&gt;: {
+    &lt;span class=&quot;attr&quot;&gt;purchaseDate&lt;/span&gt;: &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Date&lt;/span&gt;(),
+    &lt;span class=&quot;attr&quot;&gt;userId&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;Users:0&quot;&lt;/span&gt;
   }
 };
 
@@ -1736,13 +1736,13 @@ sqlFixtures.create(databaseConfig, fixtures).then(&lt;span class=&quot;function&
 &lt;p&gt;In the above, sql-fixtures will create the User row first, then circle back and populate &lt;code&gt;Purchase.userId&lt;/code&gt; with Henry’s actual id before adding the new row in the Purchase table.&lt;/p&gt;
 &lt;p&gt;The default is to use indices to indicate which record you want to point to, but you can also use a &lt;code&gt;specId&lt;/code&gt;. This is useful if you’re generating a lot of data or complex data, as keeping track of which index is which can get tedious:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; fixtures = {
-  Users: {
-    username: &lt;span class=&quot;string&quot;&gt;'Henry'&lt;/span&gt;,
-    specId: &lt;span class=&quot;string&quot;&gt;'mySpecialUser'&lt;/span&gt;
+  &lt;span class=&quot;attr&quot;&gt;Users&lt;/span&gt;: {
+    &lt;span class=&quot;attr&quot;&gt;username&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'Henry'&lt;/span&gt;,
+    &lt;span class=&quot;attr&quot;&gt;specId&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'mySpecialUser'&lt;/span&gt;
   },
-  Purchase: {
-    purchaseDate: &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Date&lt;/span&gt;(),
-    userId: &lt;span class=&quot;string&quot;&gt;&quot;Users:mySpecialUser&quot;&lt;/span&gt;
+  &lt;span class=&quot;attr&quot;&gt;Purchase&lt;/span&gt;: {
+    &lt;span class=&quot;attr&quot;&gt;purchaseDate&lt;/span&gt;: &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Date&lt;/span&gt;(),
+    &lt;span class=&quot;attr&quot;&gt;userId&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;Users:mySpecialUser&quot;&lt;/span&gt;
   }
 };
 &lt;/code&gt;&lt;/pre&gt;
@@ -1794,10 +1794,10 @@ sandbox/
 &lt;p&gt;In the ES6 world, this all works just fine and as you’d expect. Traceur, however, does not quite turn this into a CommonJS module in the way I wanted.&lt;/p&gt;
 &lt;p&gt;Traceur will define the export from above as&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.defineProperties(exports, {
-  &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: {get: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;attr&quot;&gt;default&lt;/span&gt;: {&lt;span class=&quot;attr&quot;&gt;get&lt;/span&gt;: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
       &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; $__default;
     }},
-  __esModule: {value: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;}
+  &lt;span class=&quot;attr&quot;&gt;__esModule&lt;/span&gt;: {&lt;span class=&quot;attr&quot;&gt;value&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;}
 });
 
 ...
@@ -1810,13 +1810,13 @@ var $__default = RectEntity;
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;which is perfectly legal, but still Traceur will give you an exports with a &lt;code&gt;RectEntity&lt;/code&gt; property defined on it. I don’t want a property, I just want &lt;code&gt;RectEntity&lt;/code&gt; itself to be the export.&lt;/p&gt;
 &lt;p&gt;In ES6 land, &lt;code&gt;export default &amp;lt;value&amp;gt;&lt;/code&gt; basically means “this is the default thing we are exporting from this module, if someone just imports this module, give them this”. So you’d think &lt;code&gt;default&lt;/code&gt; would translate into effectively &lt;code&gt;module.exports = RectEntity&lt;/code&gt;, but it doesn’t, it puts a &lt;code&gt;default&lt;/code&gt; property on there. You can even see this in Traceur’s code when you import another module:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; BaseEntity = ($__base_45_entity__ = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;&quot;./base-entity&quot;&lt;/span&gt;), $__base_45_entity__ &amp;amp;&amp;amp; $__base_45_entity__.__esModule &amp;amp;&amp;amp; $__base_45_entity__ || {&lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: $__base_45_entity__}).default;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; BaseEntity = ($__base_45_entity__ = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;&quot;./base-entity&quot;&lt;/span&gt;), $__base_45_entity__ &amp;amp;&amp;amp; $__base_45_entity__.__esModule &amp;amp;&amp;amp; $__base_45_entity__ || {&lt;span class=&quot;attr&quot;&gt;default&lt;/span&gt;: $__base_45_entity__}).default;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;That long line of generated code basically boils down to – in CommonJS speak – &lt;code&gt;var BaseEntity = require(&amp;#39;./base-entity&amp;#39;).default&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;This meant my &lt;code&gt;index.js&lt;/code&gt; ended up looking like this&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;module&lt;/span&gt;.exports = {
-  Engine: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/engine'&lt;/span&gt;).default,
-  RectEntity: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/rect-entity'&lt;/span&gt;).default
+  &lt;span class=&quot;attr&quot;&gt;Engine&lt;/span&gt;: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/engine'&lt;/span&gt;).default,
+  &lt;span class=&quot;attr&quot;&gt;RectEntity&lt;/span&gt;: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/rect-entity'&lt;/span&gt;).default
 };
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Which is weird, but I can live with it.&lt;/p&gt;
@@ -1827,8 +1827,8 @@ var $__default = RectEntity;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'traceur/bin/traceur-runtime'&lt;/span&gt;);
 
 &lt;span class=&quot;built_in&quot;&gt;module&lt;/span&gt;.exports = {
-  Engine: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/engine'&lt;/span&gt;).default,
-  RectEntity: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/rect-entity'&lt;/span&gt;).default
+  &lt;span class=&quot;attr&quot;&gt;Engine&lt;/span&gt;: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/engine'&lt;/span&gt;).default,
+  &lt;span class=&quot;attr&quot;&gt;RectEntity&lt;/span&gt;: &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'./lib/rect-entity'&lt;/span&gt;).default
 };
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;It will define the runtime on &lt;code&gt;global&lt;/code&gt; and from there the rest of your transpiled code will be happy. Pretty simple.&lt;/p&gt;
@@ -1836,14 +1836,14 @@ var $__default = RectEntity;
 &lt;p&gt;I am transpiling from ES6-&amp;gt;ES5 using &lt;a href=&quot;https://github.com/sindresorhus/gulp-traceur&quot;&gt;gulp-traceur&lt;/a&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; gulp.src(&lt;span class=&quot;string&quot;&gt;'src/**/*.js'&lt;/span&gt;)
-    .pipe(traceur({modules:&lt;span class=&quot;string&quot;&gt;'commonjs'&lt;/span&gt;}))
+    .pipe(traceur({&lt;span class=&quot;attr&quot;&gt;modules&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;'commonjs'&lt;/span&gt;}))
     .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./lib'&lt;/span&gt;));
 });
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;the above will transpile the code but not include the runtime. gulp-traceur makes it available at &lt;code&gt;traceur.RUNTIME_PATH&lt;/code&gt;, so you can just do&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;gulp.task(&lt;span class=&quot;string&quot;&gt;'build:lib'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; gulp.src([traceur.RUNTIME_PATH, &lt;span class=&quot;string&quot;&gt;'src/**/*.js'&lt;/span&gt;])
-    .pipe(traceur({modules:&lt;span class=&quot;string&quot;&gt;'commonjs'&lt;/span&gt;}))
+    .pipe(traceur({&lt;span class=&quot;attr&quot;&gt;modules&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;'commonjs'&lt;/span&gt;}))
     .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./lib'&lt;/span&gt;));
 });
 &lt;/code&gt;&lt;/pre&gt;
@@ -1869,7 +1869,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; browserify()
     .add(es6ify.runtime)
     .transform(es6ify)
-    .require(&lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;.resolve(&lt;span class=&quot;string&quot;&gt;'./sandbox/sandbox.js'&lt;/span&gt;), { entry: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt; })
+    .require(&lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;.resolve(&lt;span class=&quot;string&quot;&gt;'./sandbox/sandbox.js'&lt;/span&gt;), { &lt;span class=&quot;attr&quot;&gt;entry&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt; })
     .bundle()
     .pipe(source(&lt;span class=&quot;string&quot;&gt;'sandbox-bundle.js'&lt;/span&gt;))
     .pipe(gulp.dest(&lt;span class=&quot;string&quot;&gt;'./sandbox/'&lt;/span&gt;));
@@ -2018,7 +2018,7 @@ gulp.task(&amp;#39;build:lib&amp;#39;, [&amp;#39;traceur:runtime&amp;#39;], func
 &lt;p&gt;to this “promise” based solution&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;doSomething&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
-    then: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;callback&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;attr&quot;&gt;then&lt;/span&gt;: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;callback&lt;/span&gt;) &lt;/span&gt;{
       &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; value = &lt;span class=&quot;number&quot;&gt;42&lt;/span&gt;;
       callback(value);
     }
@@ -2191,8 +2191,8 @@ This is not completely true for the promise implementation in this article. If t
   &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;onResolved&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;resolve&lt;/span&gt;) &lt;/span&gt;{
       handle({
-        onResolved: onResolved,
-        resolve: resolve
+        &lt;span class=&quot;attr&quot;&gt;onResolved&lt;/span&gt;: onResolved,
+        &lt;span class=&quot;attr&quot;&gt;resolve&lt;/span&gt;: resolve
       });
     });
   };
@@ -2424,10 +2424,10 @@ As mentioned earlier, the promise will transition from &lt;strong&gt;pending&lt;
   &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.then = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;onResolved, onRejected&lt;/span&gt;) &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Promise&lt;/span&gt;(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;resolve, reject&lt;/span&gt;) &lt;/span&gt;{
       handle({
-        onResolved: onResolved,
-        onRejected: onRejected,
-        resolve: resolve,
-        reject: reject
+        &lt;span class=&quot;attr&quot;&gt;onResolved&lt;/span&gt;: onResolved,
+        &lt;span class=&quot;attr&quot;&gt;onRejected&lt;/span&gt;: onRejected,
+        &lt;span class=&quot;attr&quot;&gt;resolve&lt;/span&gt;: resolve,
+        &lt;span class=&quot;attr&quot;&gt;reject&lt;/span&gt;: reject
       });
     });
   };
@@ -2958,7 +2958,7 @@ uniform &lt;span class=&quot;keyword&quot;&gt;float&lt;/span&gt; uTexStep;
 &lt;p&gt;Yokul is very early at this point, you will certainly run into issues. Mostly you’ll find some of your favorite chart types and/or parameters aren’t implemented yet. Yokul will let you know if you set up a debug output div for it.&lt;/p&gt;
 &lt;p&gt;Create a div on your page that Yokul can write to. Tell Yokul where this div is with &lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;  YOKUL.debugOutput = &lt;span class=&quot;string&quot;&gt;&quot;idOfYourDebugDiv&quot;&lt;/span&gt;;
-  YOKUL.logOutput = { info: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;, warning: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;, error: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt; };
+  YOKUL.logOutput = { &lt;span class=&quot;attr&quot;&gt;info&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;, &lt;span class=&quot;attr&quot;&gt;warning&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;, &lt;span class=&quot;attr&quot;&gt;error&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt; };
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Ideally do this before you do anything else with Yokul. Here is the debug output from creating the above chart:&lt;/p&gt;
 &lt;div id=&quot;debugOutputDiv&quot;&gt;&lt;/div&gt;

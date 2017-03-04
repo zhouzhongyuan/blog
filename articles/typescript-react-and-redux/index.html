@@ -94,8 +94,8 @@
 <span class="keyword">import</span> * <span class="keyword">as</span> MyActions <span class="keyword">from</span> <span class="string">"../actions/myAction"</span>;
 
 interface StateProps {
-  massagedFoo: number,
-  message: string
+  <span class="attr">massagedFoo</span>: number,
+  <span class="attr">message</span>: string
 }
 
 interface DispatchProps {
@@ -106,8 +106,8 @@ type HomeProps = StateProps &amp; DispatchProps;
 
 <span class="function"><span class="keyword">function</span> <span class="title">mapStateToProps</span>(<span class="params">state</span>) </span>{
   <span class="keyword">return</span> {
-    massagedFoo: state.myAction.massagedFoo,
-    message: state.myAction.message
+    <span class="attr">massagedFoo</span>: state.myAction.massagedFoo,
+    <span class="attr">message</span>: state.myAction.message
   };
 }
 
@@ -144,7 +144,7 @@ type HomeProps = StateProps &amp; DispatchProps;
 
 <span class="keyword">const</span> store = configureStore();
 
-<span class="keyword">const</span> App: React.StatelessComponent&lt;any&gt; = () =&gt; (
+<span class="keyword">const</span> App: React.StatelessComponent&lt;any&gt; = <span class="function"><span class="params">()</span> =&gt;</span> (
   <span class="xml"><span class="tag">&lt;<span class="name">Provider</span> <span class="attr">store</span>=<span class="string">{store}</span>&gt;</span>
     <span class="tag">&lt;<span class="name">Home</span> /&gt;</span>
   <span class="tag">&lt;/<span class="name">Provider</span>&gt;</span></span>

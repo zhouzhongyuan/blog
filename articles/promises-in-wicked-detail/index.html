@@ -101,7 +101,7 @@
 <p>to this “promise” based solution</p>
 <pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span>(<span class="params"></span>) </span>{
   <span class="keyword">return</span> {
-    then: <span class="function"><span class="keyword">function</span>(<span class="params">callback</span>) </span>{
+    <span class="attr">then</span>: <span class="function"><span class="keyword">function</span>(<span class="params">callback</span>) </span>{
       <span class="keyword">var</span> value = <span class="number">42</span>;
       callback(value);
     }
@@ -274,8 +274,8 @@ This is not completely true for the promise implementation in this article. If t
   <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span>(<span class="params">onResolved</span>) </span>{
     <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>{
       handle({
-        onResolved: onResolved,
-        resolve: resolve
+        <span class="attr">onResolved</span>: onResolved,
+        <span class="attr">resolve</span>: resolve
       });
     });
   };
@@ -507,10 +507,10 @@ As mentioned earlier, the promise will transition from <strong>pending</strong> 
   <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span>(<span class="params">onResolved, onRejected</span>) </span>{
     <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>) </span>{
       handle({
-        onResolved: onResolved,
-        onRejected: onRejected,
-        resolve: resolve,
-        reject: reject
+        <span class="attr">onResolved</span>: onResolved,
+        <span class="attr">onRejected</span>: onRejected,
+        <span class="attr">resolve</span>: resolve,
+        <span class="attr">reject</span>: reject
       });
     });
   };

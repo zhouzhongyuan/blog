@@ -42,14 +42,14 @@
 <pre><code class="lang-javascript"><span class="comment">// the action</span>
 <span class="function"><span class="keyword">function</span> <span class="title">receiveError</span>(<span class="params">error</span>) </span>{
   <span class="keyword">return</span> {
-    type: RECEIVE_ERROR,
+    <span class="attr">type</span>: RECEIVE_ERROR,
     error
   };
 }
 
 <span class="comment">// and over in the reducer</span>
 <span class="keyword">const</span> initialState = {
-  hasError: <span class="literal">false</span>
+  <span class="attr">hasError</span>: <span class="literal">false</span>
 };
 
 <span class="function"><span class="keyword">function</span> <span class="title">error</span>(<span class="params">state = initialState, action</span>) </span>{
@@ -57,9 +57,9 @@
     <span class="keyword">case</span> RECEIVE_ERROR:
       <span class="keyword">return</span> {
         ...state,
-        hasError: <span class="literal">true</span>,
-        message: action.error.message || action.error,
-        stack: action.error.stack
+        <span class="attr">hasError</span>: <span class="literal">true</span>,
+        <span class="attr">message</span>: action.error.message || action.error,
+        <span class="attr">stack</span>: action.error.stack
       };
     <span class="keyword">default</span>:
       <span class="keyword">return</span> state;
@@ -86,7 +86,7 @@
 <p>My initial stab at this was to just take the entire app state via <code>store.getState()</code>, then start strategically <code>delete</code>ing properties I don’t want persisted. This is ugly, doesn’t scale, error prone, all kinds of bad stuff.</p>
 <p>A better approach is to have a <code>PERSISTING</code> action. Send this action through all of your reducers, and let them decide what should stay and what should go</p>
 <pre><code class="lang-javascript">  <span class="keyword">const</span> initialState = {
-    hasError: <span class="literal">false</span>
+    <span class="attr">hasError</span>: <span class="literal">false</span>
   };
 
   <span class="function"><span class="keyword">function</span> <span class="title">error</span>(<span class="params">state = initialState, action</span>) </span>{
@@ -94,9 +94,9 @@
       <span class="keyword">case</span> RECEIVE_ERROR:
         <span class="keyword">return</span> {
           ...state,
-          hasError: <span class="literal">true</span>,
-          message: action.error.message || action.error,
-          stack: action.error.stack
+          <span class="attr">hasError</span>: <span class="literal">true</span>,
+          <span class="attr">message</span>: action.error.message || action.error,
+          <span class="attr">stack</span>: action.error.stack
         };
       <span class="keyword">case</span> PERSISTING:
         <span class="keyword">return</span> {...initialState};
@@ -108,7 +108,7 @@
 <p>I like this little pattern. Who better to decide how to clean the state than the reducer? For most reducers you just reset back to the beginning using <code>initialState</code>, and so there’s confidence that the state going into localStorage is well formed.</p>
 <p>And with that, my persistence code is now</p>
 <pre><code class="lang-javascript"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">save</span>(<span class="params">state</span>) </span>{
-  <span class="keyword">const</span> stateForPersistence = rootReducer(state, { type: PERSISTING });
+  <span class="keyword">const</span> stateForPersistence = rootReducer(state, { <span class="attr">type</span>: PERSISTING });
 
   <span class="keyword">const</span> serialized = <span class="built_in">JSON</span>.stringify(stateForPersistence);
   localStorage[localStorageKey] = serialized;
