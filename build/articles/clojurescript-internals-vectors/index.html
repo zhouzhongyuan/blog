@@ -236,7 +236,7 @@ else
 </code></pre>
 <p>Big deal! In JavaScript <code>myGiantArray.push(1)</code> is also very fast! In fact, it’s faster! But ClojureScript is maintaining immutability (and persistence), where <code>push</code> mutates in place. A naive approach to accomplishing immutability in JavaScript would be</p>
 <pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">arrayConj</span>(<span class="params">array, x</span>)
-  <span class="title">var</span> <span class="title">newArray</span> = <span class="title">array</span>.<span class="title">slice</span>(<span class="params">0</span>);
+  <span class="title">var</span> <span class="title">newArray</span> = <span class="title">array</span>.<span class="title">slice</span>(<span class="params"><span class="number">0</span></span>);
   <span class="title">newArray</span>.<span class="title">push</span>(<span class="params">x</span>);
   <span class="title">return</span> <span class="title">newArray</span>;
 }</span>

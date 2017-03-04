@@ -48,12 +48,12 @@
 <span class="keyword">import</span> DemoRouter <span class="keyword">from</span> <span class="string">'./Router'</span>;
 
 <span class="keyword">const</span> demoRouter = <span class="keyword">new</span> DemoRouter();
-<span class="keyword">const</span> model = <span class="keyword">new</span> Model({ source: demoRouter });
+<span class="keyword">const</span> model = <span class="keyword">new</span> Model({ <span class="attr">source</span>: demoRouter });
 </code></pre>
 <p>So the same router that will serve my client can double to serve my server too. Cool. Technically you can get away with just using the router directly, as both <code>model.get(...)</code> and <code>router.get(...)</code> do roughly the same thing. But if you go through a Model, you gain caching, de-duping, the ability to use path syntax strings among other advantages.</p>
 <h2 id="some-wrenches-redux-and-react-router">Some Wrenches: Redux and React Router</h2>
 <p>I’m also using these two libraries, and they complicate hooking up my Falcor model to my server side React components a bit. Here is my Express handler that is using react-router (simplified a bit)</p>
-<pre><code class="lang-javascript">app.use((req, res, next) =&gt; {
+<pre><code class="lang-javascript">app.use(<span class="function">(<span class="params">req, res, next</span>) =&gt;</span> {
   <span class="keyword">const</span> location = history.createLocation(req.path);
   match({
     routes,
@@ -81,15 +81,15 @@
 
 <span class="function"><span class="keyword">function</span> <span class="title">mapStateToProps</span>(<span class="params">state</span>) </span>{
   <span class="keyword">return</span> {
-    hellofalcor: state.hello.hellofalcor,
-    helloagain: state.hello.helloagain
+    <span class="attr">hellofalcor</span>: state.hello.hellofalcor,
+    <span class="attr">helloagain</span>: state.hello.helloagain
   };
 }
 
 <span class="keyword">const</span> HelloPage = connect(mapStateToProps)(Hello);
 
 HelloPage.serverFalcorPaths = [
-  { namespace: <span class="string">'hello'</span>, paths: [[<span class="string">'hellofalcor'</span>], [<span class="string">'helloagain'</span>]] }
+  { <span class="attr">namespace</span>: <span class="string">'hello'</span>, <span class="attr">paths</span>: [[<span class="string">'hellofalcor'</span>], [<span class="string">'helloagain'</span>]] }
 ];
 
 <span class="keyword">export</span> <span class="keyword">default</span> HelloPage;
@@ -97,7 +97,7 @@ HelloPage.serverFalcorPaths = [
 <p>If you’ve not used Redux this probably look nuts. <code>Hello</code> is a vanilla React component, and redux’s <code>connect()</code> creates a new component which marries <code>Hello</code> to data in the store.</p>
 <p>The new thing here is <code>serverFalcorPaths</code>, which is my hook to hint to Falcor what data it should grab when doing the server side render. Notice how <code>mapStateToProps</code> has its data down in a <code>hello</code> subobject? That’s also a common redux thing. My goal is to create an initial set of state data that I can feed into Redux, then into the components, then finally out via <code>renderToString</code>.</p>
 <p>So back to the Express handler, let’s grab <code>serverFalcorPaths</code> and get our data</p>
-<pre><code class="lang-javascript">app.use((req, res, next) =&gt; {
+<pre><code class="lang-javascript">app.use(<span class="function">(<span class="params">req, res, next</span>) =&gt;</span> {
   <span class="keyword">const</span> location = history.createLocation(req.path);
   match({
     routes,
@@ -108,7 +108,7 @@ HelloPage.serverFalcorPaths = [
       <span class="keyword">return</span> next(err);
     }
     getFalcorDataForComponents(renderProps.components)
-      .then(initialStoreData =&gt; {
+      .then(<span class="function"><span class="params">initialStoreData</span> =&gt;</span> {
         <span class="keyword">const</span> store = createStore(reducers, initialStoreData);
         res.send(renderToString(
           <span class="comment">// the store prop here is the gotcha</span>
@@ -123,11 +123,11 @@ HelloPage.serverFalcorPaths = [
 <p><code>renderProps</code> from <code>match()</code> contains everything needed to pull off the render, including the React components themselves. So if I find <code>renderProps.components[i].serverFalcorPaths</code>, then I know that component needs a little Falcor love before continuing. That’s what <code>getFalcorDataForComponents</code> is up to.</p>
 <pre><code class="lang-javascript"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">getFalcorDataForComponents</span>(<span class="params">components = []</span>) </span>{
   <span class="keyword">const</span> falcorRouter = <span class="keyword">new</span> FalcorRouter();
-  <span class="keyword">const</span> model = <span class="keyword">new</span> Model({ source: falcorRouter });
+  <span class="keyword">const</span> model = <span class="keyword">new</span> Model({ <span class="attr">source</span>: falcorRouter });
 
   <span class="comment">// grab all the falcor paths the components</span>
   <span class="comment">// are requesting into one large bag</span>
-  <span class="keyword">const</span> falcorPaths = components.reduce((paths, cmp) =&gt; {
+  <span class="keyword">const</span> falcorPaths = components.reduce(<span class="function">(<span class="params">paths, cmp</span>) =&gt;</span> {
     <span class="keyword">if</span> (cmp &amp;&amp; cmp.serverFalcorPaths) {
       <span class="keyword">const</span> cmpPaths = _.pluck(cmp.serverFalcorPaths, <span class="string">'paths'</span>);
       <span class="keyword">return</span> paths.concat(...cmpPaths);
@@ -139,7 +139,7 @@ HelloPage.serverFalcorPaths = [
   <span class="comment">// blindly get all the needed data, we ignore</span>
   <span class="comment">// the result because we are really</span>
   <span class="comment">// just populating the model's cache</span>
-  <span class="keyword">return</span> model.get(...falcorPaths).then(() =&gt; {
+  <span class="keyword">return</span> model.get(...falcorPaths).then(<span class="function"><span class="params">()</span> =&gt;</span> {
     <span class="comment">// and now that we have it (in the cache), sort it out</span>
     <span class="comment">// into the namespaces the components specified</span>
     <span class="comment">// this enables the store to be populated the same</span>
@@ -148,7 +148,7 @@ HelloPage.serverFalcorPaths = [
 
     <span class="keyword">const</span> componentPromises = components.map(getComponentData.bind(<span class="keyword">this</span>, model));
 
-    <span class="keyword">return</span> <span class="built_in">Promise</span>.all(_.flatten(componentPromises)).then(results =&gt; {
+    <span class="keyword">return</span> <span class="built_in">Promise</span>.all(_.flatten(componentPromises)).then(<span class="function"><span class="params">results</span> =&gt;</span> {
       <span class="comment">// assign could lead to clobbered data depending on</span>
       <span class="comment">// how your data is set up, better to use a deep merge.</span>
       <span class="comment">// But this suffices for blog post/demo purposes</span>
