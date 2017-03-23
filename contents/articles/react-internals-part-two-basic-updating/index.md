@@ -88,3 +88,24 @@ function getTopLevelComponentInContainer(container) {
 }
 ```
 
+## Updating to the new state
+
+We've got the old component and new element in hand. We need to use them to figure out the DOM updates to perform.
+
+```javascript
+function updateRootComponent(prevComponent, nextElement, container) {
+    this basically boils down to
+    -- get prevElement from prevComponent
+    -- call render() on the nextElement's component class
+    -- we now have two "equivalent" elements, and in our case they are primitive elements
+    -- run this cycle again against the two elements and FeactDOMComponent (need to figure this out)
+        -- ultimately we end up in FeactDOMComponent#receiveComponent(nextElement)
+        -- from there call FeactDOMComponent#updateComponent(prevElement, nextElement)
+        -- ultimately end up in FeactDOMComponent#_updateDOMProperties which updates the DOM node
+        -- also FeactDOMComponent#_updateDOMChildren
+            -- this calls updateTextContent(nextContent)
+            -- finally call node.nodeValue = nextContent (text)
+
+}
+```
+
