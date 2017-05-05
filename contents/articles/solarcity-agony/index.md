@@ -1,7 +1,7 @@
 ---
 title: SolarCity Agony
 author: Matt
-date: 2017-05-03
+date: 2017-05-04
 template: article.jade
 ---
 <style>
