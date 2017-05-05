@@ -48,11 +48,11 @@ Then when I received my statement for the month of April, I noticed they were ri
 ![statements](./statements.png)
 
 
-I raised the issue on April 1st both via email and Twitter. I also called the standard customer service line and had a very heated discussion with the representative who answered. To that person's credit, she was really cool and even said "I'd be even madder than you are now if it was me!". I also left several voicemails in early April. I didn't receive my corrected statement until April 24th.
+I raised the issue on April 1st both via email and Twitter. I also called the standard customer service line and had a very heated discussion with the representative who answered. To that person's credit, she was really cool and even said "I'd be even madder than you are now if it was me!". I also left several voicemails in early April. 
 
 ![misunderstanding tweet from solarcity](./misunderstandingTweet.png)
 
-For 21 days, this tweet was the only indication anything was being done and that they had even looked at the situation.
+I didn't receive my corrected statement until April 24th.
 
 ## Concerned About My Credit
 
