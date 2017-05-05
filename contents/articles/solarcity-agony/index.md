@@ -10,7 +10,7 @@ template: article.jade
   }
 </style>
 
-We have been trapped in customer support hell with SolarCity since last November. Over six months of trying to correct their mistakes, *just so we can pay our bill!* They have been just awful, and I feel like I got to let others know. If you are considering solar panels, I recommend avoiding SolarCity.
+We have been trapped in customer support hell with SolarCity since last November. Over six months of trying to correct their mistakes, *just so we can pay our bill!* They have been just awful, and I feel like I've got to let others know. If you are considering solar panels, I recommend avoiding SolarCity.
 
 <span class="more"></span>
 
