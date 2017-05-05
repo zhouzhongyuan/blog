@@ -52,6 +52,8 @@ I raised the issue on April 1st both via email and Twitter. I also called the st
 
 ![misunderstanding tweet from solarcity](./misunderstandingTweet.png)
 
+For 21 days, this tweet was the only indication anything was being done and that they had even looked at the situation.
+
 ## Concerned About My Credit
 
 At this point it's now April, and I've not made a payment since January. Not because I don't want to, but because I pretty much can't. Based on all the other shenanigans, I realized they will probably report me to a credit agency for late and missing payments. So I contacted my assigned customer service manager and asked her about this. It took weeks and weeks to get an answer to this simple question. And the answer was
