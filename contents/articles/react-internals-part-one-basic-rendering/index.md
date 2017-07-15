@@ -329,4 +329,4 @@ With that, Feact can render simple components. As far as basic rendering is conc
 
 Here's a final fiddle that wraps up all we've built so far:
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/4">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/6">fiddle</a>
