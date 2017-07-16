@@ -1,10 +1,10 @@
 ---
 title: "React Internals, Part One: basic rendering"
 author: Matt
-date: 2017-03-19
+date: 2017-07-15
 template: article.jade
 ---
-I'm a long time React user, but recently I've found I need to understand how the internals of React work. This blog post series is me doing just that. In this four part series, we will recreate React from the ground up, learning how it works along the way. When finished, you will be able to browse React's source code and easily follow along.
+In this four part series, we will "recreate" React from the ground up, learning how it works along the way. Our recreation will be dramatically simpler than actual React. Once we've finished, you should have a good grasp of how React works, and when and why it calls the various lifecycle methods of a component.
 
 <span class="more"></span>
 
