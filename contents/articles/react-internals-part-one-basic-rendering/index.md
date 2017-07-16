@@ -320,7 +320,7 @@ const Feact = {
 };
 ```
 
-`ToplevelWrapper` is basically a simple composite component. For example, it could have been defined by calling `Feact.createClass()`. Its `render` method just returns the user provided element. Since TopLevelWrapper will get wrapped in a `FeactCompositeComponentWrapper`, we don't care what type the user provided element was, `FeactCompositeComponentWrapper` will do the right thing regardless.
+`ToplevelWrapper` is basically a simple composite component. It could have been defined by calling `Feact.createClass()`. Its `render` method just returns the user provided element. Since TopLevelWrapper will get wrapped in a `FeactCompositeComponentWrapper`, we don't care what type the user provided element was, `FeactCompositeComponentWrapper` will do the right thing regardless.
 
 
 ## Conclusion to part one

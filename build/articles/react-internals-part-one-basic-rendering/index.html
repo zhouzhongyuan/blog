@@ -278,7 +278,7 @@ TopLevelWrapper.prototype.render = <span class="function"><span class="keyword">
     }
 };
 </code></pre>
-<p><code>ToplevelWrapper</code> is basically a simple composite component. For example, it could have been defined by calling <code>Feact.createClass()</code>. Its <code>render</code> method just returns the user provided element. Since TopLevelWrapper will get wrapped in a <code>FeactCompositeComponentWrapper</code>, we don’t care what type the user provided element was, <code>FeactCompositeComponentWrapper</code> will do the right thing regardless.</p>
+<p><code>ToplevelWrapper</code> is basically a simple composite component. It could have been defined by calling <code>Feact.createClass()</code>. Its <code>render</code> method just returns the user provided element. Since TopLevelWrapper will get wrapped in a <code>FeactCompositeComponentWrapper</code>, we don’t care what type the user provided element was, <code>FeactCompositeComponentWrapper</code> will do the right thing regardless.</p>
 <h2 id="conclusion-to-part-one">Conclusion to part one</h2>
 <p>With that, Feact can render simple components. As far as basic rendering is concerned, we’ve hit most of the major considerations. In real React, rendering is much more complicated as there are many other things to consider such as events, focus, scroll position of the window, performance, and much more.</p>
 <p>Here’s a final fiddle that wraps up all we’ve built so far:</p>
