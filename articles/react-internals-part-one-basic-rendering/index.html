@@ -103,7 +103,7 @@ The truth is the components we create are incomplete. React will take our compon
 
         <span class="keyword">return</span> element;
     }
-}
+};
 </code></pre>
 <p>Elements are just simple objects representing something we want rendered.</p>
 <h3 id="what-should-feact-render-do-">What should Feact.render() do?</h3>
@@ -117,7 +117,7 @@ The truth is the components we create are incomplete. React will take our compon
     }
 };
 </code></pre>
-<p>When <code>render()</code> finishes, we have a finished webpage. So based on that, we know FeactDOMComponent is truly digging in and creating DOM for us. Based on that, let’s go ahead and take a stab at implementing it:</p>
+<p>When <code>render()</code> finishes, we have a finished webpage. So based on that, we know FeactDOMComponent is truly digging in and creating DOM for us. Let’s go ahead and take a stab at implementing it:</p>
 <pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactDOMComponent</span> </span>{
     <span class="keyword">constructor</span>(element) {
         <span class="keyword">this</span>._currentElement = element;
