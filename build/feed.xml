@@ -5,68 +5,782 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Wed, 03 May 2017 17:00:00 -0700</pubDate>
+    <pubDate>Sat, 15 Jul 2017 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
     <item>
-      <title>SolarCity Agony</title>
-      <link>http://mattgreer.org/articles/solarcity-agony/</link>
-      <pubDate>Wed, 03 May 2017 17:00:00 -0700</pubDate>
-      <guid isPermaLink="true">http://mattgreer.org/articles/solarcity-agony/</guid>
+      <title>React Internals, Part Three: basic updating</title>
+      <link>http://mattgreer.org/articles/react-internals-part-three-basic-updating/</link>
+      <pubDate>Sat, 15 Jul 2017 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/react-internals-part-three-basic-updating/</guid>
       <author></author>
-      <description>&lt;style&gt;
-  img {
-    margin: 2em 0;
-  }
-&lt;/style&gt;
-
-&lt;p&gt;We have been trapped in customer support hell with SolarCity since last November. Over six months of trying to correct their mistakes, &lt;em&gt;just so we can pay our bill!&lt;/em&gt; They have been just awful, and I feel like I’ve got to let others know. If you are considering solar panels, I recommend avoiding SolarCity.&lt;/p&gt;
+      <description>&lt;p&gt;In &lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-one-basic-rendering&quot;&gt;part one&lt;/a&gt;, our small React clone, Feact, was implemented far enough to do basic rendering. But once the render happens, that was it. In this part, we’ll add the ability to make changes to the app with subsequent renders. This part will begin to show how the virtual DOM diffing works.&lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;h2 id=&quot;locked-in&quot;&gt;Locked In&lt;/h2&gt;
-&lt;p&gt;It all started when we bought a house last October. It came with a SolarCity lease. After researching solar panel leases, we came to the conclusion they aren’t great deals, but they’re not terrible either. At least not bad enough to turn down the house, so we decided to go with it. This required transfering the lease to us, and locking us into their contract. At this point, SolarCity was great. They would respond to any email or phone call immediately, were helpful and easy to work with.&lt;/p&gt;
-&lt;h2 id=&quot;red-flags&quot;&gt;Red Flags&lt;/h2&gt;
-&lt;p&gt;The first red flag, although a tiny one, was the online payment portal was not available to us (for the record, it’s still not). Ok, no big deal, we had just opened our account and I was confident it’d be ready by the next month. I called and inquired about the situation and the representative recommended I both don’t make a payment yet, and that I don’t set up automatic payments until things were straightened out.  &lt;/p&gt;
-&lt;p&gt;Next month I still was unable to pay online, so I emailed them asking why, and called to pay by phone. The representative asked if I’d like to pay my bill with my Wells Fargo account. Hmmmm, I don’t have a Wells Fargo bank account. Each time I called them, they would ask me to confirm that I own two solar systems. Nope, just the one. And each time I called, my balance due would be different, wildly so. I came to realize what they had done was gotten my details mixed together with the previous owner. I also came to realize that my “balance due” could either be a) my balance b) the previous owner’s balance from when they lived here c) the previous owner’s balance on &lt;em&gt;their other solar system&lt;/em&gt; or d) a combination of all three. I wrote them an email telling them I was concerned about the security of my bank account and the mix up, and they responded with &lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;The previous homeowner has two properties with SolarCity systems on them. The billing accounts for their two properties are still linked in our billing portal.&lt;/p&gt;
-&lt;p&gt;Your account is still in the process of being transferred from the previous homeowner to the new homeowner. This is why your billing account is temporarily disabled until we can get the two accounts unlinked and corrected to reflect your information.&lt;/p&gt;
-&lt;/blockquote&gt;
+&lt;h2 id=&quot;the-series&quot;&gt;The series&lt;/h2&gt;
+&lt;ul&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-one-basic-rendering&quot;&gt;part one: basic rendering&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount&quot;&gt;part two: componentWillMount and componentDidMount&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;part three: basic updating&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
+    &lt;li&gt;part four: setState &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+    &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/solarcity-agony/emailResponse.png&quot; alt=&quot;email response&quot;&gt;&lt;/p&gt;
-&lt;h2 id=&quot;squeeky-wheel-gets-the-grease&quot;&gt;Squeeky Wheel Gets the Grease&lt;/h2&gt;
-&lt;p&gt;Their ultimate response to my concerns was to assign me to a “customer service manager”. At first, this did seem like a step forward. She first contacted me by phone in January. She said she would personally look over my account, ensure the statements and balances due were correct, and allow me to make payments over the phone with her directly. Little did I know at the time, I was about to waste untold amounts of time with this person.&lt;/p&gt;
-&lt;p&gt;There turned out to be some problems with this arrangement: this person is just shy of impossible to get ahold of. This person did positively nothing at all to improve or correct the situation. And since our account was assigned to her, making payments through the standard customer service phone number was no longer possible.  &lt;/p&gt;
-&lt;p&gt;If I email her, she does not respond. If I leave a voicemail, she does not call back. Well, at least not in a timely fashion. Her average response time is about 7 days. That’s just response time, actually getting information out of her has proven to take much, &lt;em&gt;much&lt;/em&gt; longer. She hems and haws with “we’re working on it”, and “I’ll call you back with the details on that”.&lt;/p&gt;
-&lt;p&gt;Simply put, I don’t have time for this. Playing phone and email tag with a SolarCity manager is not my idea of time well spent. She is only available during standard business hours. So I have to call her while I’m at work. I told her I would prefer to not make any payments until the online portal was fixed. She agreed, said she’d make a note of that in my file, and I naively thought that might be the end of the situation.&lt;/p&gt;
-&lt;h2 id=&quot;statement-mishmash-yet-again&quot;&gt;Statement Mishmash … Yet Again&lt;/h2&gt;
-&lt;p&gt;Then when I received my statement for the month of April, I noticed they were right back to their old tricks of pulling a balance due seemingly out of thin air. I also really enjoyed that whether they decided to charge me tax for a given month seemed to be decided by coin flip.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/solarcity-agony/statements.png&quot; alt=&quot;statements&quot;&gt;&lt;/p&gt;
-&lt;p&gt;I raised the issue on April 1st both via email and Twitter. I also called the standard customer service line and had a very heated discussion with the representative who answered. To that person’s credit, she was really cool and even said “I’d be even madder than you are now if it was me!”. I also left several voicemails in early April. &lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/solarcity-agony/misunderstandingTweet.png&quot; alt=&quot;misunderstanding tweet from solarcity&quot;&gt;&lt;/p&gt;
-&lt;p&gt;I didn’t receive my corrected statement until April 24th.&lt;/p&gt;
-&lt;h2 id=&quot;concerned-about-my-credit&quot;&gt;Concerned About My Credit&lt;/h2&gt;
-&lt;p&gt;At this point it’s now April, and I’ve not made a payment since January. Not because I don’t want to, but because I pretty much can’t. Based on all the other shenanigans, I realized they will probably report me to a credit agency for late and missing payments. So I contacted my assigned customer service manager and asked her about this. It took weeks and weeks to get an answer to this simple question. And the answer was&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;I do want to inform you that starting June of 2017, we will begin to report our Customer’s payment history and charge offs. It is important to start paying on the large past due balance.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;Remember:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;I can only pay my bill through this manager.&lt;/li&gt;
-&lt;li&gt;She takes about 1 week to respond to anything I send her, and about ohhhh a month to actually have an answer to any question I ask.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;So I’m expected to spend untold amount of my own time calling and emailing this person just trying to hold her down for 5 minutes so I can make a payment, or risk my credit being dinged? All because they can’t get their shit together, untangle my account from the previous owner’s, get me accurate statements, and not even to mention let me do all this online like it’s 2017?&lt;/p&gt;
-&lt;h2 id=&quot;let-s-play-phone-tag-for-a-year-&quot;&gt;Let’s Play Phone Tag For a Year!&lt;/h2&gt;
-&lt;p&gt;And this is the real kicker. After asking repeatedly “when will I finally be able to access the online payment portal?”, I finally got an answer:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;After reviewing your account with the Director of our Customer Account Management Group, I was advised that your billing portal will be accessible come Winter of 2017.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;We bought this house (and thus took over this SolarCity lease) in October, 2016. Call me crazy, but that looks like an entire &lt;em&gt;year&lt;/em&gt; or more of having to make my payments through this manager, &lt;em&gt;otherwise face the risk of my credit taking a hit.&lt;/em&gt;  &lt;/p&gt;
-&lt;p&gt;I’ve sent SolarCity 18 emails regarding this situation, the first one sent on November 28th. I’ve called SolarCity regarding this manner about a dozen times. I’ve tweeted at SolarCity regarding this manner 23 times. Most of the tweets are pretty much me begging for them to respond to me&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://mattgreer.org/articles/solarcity-agony/noResponseTwitterConv.png&quot; alt=&quot;twitter conversation with SolarCity&quot;&gt;&lt;/p&gt;
-&lt;p&gt;It took me approximately 4 months to get any of these answers. And the answers basically boil down to “ehhhh, you signed that contract buddy, so suck it up!”&lt;/p&gt;
-&lt;h2 id=&quot;-conclusion-&quot;&gt;“Conclusion”&lt;/h2&gt;
-&lt;p&gt;So by a small miracle, the SolarCity manager actually did call me this Wednesday, and I managed to pay my bill. I paid my overdue balance, and I also paid for the &lt;em&gt;entirety&lt;/em&gt; of 2017. Why? Because it seems like my best shot at not having to deal with this until “winter 2017”. I’m putting faith in them that they can apply the payment correctly and will stop trying to charge me for other people’s solar panels. They couldn’t even get me a receipt for making this payment, just a confirmation number. But the thing is I simply have no choice. Had I known SolarCity would be this utterly incompetent and apathetic, I probably would have bought a different house.  &lt;/p&gt;
-&lt;p&gt;I’m still left with all kinds of fun, such as watching my bank account like a hawk to make sure they don’t use it to pay someone else’s bill. Also I’m sure it will be a blast to confirm my entire-year payment went through correctly. I’m also really looking forward to getting a statement ohhhh say in August with a past due of who knows, $823.56? What are the chances this will all be resolved in “winter 2017”? I’m not too hopeful … SolarCity has absolutely no idea what they are doing, they don’t care, and it’s their customers who pay the price.&lt;/p&gt;
+&lt;h2 id=&quot;simple-updating&quot;&gt;Simple updating&lt;/h2&gt;
+&lt;p&gt;Calling &lt;code&gt;setState()&lt;/code&gt; in a component is the primary way people cause their React apps to update. But React also supports updating through &lt;code&gt;React.render()&lt;/code&gt;. Take this contrived example&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;React.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;hello&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;, root);
+
+setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+    React.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;hello again&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;, root);
+}, &lt;span class=&quot;number&quot;&gt;2000&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We’ll ignore &lt;code&gt;setState()&lt;/code&gt; for now (that’s coming in part four) and instead implement updates through &lt;code&gt;Feact.render()&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id=&quot;doing-the-update&quot;&gt;Doing the update&lt;/h2&gt;
+&lt;p&gt;The concept is pretty simple, &lt;code&gt;Feact.render()&lt;/code&gt; just needs to check if it has rendered before, and if so, update the page instead of starting fresh.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
+    ...
+    render(element, container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; prevComponent =
+            getTopLevelComponentInContainer(container);
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (prevComponent) {
+            &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; updateRootComponent(
+                prevComponent,
+                element, 
+                container
+            );
+        } &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt; {
+            &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; renderNewRootComponent(element, container);
+        }
+    }
+    ...
+}
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;renderNewRootComponent&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;element, container&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; wrapperElement =
+        Feact.createElement(TopLevelWrapper, element);
+
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance =
+        &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactCompositeComponentWrapper(wrapperElement);
+
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; FeactReconciler.mountComponent(
+        componentInstance,
+        container
+    );
+}
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getTopLevelComponentInContainer&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;container&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;comment&quot;&gt;// need to figure this out&lt;/span&gt;
+}
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;updateRootComponent&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;prevComponent, nextElement&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;comment&quot;&gt;// need to figure this out too&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This is looking pretty promising. If we rendered before, then take the state of the previous render, grab the new desired state, and pass that off to a function that will figure out what DOM updates need to happen to update the app. Otherwise if there’s no signs of a previous render, then render into the DOM exactly how we did in part one and two.&lt;/p&gt;
+&lt;p&gt;We just need to figure out the two missing pieces.&lt;/p&gt;
+&lt;h2 id=&quot;remembering-what-we-did&quot;&gt;Remembering what we did&lt;/h2&gt;
+&lt;p&gt;For each render, We need to store the components we created, so we can refer to them in a subsequent render. Where to store them? Why not on the DOM nodes they create?&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;renderNewRootComponent&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;element, container&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; wrapperElement =
+        Feact.createElement(TopLevelWrapper, element);
+
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance =
+        &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactCompositeComponentWrapper(wrapperElement);
+
+
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; markUp = FeactReconciler.mountComponent(
+        componentInstance,
+        container
+    );
+
+    &lt;span class=&quot;comment&quot;&gt;// new line here, store the component instance on the container&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;// we want its _renderedComponent because componentInstance is just&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;// the TopLevelWrapper, which we don't need for updates&lt;/span&gt;
+    container.__feactComponentInstance =
+        componentInstance._renderedComponent;
+
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; markUp;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Well, that was easy. Similarly retrieving the stashed component is easy too:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getTopLevelComponentInContainer&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;container&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; container.__feactComponentInstance;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;updating-to-the-new-state&quot;&gt;Updating to the new state&lt;/h2&gt;
+&lt;p&gt;This is the simple example we are working through&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;Feact.render(
+    Feact.createElement(&lt;span class=&quot;string&quot;&gt;'h1'&lt;/span&gt;, &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'hello'&lt;/span&gt;),
+    root
+);
+
+setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+    Feact.render(
+        Feact.createElement(&lt;span class=&quot;string&quot;&gt;'h1'&lt;/span&gt;, &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'hello again'&lt;/span&gt;),
+        root
+    );
+}, &lt;span class=&quot;number&quot;&gt;2000&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;2 seconds has elapsed, so we are now calling &lt;code&gt;Feact.render()&lt;/code&gt; again, but this time with an element that looks like&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;{
+    &lt;span class=&quot;attr&quot;&gt;type&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'h1'&lt;/span&gt;,
+    &lt;span class=&quot;attr&quot;&gt;props&lt;/span&gt;: {
+        &lt;span class=&quot;attr&quot;&gt;children&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hello again'&lt;/span&gt;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Since Feact determined this is an update, we ended up in &lt;code&gt;updateRootComponent&lt;/code&gt;, which is just going to delegate to the component&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;updateRootComponent&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;prevComponent, nextElement&lt;/span&gt;) &lt;/span&gt;{
+    prevComponent.receiveComponent(nextElement)
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Notice a new component is not getting created. &lt;code&gt;prevComponent&lt;/code&gt; is the component that got created during the first render, and now it’s going to take a new element and update itself with it. Components get created once at mount, and live on until unmount (which, does make sense…)&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactDOMComponent&lt;/span&gt; &lt;/span&gt;{
+    ...
+    receiveComponent(nextElement) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; prevElement = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement;
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.updateComponent(prevElement, nextElement);
+    }
+
+    updateComponent(prevElement, nextElement) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; lastProps = prevElement.props;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextProps = nextElement.props;
+
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._updateDOMProperties(lastProps, nextProps);
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._updateDOMChildren(lastProps, nextProps);
+
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement = nextElement;
+    }
+
+    _updateDOMProperties(lastProps, nextProps) {
+        &lt;span class=&quot;comment&quot;&gt;// nothing to do! I'll explain why below&lt;/span&gt;
+    }
+
+    _updateDOMChildren(lastProps, nextProps) {
+        &lt;span class=&quot;comment&quot;&gt;// finally, the component can update the DOM here&lt;/span&gt;
+        &lt;span class=&quot;comment&quot;&gt;// we'll implement this next&lt;/span&gt;
+    }
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;receiveComponent&lt;/code&gt; just sets up updateComponent, which ultimately calls &lt;code&gt;_updateDOMProperties&lt;/code&gt; and &lt;code&gt;_updateDOMChildren&lt;/code&gt; which are the meaty functions which will finally cause the actual DOM to get updated. &lt;code&gt;_updateDOMProperties&lt;/code&gt; is mostly concerned with updating CSS styles. We’re not going to implement it in this blog post series, but just pointing it out as that is the method React uses to deal with style changes.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;_updateDOMChildren&lt;/code&gt; in React can handle complex trees of children, but in &lt;code&gt;Feact&lt;/code&gt; the children is just the contents of the DOM element, in this case the children will go from &lt;code&gt;&amp;quot;hello&amp;quot;&lt;/code&gt; to &lt;code&gt;&amp;quot;hello again&amp;quot;&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactDOMComponent&lt;/span&gt; &lt;/span&gt;{
+    ...
+    _updateDOMChildren(lastProps, nextProps) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; lastContent = lastProps.children;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextContent = nextProps.children;
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (!nextContent) {
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.updateTextContent(&lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;);
+        } &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (lastContent !== nextContent) {
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.updateTextContent(&lt;span class=&quot;string&quot;&gt;''&lt;/span&gt; + nextContent);
+        }
+    }
+
+    updateTextContent(content) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; node = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._hostNode;
+        node.textContent = content;
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; firstChild = node.firstChild;
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (firstChild &amp;amp;&amp;amp; firstChild === node.lastChild
+                &amp;amp;&amp;amp; firstChild.nodeType === &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;) {
+            firstChild.nodeValue = text;
+            &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt;;
+        }
+
+        node.textContent = text;
+    }
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;Feact&lt;/code&gt;‘s version of &lt;code&gt;_updateDOMChildren&lt;/code&gt; is hopelessly stupid, it can only handle text content. Obviously there’s many more ways to update a DOM node, but this is all we need for our learning purposes. &lt;/p&gt;
+&lt;h2 id=&quot;updating-composite-components&quot;&gt;Updating composite components&lt;/h2&gt;
+&lt;p&gt;The work we did above was fine and all, but we can only update &lt;code&gt;FeactDOMComponent&lt;/code&gt;s. In other words, this won’t work&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;Feact.render(
+    Feact.createElement(MyCoolComponent, { &lt;span class=&quot;attr&quot;&gt;myProp&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hello'&lt;/span&gt; }),
+    &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.getElementById(&lt;span class=&quot;string&quot;&gt;'root'&lt;/span&gt;)
+);
+
+setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+    Feact.render(
+        Feact.createElement(MyCoolComponent,. { &lt;span class=&quot;attr&quot;&gt;myProp&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hello again'&lt;/span&gt; }),
+        &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.getElementById(&lt;span class=&quot;string&quot;&gt;'root'&lt;/span&gt;)
+    );
+}, &lt;span class=&quot;number&quot;&gt;2000&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Updating composite components is much more interesting and where a lot of the power in React lies. The good news is, a composite component will ultimately boil down to a &lt;code&gt;FeactDOMComponent&lt;/code&gt;, so all the work we did above won’t go to waste.&lt;/p&gt;
+&lt;p&gt;Even more good news, &lt;code&gt;updateRootComponent&lt;/code&gt; has no idea what kind of component it received. It just blindly calls &lt;code&gt;receiveComponent&lt;/code&gt; on it. So all we need to do is add &lt;code&gt;receiveComponent&lt;/code&gt; to &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt; and we’re good!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    receiveComponent(nextElement) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; prevElement = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement;
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.updateComponent(prevElement, nextElement);
+    }
+
+    updateComponent(prevElement, nextElement) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextProps = nextElement.props;
+
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._performComponentUpdate(nextElement, nextProps);
+    }
+
+    _performComponentUpdate(nextElement, nextProps) {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement = nextElement;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+
+        inst.props = nextProps;
+
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._updateRenderedComponent();
+    }
+
+    _updateRenderedComponent() {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; prevComponentInstance = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._renderedComponent;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextRenderedElement = inst.render();
+
+        prevComponentInstance.receiveComponent(nextRenderedElement);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It’s a little silly to spread such little logic across four methods, but it will make more sense as we progress. These four methods are also what is found in React’s &lt;code&gt;ReactCompositeComponentWrapper&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Ultimately the update boils down to calling &lt;code&gt;render&lt;/code&gt; with the current set of props. Take the resulting element and passing it on to the &lt;code&gt;_renderedComponent&lt;/code&gt;, and telling it to update. &lt;code&gt;_renderedComponent&lt;/code&gt; could be another &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt;, or possibly a &lt;code&gt;FeactDOMComponent&lt;/code&gt;. It was created during the first render.&lt;/p&gt;
+&lt;h2 id=&quot;let-s-use-feactreconciler-again&quot;&gt;Let’s use FeactReconciler again&lt;/h2&gt;
+&lt;p&gt;Mounting components always goes through &lt;code&gt;FeactReconciler&lt;/code&gt;, so updating them should to. This isn’t that important for Feact, but it keeps us consistent with React.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; FeactReconciler = {
+    ...
+    receiveComponent(internalInstance, nextElement) {
+        internalInstance.receiveComponent(nextElement);
+    }
+};
+
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;updateRootComponent&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;prevComponent, nextElement&lt;/span&gt;) &lt;/span&gt;{
+    FeactReconciler.receiveComponent(prevComponent, nextElement);
+}
+
+&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    _updateRenderedComponent() {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; prevComponentInstance = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._renderedComponent;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextRenderedElement = inst.render();
+
+        FeactReconciler.receiveComponent(
+            prevComponentInstance, nextRenderedElement);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;shouldcomponentupdate-and-componentwillreceiveprops&quot;&gt;shouldComponentUpdate and componentWillReceiveProps&lt;/h2&gt;
+&lt;p&gt;We can now easily add these two lifecycle methods into Feact.&lt;/p&gt;
+&lt;h3 id=&quot;shouldcomponentupdate&quot;&gt;shouldComponentUpdate&lt;/h3&gt;
+&lt;p&gt;We need to call this before updating, and bail if it returns false&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    updateComponent(prevElement, nextElement) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; lastProps = prevElement.props;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextProps = nextElement.props;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+
+        &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; shouldUpdate = &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;;
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (inst.shouldComponentUpdate) {
+            shouldUpdate =
+                inst.shouldComponentUpdate(lastProps, nextProps);
+        }
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (shouldUpdate) {
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._performComponentUpdate(nextElement, nextProps);
+        }
+    }
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;componentwillreceiveprops&quot;&gt;componentWillReceiveProps&lt;/h3&gt;
+&lt;p&gt;Just before updating, let’s let the instance know about its new props&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    _performComponentUpdate(nextElement, nextProps) {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement = nextElement;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (inst.componentWillReceiveProps) {
+            inst.componentWillReceiveProps(nextProps);
+        }
+
+        inst.props = nextProps;
+
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._updateRenderedComponent();
+    }
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;a-major-hole&quot;&gt;A Major Hole&lt;/h2&gt;
+&lt;p&gt;There’s a big problem with Feact’s updating that we won’t be addressing. It’s making the assumption that when the update happens, it can keep using the same type of component.&lt;/p&gt;
+&lt;p&gt;In other words, Feact can handle this just fine&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;Feact.render(
+    Feact.createElement(MyCoolComponent, { &lt;span class=&quot;attr&quot;&gt;myProp&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hi'&lt;/span&gt; }),
+    root
+);
+
+&lt;span class=&quot;comment&quot;&gt;// some time passes&lt;/span&gt;
+
+Feact.render(
+    Feact.createElement(MyCoolComponent, { &lt;span class=&quot;attr&quot;&gt;myProp&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hi again'&lt;/span&gt; }),
+    root
+);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;but it can’t handle this&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;Feact.render(
+    Feact.createElement(MyCoolComponent, { &lt;span class=&quot;attr&quot;&gt;myProp&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hi'&lt;/span&gt; }),
+    root
+);
+
+&lt;span class=&quot;comment&quot;&gt;// some time passes&lt;/span&gt;
+
+Feact.render(
+    Feact.createElement(SomeOtherComponent, { &lt;span class=&quot;attr&quot;&gt;someOtherProp&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hmmm'&lt;/span&gt; }),
+    root
+);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In this case, the update swapped in a completely different component class. Feact will just naively grab the previous component, which would be a &lt;code&gt;MyCoolComponent&lt;/code&gt;, and tell it to update with the new props &lt;code&gt;{ someOtherProp: &amp;#39;hmmm&amp;#39;}&lt;/code&gt;. What it should have done is notice the component type changed, and instead of updating, unmounted &lt;code&gt;MyCoolComponent&lt;/code&gt; and mounted &lt;code&gt;SomeOtherComponent&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;In order to do this, Feact would need:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;some ability to unmount a component&lt;/li&gt;
+&lt;li&gt;notice the type change and head over to &lt;code&gt;FeactReconciler.mountComponent&lt;/code&gt; instead of &lt;code&gt;FeactComponent.receiveComponent&lt;/code&gt;. When it does this, it creates a new component instance, and stores that new instance in &lt;code&gt;_renderedComponent&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+In React, if you render again with the same component type, it will get updated. You don’t actually need to specify a &lt;code&gt;key&lt;/code&gt; for your element to update in most cases. Keys are only necessary when a component is dealing with a collection of children. In this case, React will warn you if you forget your keys. It’s best to heed the warning, because without the key React is not updating, but completely unmounting and mounting again!
+&lt;/div&gt;
+
+&lt;h2 id=&quot;did-you-see-the-virtual-dom-&quot;&gt;Did you see the virtual DOM?&lt;/h2&gt;
+&lt;p&gt;When React first came out, a lot of the hype was around the “virtual DOM”. But the virtual DOM isn’t really a concrete thing. It is more a concept that all of React (and Feact) accomplish together. There isn’t anything inside React called &lt;code&gt;VirtualDOM&lt;/code&gt; or anything like that. Instead &lt;code&gt;prevElement&lt;/code&gt; and &lt;code&gt;nextElement&lt;/code&gt; together capture the diff from render to render, and &lt;code&gt;FeactDOMComponent&lt;/code&gt; applies the diff into the actual DOM.&lt;/p&gt;
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;And with that, Feact is able to update components, albeit only through &lt;code&gt;Feact.render()&lt;/code&gt;. That’s not too practical, but we’ll improve things (and learn even more) next time when we explore &lt;code&gt;setState()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;To wrap things up, here is a fiddle encompassing all that we’ve done so far&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/9t9xavqL/2/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Stay tuned for part four, coming soon!&lt;/p&gt;
+</description>
+    </item>
+    <item>
+      <title>React Internals, Part Two: componentWillMount and componentDidMount</title>
+      <link>http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount/</link>
+      <pubDate>Fri, 14 Jul 2017 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount/</guid>
+      <author></author>
+      <description>&lt;p&gt;In &lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-one-basic-rendering&quot;&gt;part one&lt;/a&gt; we established basic rendering in Feact. That touched upon the most important lifecycle method, &lt;code&gt;render&lt;/code&gt;, and now we’re going to add in &lt;code&gt;componentWillMount&lt;/code&gt; and &lt;code&gt;componentDidMount&lt;/code&gt; support to Feact.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&quot;the-series&quot;&gt;The series&lt;/h2&gt;
+&lt;ul&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-one-basic-rendering&quot;&gt;part one: basic rendering&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;part two: componentWillMount and componentDidMount&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three: basic updating&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;part four: setState &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+    &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h2 id=&quot;first-fix-createclass&quot;&gt;First, fix createClass&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;createClass&lt;/code&gt; back in part one only supported &lt;code&gt;render&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
+    createClass(config) {
+        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentClass&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props = props;
+        }
+
+        &lt;span class=&quot;comment&quot;&gt;// we pluck render off and ignore the rest of config&lt;/span&gt;
+        ComponentClass.prototype.render = config.render;
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; ComponentClass;
+    }
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This is a simple fix, let’s add the entire config to the component’s prototype. That allows methods like &lt;code&gt;componentWillMount&lt;/code&gt;, but it also allows any arbitrary methods the user defined to be used.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
+    createClass(config) {
+        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentClass&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props = props;
+        }
+
+        ComponentClass.prototype =
+            &lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.assign(ComponentClass.prototype, config);
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; ComponentClass;
+    }
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;addressing-mountcomponent-s-shortcut&quot;&gt;Addressing mountComponent’s shortcut&lt;/h2&gt;
+&lt;p&gt;Back in part one, I noted that &lt;code&gt;FeactCompositeComponentWrapper#mountComponent&lt;/code&gt; had taken a shortcut. This shortcut will prevent lifecycle methods such as &lt;code&gt;componentWillMount&lt;/code&gt; from getting called.&lt;/p&gt;
+&lt;p&gt;Here’s &lt;code&gt;mountComponent&lt;/code&gt; as it stood in part one&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;constructor&lt;/span&gt;(element) {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement = element;
+    }
+
+    mountComponent(container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Component = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.type;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance =
+            &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Component(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.props);
+
+        &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; element = componentInstance.render();
+
+        &lt;span class=&quot;keyword&quot;&gt;while&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; element.type === &lt;span class=&quot;string&quot;&gt;'function'&lt;/span&gt;) {
+            element = (&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; element.type(element.props)).render();
+        }
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; domComponentInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactDOMComponent(element);
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; domComponentInstance.mountComponent(container);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;mountComponent&lt;/code&gt; is working its way down to a native element. As long as &lt;code&gt;render()&lt;/code&gt; returns a composite component element, it calls &lt;code&gt;render&lt;/code&gt; again until it finally gets a native element. The problem is these sub composite components are not privy to the entire lifecycle. In other words, their &lt;code&gt;render&lt;/code&gt; method is being called, but that’s it. What we really need to do is properly mount all components.&lt;/p&gt;
+&lt;p&gt;To fix this, let’s have something else do the mounting for us&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    mountComponent(container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Component = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.type;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance =
+            &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Component(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.props);
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance = componentInstance;
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; markup = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.performInitialMount(container);
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; markup;
+    }
+
+    performInitialMount(container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; renderedElement = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance.render();
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; child = instantiateFeactComponent(renderedElement);
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._renderedComponent = child;
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; FeactReconciler.mountComponent(child, container);
+    }
+}
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; FeactReconciler = {
+    mountComponent(internalInstance, container) {
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; internalInstance.mountComponent(container);
+    }
+};
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;instantiateFeactComponent&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;element&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; element.type === &lt;span class=&quot;string&quot;&gt;'string'&lt;/span&gt;) {
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactDOMComponent(element);
+    } &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; element.type === &lt;span class=&quot;string&quot;&gt;'function'&lt;/span&gt;) {
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactCompositeComponentWrapper(element);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This is a fair amount of new code, but the basic idea is to move mounting out into another layer. That’s the job of &lt;code&gt;FeactReconciler&lt;/code&gt;, which will also gain more jobs as we move forward. Over in React, there is &lt;code&gt;ReactReconciler&lt;/code&gt; which is serving the same role.&lt;/p&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+Remember the tight coupling that was called out in part one? It’s gone now, &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt; is usable in more places now, which is a good thing.
+&lt;/div&gt;
+
+&lt;h2 id=&quot;tweaking-feact-render-&quot;&gt;Tweaking &lt;code&gt;Feact.render()&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;Feact.render()&lt;/code&gt; is calling &lt;code&gt;componentInstance.mountComponent(container)&lt;/code&gt; in part one. Let’s change that and instead have &lt;code&gt;FeactReconciler&lt;/code&gt; deal with all mounting&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
+    ...
+    render(element, container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; wrapperElement =
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.createElement(TopLevelWrapper, element);
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance =
+            &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactCompositeComponentWrapper(wrapperElement);
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; FeactReconciler.mountComponent(
+            componentInstance,
+            container
+        );
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And with that, all composite component elements will get properly mounted. This sets them up properly for participating in the entire Feact lifecycle.&lt;/p&gt;
+&lt;h2 id=&quot;finally-adding-componentwillmount-and-componentdidmount&quot;&gt;Finally adding componentWillMount and componentDidMount&lt;/h2&gt;
+&lt;p&gt;Now with all the setup out of the way, actually adding support for these two is simple. Just before mounting, call &lt;code&gt;componentWillMount&lt;/code&gt; if it exists. Likewise, just after mounting, call &lt;code&gt;componentDidMount&lt;/code&gt; if it exists&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    mountComponent(container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Component = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.type;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance =
+            &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Component(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.props);
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance = componentInstance;
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (componentInstance.componentWillMount) {
+            componentInstance.componentWillMount();
+        }
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; markUp = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.performInitialMount(container);
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (componentInstance.componentDidMount) {
+            componentInstance.componentDidMount();
+        }
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; markUp;
+    },
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;concluding-part-two&quot;&gt;Concluding part two&lt;/h2&gt;
+&lt;p&gt;That wraps up part two. Here is a fiddle encompassing all we’ve done&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/L5u2z592/2/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;In &lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three&lt;/a&gt;, we’ll add support for updates.&lt;/p&gt;
+</description>
+    </item>
+    <item>
+      <title>React Internals, Part One: basic rendering</title>
+      <link>http://mattgreer.org/articles/react-internals-part-one-basic-rendering/</link>
+      <pubDate>Thu, 13 Jul 2017 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/react-internals-part-one-basic-rendering/</guid>
+      <author></author>
+      <description>&lt;p&gt;In this five part series, we will “recreate” React from the ground up, learning how it works along the way. Once we’ve finished, you should have a good grasp of how React works, and when and why it calls the various lifecycle methods of a component.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&quot;the-series&quot;&gt;The series&lt;/h2&gt;
+&lt;ul&gt;
+    &lt;li&gt;&lt;strong&gt;part one: basic rendering&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount/&quot;&gt;part two: componentWillMount and componentDidMount&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three: basic updating&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;part four: setState &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+    &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;disclaimer&quot;&gt;disclaimer&lt;/h2&gt;
+&lt;p&gt;This series is based on React 15.3, in particular using ReactDOM and the stack reconciler. The fancy new fiber reconciler is out of scope here. The React clone we are going to build, Feact, will not even come close to implementing all of React. But Feact’s source code will mirror React’s as much as possible.&lt;/p&gt;
+&lt;h2 id=&quot;some-background-elements-and-components&quot;&gt;Some Background: Elements and Components&lt;/h2&gt;
+&lt;p&gt;At the heart of React are three different types of entities: native DOM elements, virtual elements and components.&lt;/p&gt;
+&lt;h3 id=&quot;native-dom-elements&quot;&gt;native DOM elements&lt;/h3&gt;
+&lt;p&gt;These are exactly what they sound like, the actual DOM elements that the browser uses as the building blocks of a webpage. At some point, React will call &lt;code&gt;document.createElement()&lt;/code&gt; to get one, and use the browser’s DOM api to update them such as &lt;code&gt;element.insertBefore()&lt;/code&gt;, &lt;code&gt;element.nodeValue&lt;/code&gt;, etc.&lt;/p&gt;
+&lt;h3 id=&quot;virtual-react-elements&quot;&gt;virtual React elements&lt;/h3&gt;
+&lt;p&gt;A virtual React element (just called an “element” in the source code), is an in memory representation of what you’d like a given DOM element (or entire tree of elements) to be for a particular render. An element can either directly represent a DOM element such as &lt;code&gt;h1&lt;/code&gt;, &lt;code&gt;div&lt;/code&gt;, etc. Or it can represent a user defined composite component, which is explained below.&lt;/p&gt;
+&lt;h3 id=&quot;components&quot;&gt;Components&lt;/h3&gt;
+&lt;p&gt;“Component” is a pretty generic term in React. They are entities within React that do various types of work. Different types of components do different things. For example, &lt;code&gt;ReactDOMComponent&lt;/code&gt; from ReactDOM is responsible for bridging between React elements and their corresponding native DOM elements.&lt;/p&gt;
+&lt;h3 id=&quot;user-defined-composite-components&quot;&gt;User Defined Composite Components&lt;/h3&gt;
+&lt;p&gt;You are already familiar with one type of component: the composite component. Whenever you call &lt;code&gt;React.createClass()&lt;/code&gt;, or have an es6 class extend &lt;code&gt;React.Component&lt;/code&gt;, you are creating a Composite Component class. It turns out our view of the component lifecycle with methods like &lt;code&gt;componentWillMount&lt;/code&gt;, &lt;code&gt;shouldComponentUpdate&lt;/code&gt; is just one piece of the puzzle. These are the lifecycle methods that we hook into because they benefit us. But React components have other lifecycle methods such as &lt;code&gt;mountComponent&lt;/code&gt; and &lt;code&gt;receiveComponent&lt;/code&gt;. We never implement, call, or even know these other lifecycle methods exist. They are only used internally by React.&lt;/p&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+The truth is the components we create are incomplete. React will take our component class, and wrap it in a &lt;code&gt;ReactCompositeComponentWrapper&lt;/code&gt;, which then gives the components we wrote the full lifecycle hooks and ability to participate in React.
+&lt;/div&gt;
+
+&lt;h2 id=&quot;react-is-declarative&quot;&gt;React is declarative&lt;/h2&gt;
+&lt;p&gt;When it comes to components, our job is to define component &lt;strong&gt;classes&lt;/strong&gt;. But we never instantiate them. Instead React will instantiate an instance of our classes when it needs to.&lt;/p&gt;
+&lt;p&gt;We also don’t consciously instantiate elements. But we do implicitly when we write JSX, such as:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyComponent&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;React&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;Component&lt;/span&gt; &lt;/span&gt;{
+    render() {
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;hello&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;That bit of JSX gets translated into this by the compiler:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MyComponent&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;React&lt;/span&gt;.&lt;span class=&quot;title&quot;&gt;Component&lt;/span&gt; &lt;/span&gt;{
+    render() {
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; React.createElement(&lt;span class=&quot;string&quot;&gt;'div'&lt;/span&gt;, &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'hello'&lt;/span&gt;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;so in a sense, we are causing an element to be created because our code will call &lt;code&gt;React.createElement()&lt;/code&gt;. But in another sense we aren’t, because it’s up to React to instantiate our component and then call &lt;code&gt;render()&lt;/code&gt; for us. It’s simplest to consider React declarive. We describe what we want, and React figures out how to make it happen.&lt;/p&gt;
+&lt;h2 id=&quot;a-tiny-fake-react-called-feact&quot;&gt;A tiny, fake React called Feact&lt;/h2&gt;
+&lt;p&gt;Now with a little bit of background under our belt, let’s get started building our React clone. Since this clone is tiny and fake, we’ll give it the imaginative name “Feact”.&lt;/p&gt;
+&lt;p&gt;Let’s pretend we want to create this tiny Feact app:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;Feact.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;hello world&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.getElementById(&lt;span class=&quot;string&quot;&gt;'root'&lt;/span&gt;));
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;For starters, let’s ditch the JSX. Assuming Feact was fully implemented, after running the JSX through the compiler we’d end up with&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;Feact.render(
+    Feact.createElement(&lt;span class=&quot;string&quot;&gt;'h1'&lt;/span&gt;, &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'hello world'&lt;/span&gt;),
+    &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.getElementById(&lt;span class=&quot;string&quot;&gt;'root'&lt;/span&gt;)
+);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;JSX is a large topic on its own and a bit of a distraction. So from here on out, we will use &lt;code&gt;Feact.createElement&lt;/code&gt; instead of JSX, so let’s go ahead and implement it&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
+    createElement(type, props, children) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; element = {
+            type,
+            &lt;span class=&quot;attr&quot;&gt;props&lt;/span&gt;: props || {}
+        };
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (children) {
+            element.props.children = children;
+        }
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; element;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Elements are just simple objects representing something we want rendered.&lt;/p&gt;
+&lt;h3 id=&quot;what-should-feact-render-do-&quot;&gt;What should Feact.render() do?&lt;/h3&gt;
+&lt;p&gt;Our call to &lt;code&gt;Feact.render()&lt;/code&gt; passes in what we want rendered and where it should go. This is the starting point of any Feact app. For our first attempt, let’s define &lt;code&gt;render()&lt;/code&gt; to look something like this&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
+    createElement() { &lt;span class=&quot;comment&quot;&gt;/* as before */&lt;/span&gt; },
+
+    render(element, container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactDOMComponent(element);
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; componentInstance.mountComponent(container);
+    }
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;When &lt;code&gt;render()&lt;/code&gt; finishes, we have a finished webpage. So based on that, we know FeactDOMComponent is truly digging in and creating DOM for us. Based on that, let’s go ahead and take a stab at implementing it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactDOMComponent&lt;/span&gt; &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;constructor&lt;/span&gt;(element) {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement = element;
+    }
+
+    mountComponent(container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; domElement =
+            &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.createElement(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.type);
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; text = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.__currentElement.props.children;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; textNode = &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.createTextNode(text);
+        domElement.appendChild(textNode);
+
+        container.appendChild(domElement);
+
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._hostNode = domElement;
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; domElement;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+&lt;code&gt;mountComponent&lt;/code&gt; stores the DOM element it creates in &lt;code&gt;this._hostNode&lt;/code&gt;. We don’t need that in part one, but we will in part three.
+&lt;/div&gt;
+
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/ohmzvb4o/9&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;In about 40 lines of pretty crappy code we’ve got an incredibly limited and pathetic little “React clone”! Feact isn’t going to take over the world, but it’s serving as a nice learning sandbox.&lt;/p&gt;
+&lt;h2 id=&quot;adding-user-defined-components&quot;&gt;Adding user defined components&lt;/h2&gt;
+&lt;p&gt;We want to be able to render more than just a single, hardcoded, DOM element. So let’s add support for defining component classes:&lt;/p&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+    &lt;code&gt;Feact.createElement()&lt;/code&gt; is good to go, so I won’t keep repeating it in code snippets.
+&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
+    createClass(config) {
+        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentClass&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props = props;
+        }
+
+        ComponentClass.prototype.render = config.render;
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; ComponentClass;
+    }, 
+
+    render(element, container) {
+        &lt;span class=&quot;comment&quot;&gt;// our previous implementation can't&lt;/span&gt;
+        &lt;span class=&quot;comment&quot;&gt;// handle user defined components,&lt;/span&gt;
+        &lt;span class=&quot;comment&quot;&gt;// so we need to rethink this method&lt;/span&gt;
+    }
+};
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; MyTitle = Feact.createClass({
+    render() {
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Feact.createElement(&lt;span class=&quot;string&quot;&gt;'h1'&lt;/span&gt;, &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props.message);
+    }
+};
+
+Feact.render({
+    Feact.createElement(MyTitle, { &lt;span class=&quot;attr&quot;&gt;message&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hey there Feact'&lt;/span&gt; }),
+    &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.getElementById(&lt;span class=&quot;string&quot;&gt;'root'&lt;/span&gt;)
+);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Remember, we’re not dealing with JSX for this blog post series, because we’ve got plenty to deal with already. If we had JSX available, the above would look like&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;Feact.render(
+    &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;MyTitle&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;message&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;hey there Feact&quot;&lt;/span&gt; /&amp;gt;&lt;/span&gt;,
+    document.getElementById('root')
+);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We passed the component class into &lt;code&gt;createElement&lt;/code&gt;. An element can either represent a primitive DOM element, or it can represent a composite component. The distinction is easy, if &lt;code&gt;type&lt;/code&gt; is a string, the element is a native primitive. If it is a function, the element represents a composite component.&lt;/p&gt;
+&lt;h3 id=&quot;improving-feact-render-&quot;&gt;Improving Feact.render()&lt;/h3&gt;
+&lt;p&gt;If you trace back through the code so far, you will see that &lt;code&gt;Feact.render()&lt;/code&gt; as it stands now can’t handle composite components, so let’s fix that:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;Feact = {
+    render(element, container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance =
+            &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactCompositeComponentWrapper(element);
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; componentInstance.mountComponent(container);
+    }
+}
+
+&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;constructor&lt;/span&gt;(element) {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element = element;
+    }
+
+    mountComponent(container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Component = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element.type;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Component(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element.props);
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; element = componentInstance.render();
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; domComponentInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactDOMComponent(element);
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; domComponentInstance.mountComponent(container);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;By giving users the ability to define their own components, Feact can now create dynamic DOM nodes that can change depending on the value of the props. There’s a lot going on in this upgrade to Feact, but if you trace through it, it’s not too bad. You can see where we call &lt;code&gt;componentInstance.render()&lt;/code&gt;, to get our hands on an element that we can then pass into FeactDOMComponent.&lt;/p&gt;
+&lt;div class=&quot;callout pitfall&quot;&gt;
+Notice how &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt; is directly creating a &lt;code&gt;FeactDOMComponent&lt;/code&gt;? That’s a tight coupling which isn’t so great. We’ll fix this later. If React was this tightly coupled, it’d only ever be able to build web apps. Keeping &lt;code&gt;ReactCompositeComponentWrapper&lt;/code&gt; in the dark about other component types surely made building React Native easier.
+&lt;/div&gt;
+
+&lt;h3 id=&quot;an-improvement-for-composite-components&quot;&gt;An improvement for composite components&lt;/h3&gt;
+&lt;p&gt;Currently our composite components must return elements that represent primitive DOM nodes, we can’t return other composite component elements. Let’s fix that. We want to be able to do this&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; MyMessage = Feact.createClass({
+    render() {
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props.asTitle) {
+            &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Feact.createElement(MyTitle, {
+                &lt;span class=&quot;attr&quot;&gt;message&lt;/span&gt;: &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props.message
+            });
+        } &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt; {
+            &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Feact.createElement(&lt;span class=&quot;string&quot;&gt;'p'&lt;/span&gt;, &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props.message);
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This composite component’s render() is either going to return a primitive element or a composite component element. Currently Feact can’t handle this, if &lt;code&gt;asTitle&lt;/code&gt; was true, &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt; would give &lt;code&gt;FeactDOMComponent&lt;/code&gt; a non-native element, and &lt;code&gt;FeactDOMComponent&lt;/code&gt; would blow up. Let’s fix &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;constructor&lt;/span&gt;(element) {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element = element;
+    }
+
+    mountComponent(container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Component = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element.type;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Component(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element.props);
+        &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; element = componentInstance.render();
+
+        &lt;span class=&quot;keyword&quot;&gt;while&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; element.type === &lt;span class=&quot;string&quot;&gt;'function'&lt;/span&gt;) {
+            element = (&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; element.type(element.props)).render();
+        }
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; domComponentInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactDOMComponent(element);
+        domComponentInstance.mountComponent(container);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;callout pitfall&quot;&gt;
+Heads up, this “fix” is a short cut that’s just good enough to meet our current needs. Notice how it recursively calls &lt;code&gt;render&lt;/code&gt; until it gets down to a primitive element? That’s not good enough, because those subcomponents need to participate in the entire lifecycle. For example, if we had support for &lt;code&gt;componentWillMount&lt;/code&gt;, those subcomponents would never get their’s called. We’ll fix this later.
+&lt;/div&gt;
+
+
+&lt;h2 id=&quot;fixing-feact-render-again&quot;&gt;Fixing Feact.render() again&lt;/h2&gt;
+&lt;p&gt;The first version of &lt;code&gt;Feact.render()&lt;/code&gt; could only handle primitive elements. Now it can only handle composite elements. It needs to be able to handle both. We could write a “factory” function that will create a component for us based on the element’s type, but there’s another approach that React took. Since &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt; components ultimately result in a &lt;code&gt;FeactDOMComponent&lt;/code&gt;, let’s just take whatever element we were given and wrap it in such a way that we can just use a &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; TopLevelWrapper = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props = props;
+};
+
+TopLevelWrapper.prototype.render = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props;
+};
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
+    render(element, container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; wrapperElement =
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.createElement(TopLevelWrapper, element);
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance =
+            &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactCompositeComponentWrapper(wrapperElement);
+
+        &lt;span class=&quot;comment&quot;&gt;// as before&lt;/span&gt;
+    }
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;ToplevelWrapper&lt;/code&gt; is basically a simple composite component. For example, it could have been defined by calling &lt;code&gt;Feact.createClass()&lt;/code&gt;. Its &lt;code&gt;render&lt;/code&gt; method just returns the user provided element. Since TopLevelWrapper will get wrapped in a &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt;, we don’t care what type the user provided element was, &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt; will do the right thing regardless.&lt;/p&gt;
+&lt;h2 id=&quot;conclusion-to-part-one&quot;&gt;Conclusion to part one&lt;/h2&gt;
+&lt;p&gt;With that, Feact can render simple components. As far as basic rendering is concerned, we’ve hit most of the major considerations. In real React, rendering is much more complicated as there are many other things to consider such as events, focus, scroll position of the window, performance, and much more.&lt;/p&gt;
+&lt;p&gt;Here’s a final fiddle that wraps up all we’ve built so far:&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/7x2zgevj/15&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount&quot;&gt;on to part two!&lt;/a&gt;&lt;/p&gt;
 </description>
     </item>
     <item>
@@ -90,7 +804,7 @@
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; Action;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;So far I’m not using &lt;code&gt;error&lt;/code&gt; or &lt;code&gt;meta&lt;/code&gt;, but that’s what redux-actions calls for so going with it. With this we get statically typed Actions&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action from &lt;span class=&quot;string&quot;&gt;&quot;./action&quot;&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;./action&quot;&lt;/span&gt;;
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; MY_ACTION = &lt;span class=&quot;string&quot;&gt;&quot;MY_ACTION&quot;&lt;/span&gt;;
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;type&lt;/span&gt; MY_ACTION = { foo: &lt;span class=&quot;built_in&quot;&gt;number&lt;/span&gt;, message: &lt;span class=&quot;built_in&quot;&gt;string&lt;/span&gt; }
 
@@ -107,9 +821,9 @@
 &lt;p&gt;Exporting both a string and a type named &lt;code&gt;MY_ACTION&lt;/code&gt; felt a little weird. But since TypeScript can distinguish them by their type, it works. It reduces the cognitive load a bit when working with actions.&lt;/p&gt;
 &lt;h2 id=&quot;and-the-reducer&quot;&gt;And The Reducer&lt;/h2&gt;
 &lt;p&gt;And now with the action set up, the reducer can consume it&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action from &lt;span class=&quot;string&quot;&gt;&quot;../actions/action&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { MY_ACTION } from &lt;span class=&quot;string&quot;&gt;&quot;../actions/myAction&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { handleActions } from &lt;span class=&quot;string&quot;&gt;&quot;redux-actions&quot;&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;../actions/action&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { MY_ACTION } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;../actions/myAction&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { handleActions } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;redux-actions&quot;&lt;/span&gt;;
 
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; reducer = handleActions({
   [MY_ACTION]: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state, action: Action&amp;lt;MY_ACTION&amp;gt;&lt;/span&gt;) &lt;/span&gt;{
@@ -202,9 +916,9 @@ ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;
 &lt;h2 id=&quot;cheating-a-little-bit&quot;&gt;Cheating A Little Bit&lt;/h2&gt;
 &lt;p&gt;Redux itself is getting along just fine with TypeScript. The problem is only in react-redux’s &lt;code&gt;Provider&lt;/code&gt;. react-redux is a tiny library, gluing a Redux store to a React component. Even better, react-redux is almost entirely inside &lt;code&gt;connect&lt;/code&gt;, if you look at &lt;a href=&quot;https://github.com/reactjs/react-redux/blob/master/src/components/Provider.js&quot;&gt;Provider’s source&lt;/a&gt;, it’s nice and simple!&lt;/p&gt;
 &lt;p&gt;All Provider is doing is placing the Redux store on the child context, so that the component that &lt;code&gt;connect()&lt;/code&gt; generated can find it. So I just wrote my own Provider that does the same thing, in a way that skirts around TypeScript&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; React &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
 
-&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider extends React.Component&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; React.Component&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
   &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; childContextTypes = {
     store: React.PropTypes.object.isRequired
   }
@@ -219,8 +933,8 @@ ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;This is enough to make everyone happy. But it’s a little irksome that the Provider is completely relying on &lt;code&gt;any&lt;/code&gt;. By using generics, you can fix that&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { Store } from &lt;span class=&quot;string&quot;&gt;&quot;redux&quot;&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; React &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { Store } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;redux&quot;&lt;/span&gt;;
 
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;createProvider&lt;/span&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;P&lt;/span&gt;&amp;gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;interface&lt;/span&gt; ProviderProps&amp;lt;P&amp;gt; {
@@ -228,7 +942,7 @@ ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;
     target: React.ComponentClass&amp;lt;P&amp;gt;
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider extends React.Component&amp;lt;ProviderProps&amp;lt;P&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; React.Component&amp;lt;ProviderProps&amp;lt;P&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
     &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; childContextTypes = {
       store: React.PropTypes.object.isRequired
     }
@@ -244,16 +958,16 @@ ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;then over in index.tsx&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as ReactDOM from &lt;span class=&quot;string&quot;&gt;&quot;react-dom&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; createProvider from &lt;span class=&quot;string&quot;&gt;&quot;./createProvider&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Home, { HomeProps } from &lt;span class=&quot;string&quot;&gt;&quot;./components/Home&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; configureStore from &lt;span class=&quot;string&quot;&gt;&quot;./store/configureStore&quot;&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; React &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; ReactDOM &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react-dom&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; createProvider &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;./createProvider&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Home, { HomeProps } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;./components/Home&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; configureStore &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;./store/configureStore&quot;&lt;/span&gt;;
 
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = configureStore();
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Provider = createProvider&amp;lt;HomeProps&amp;gt;();
 
-&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; App: React.StatelessComponent&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; = () =&amp;gt; (
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; App: React.StatelessComponent&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; =&amp;gt;&lt;/span&gt; (
   &amp;lt;Provider store={store} target={Home} /&amp;gt;
 );
 

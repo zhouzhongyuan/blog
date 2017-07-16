@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>React Internals, Part One: basic rendering - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>React Internals, Part One: basic rendering</h1>
+            <div class="date"><span>14 July 2017</span></div>
+            <article class="article">
+              <section class="content"><p>In this five part series, we will “recreate” React from the ground up, learning how it works along the way. Once we’ve finished, you should have a good grasp of how React works, and when and why it calls the various lifecycle methods of a component.</p>
+<p><span class="more"></span></p>
+<h2 id="the-series">The series</h2>
+<ul>
+    <li><strong>part one: basic rendering</strong> &lt;- you are here</li>
+    <li><a href="/articles/react-internals-part-two-componentWillMount-and-componentDidMount/">part two: componentWillMount and componentDidMount</a></li>
+    <li><a href="/articles/react-internals-part-three-basic-updating">part three: basic updating</a></li>
+    <li>part four: setState <em>coming soon!</em></li>
+    <li>part five: transactions <em>coming soon!</em></li>
+</ul>
+
+<h2 id="disclaimer">disclaimer</h2>
+<p>This series is based on React 15.3, in particular using ReactDOM and the stack reconciler. The fancy new fiber reconciler is out of scope here. The React clone we are going to build, Feact, will not even come close to implementing all of React. But Feact’s source code will mirror React’s as much as possible.</p>
+<h2 id="some-background-elements-and-components">Some Background: Elements and Components</h2>
+<p>At the heart of React are three different types of entities: native DOM elements, virtual elements and components.</p>
+<h3 id="native-dom-elements">native DOM elements</h3>
+<p>These are exactly what they sound like, the actual DOM elements that the browser uses as the building blocks of a webpage. At some point, React will call <code>document.createElement()</code> to get one, and use the browser’s DOM api to update them such as <code>element.insertBefore()</code>, <code>element.nodeValue</code>, etc.</p>
+<h3 id="virtual-react-elements">virtual React elements</h3>
+<p>A virtual React element (just called an “element” in the source code), is an in memory representation of what you’d like a given DOM element (or entire tree of elements) to be for a particular render. An element can either directly represent a DOM element such as <code>h1</code>, <code>div</code>, etc. Or it can represent a user defined composite component, which is explained below.</p>
+<h3 id="components">Components</h3>
+<p>“Component” is a pretty generic term in React. They are entities within React that do various types of work. Different types of components do different things. For example, <code>ReactDOMComponent</code> from ReactDOM is responsible for bridging between React elements and their corresponding native DOM elements.</p>
+<h3 id="user-defined-composite-components">User Defined Composite Components</h3>
+<p>You are already familiar with one type of component: the composite component. Whenever you call <code>React.createClass()</code>, or have an es6 class extend <code>React.Component</code>, you are creating a Composite Component class. It turns out our view of the component lifecycle with methods like <code>componentWillMount</code>, <code>shouldComponentUpdate</code> is just one piece of the puzzle. These are the lifecycle methods that we hook into because they benefit us. But React components have other lifecycle methods such as <code>mountComponent</code> and <code>receiveComponent</code>. We never implement, call, or even know these other lifecycle methods exist. They are only used internally by React.</p>
+<div class="callout wisdom">
+The truth is the components we create are incomplete. React will take our component class, and wrap it in a <code>ReactCompositeComponentWrapper</code>, which then gives the components we wrote the full lifecycle hooks and ability to participate in React.
+</div>
+
+<h2 id="react-is-declarative">React is declarative</h2>
+<p>When it comes to components, our job is to define component <strong>classes</strong>. But we never instantiate them. Instead React will instantiate an instance of our classes when it needs to.</p>
+<p>We also don’t consciously instantiate elements. But we do implicitly when we write JSX, such as:</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">MyComponent</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>{
+    render() {
+        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>hello<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;
+    }
+}
+</code></pre>
+<p>That bit of JSX gets translated into this by the compiler:</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">MyComponent</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>{
+    render() {
+        <span class="keyword">return</span> React.createElement(<span class="string">'div'</span>, <span class="literal">null</span>, <span class="string">'hello'</span>);
+    }
+}
+</code></pre>
+<p>so in a sense, we are causing an element to be created because our code will call <code>React.createElement()</code>. But in another sense we aren’t, because it’s up to React to instantiate our component and then call <code>render()</code> for us. It’s simplest to consider React declarive. We describe what we want, and React figures out how to make it happen.</p>
+<h2 id="a-tiny-fake-react-called-feact">A tiny, fake React called Feact</h2>
+<p>Now with a little bit of background under our belt, let’s get started building our React clone. Since this clone is tiny and fake, we’ll give it the imaginative name “Feact”.</p>
+<p>Let’s pretend we want to create this tiny Feact app:</p>
+<pre><code class="lang-javascript">Feact.render(<span class="xml"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>hello world<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span>, <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>));
+</code></pre>
+<p>For starters, let’s ditch the JSX. Assuming Feact was fully implemented, after running the JSX through the compiler we’d end up with</p>
+<pre><code class="lang-javascript">Feact.render(
+    Feact.createElement(<span class="string">'h1'</span>, <span class="literal">null</span>, <span class="string">'hello world'</span>),
+    <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)
+);
+</code></pre>
+<p>JSX is a large topic on its own and a bit of a distraction. So from here on out, we will use <code>Feact.createElement</code> instead of JSX, so let’s go ahead and implement it</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> Feact = {
+    createElement(type, props, children) {
+        <span class="keyword">const</span> element = {
+            type,
+            <span class="attr">props</span>: props || {}
+        };
+
+        <span class="keyword">if</span> (children) {
+            element.props.children = children;
+        }
+
+        <span class="keyword">return</span> element;
+    }
+}
+</code></pre>
+<p>Elements are just simple objects representing something we want rendered.</p>
+<h3 id="what-should-feact-render-do-">What should Feact.render() do?</h3>
+<p>Our call to <code>Feact.render()</code> passes in what we want rendered and where it should go. This is the starting point of any Feact app. For our first attempt, let’s define <code>render()</code> to look something like this</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> Feact = {
+    createElement() { <span class="comment">/* as before */</span> },
+
+    render(element, container) {
+        <span class="keyword">const</span> componentInstance = <span class="keyword">new</span> FeactDOMComponent(element);
+        <span class="keyword">return</span> componentInstance.mountComponent(container);
+    }
+};
+</code></pre>
+<p>When <code>render()</code> finishes, we have a finished webpage. So based on that, we know FeactDOMComponent is truly digging in and creating DOM for us. Based on that, let’s go ahead and take a stab at implementing it:</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactDOMComponent</span> </span>{
+    <span class="keyword">constructor</span>(element) {
+        <span class="keyword">this</span>._currentElement = element;
+    }
+
+    mountComponent(container) {
+        <span class="keyword">const</span> domElement =
+            <span class="built_in">document</span>.createElement(<span class="keyword">this</span>._currentElement.type);
+        <span class="keyword">const</span> text = <span class="keyword">this</span>.__currentElement.props.children;
+        <span class="keyword">const</span> textNode = <span class="built_in">document</span>.createTextNode(text);
+        domElement.appendChild(textNode);
+
+        container.appendChild(domElement);
+
+        <span class="keyword">this</span>._hostNode = domElement;
+        <span class="keyword">return</span> domElement;
+    }
+}
+</code></pre>
+<div class="callout wisdom">
+<code>mountComponent</code> stores the DOM element it creates in <code>this._hostNode</code>. We don’t need that in part one, but we will in part three.
+</div>
+
+<p><a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/ohmzvb4o/9">fiddle</a></p>
+<p>In about 40 lines of pretty crappy code we’ve got an incredibly limited and pathetic little “React clone”! Feact isn’t going to take over the world, but it’s serving as a nice learning sandbox.</p>
+<h2 id="adding-user-defined-components">Adding user defined components</h2>
+<p>We want to be able to render more than just a single, hardcoded, DOM element. So let’s add support for defining component classes:</p>
+<div class="callout wisdom">
+    <code>Feact.createElement()</code> is good to go, so I won’t keep repeating it in code snippets.
+</div>
+
+<pre><code class="lang-javascript"><span class="keyword">const</span> Feact = {
+    createClass(config) {
+        <span class="function"><span class="keyword">function</span> <span class="title">ComponentClass</span>(<span class="params">props</span>) </span>{
+            <span class="keyword">this</span>.props = props;
+        }
+
+        ComponentClass.prototype.render = config.render;
+
+        <span class="keyword">return</span> ComponentClass;
+    }, 
+
+    render(element, container) {
+        <span class="comment">// our previous implementation can't</span>
+        <span class="comment">// handle user defined components,</span>
+        <span class="comment">// so we need to rethink this method</span>
+    }
+};
+
+<span class="keyword">const</span> MyTitle = Feact.createClass({
+    render() {
+        <span class="keyword">return</span> Feact.createElement(<span class="string">'h1'</span>, <span class="literal">null</span>, <span class="keyword">this</span>.props.message);
+    }
+};
+
+Feact.render({
+    Feact.createElement(MyTitle, { <span class="attr">message</span>: <span class="string">'hey there Feact'</span> }),
+    <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)
+);
+</code></pre>
+<p>Remember, we’re not dealing with JSX for this blog post series, because we’ve got plenty to deal with already. If we had JSX available, the above would look like</p>
+<pre><code class="lang-javascript">Feact.render(
+    <span class="xml"><span class="tag">&lt;<span class="name">MyTitle</span> <span class="attr">message</span>=<span class="string">"hey there Feact"</span> /&gt;</span>,
+    document.getElementById('root')
+);</span>
+</code></pre>
+<p>We passed the component class into <code>createElement</code>. An element can either represent a primitive DOM element, or it can represent a composite component. The distinction is easy, if <code>type</code> is a string, the element is a native primitive. If it is a function, the element represents a composite component.</p>
+<h3 id="improving-feact-render-">Improving Feact.render()</h3>
+<p>If you trace back through the code so far, you will see that <code>Feact.render()</code> as it stands now can’t handle composite components, so let’s fix that:</p>
+<pre><code class="lang-javascript">Feact = {
+    render(element, container) {
+        <span class="keyword">const</span> componentInstance =
+            <span class="keyword">new</span> FeactCompositeComponentWrapper(element);
+
+        <span class="keyword">return</span> componentInstance.mountComponent(container);
+    }
+}
+
+<span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    <span class="keyword">constructor</span>(element) {
+        <span class="keyword">this</span>._element = element;
+    }
+
+    mountComponent(container) {
+        <span class="keyword">const</span> Component = <span class="keyword">this</span>._element.type;
+        <span class="keyword">const</span> componentInstance = <span class="keyword">new</span> Component(<span class="keyword">this</span>._element.props);
+        <span class="keyword">const</span> element = componentInstance.render();
+
+        <span class="keyword">const</span> domComponentInstance = <span class="keyword">new</span> FeactDOMComponent(element);
+        <span class="keyword">return</span> domComponentInstance.mountComponent(container);
+    }
+}
+</code></pre>
+<p>By giving users the ability to define their own components, Feact can now create dynamic DOM nodes that can change depending on the value of the props. There’s a lot going on in this upgrade to Feact, but if you trace through it, it’s not too bad. You can see where we call <code>componentInstance.render()</code>, to get our hands on an element that we can then pass into FeactDOMComponent.</p>
+<div class="callout pitfall">
+Notice how <code>FeactCompositeComponentWrapper</code> is directly creating a <code>FeactDOMComponent</code>? That’s a tight coupling which isn’t so great. We’ll fix this later. If React was this tightly coupled, it’d only ever be able to build web apps. Keeping <code>ReactCompositeComponentWrapper</code> in the dark about other component types surely made building React Native easier.
+</div>
+
+<h3 id="an-improvement-for-composite-components">An improvement for composite components</h3>
+<p>Currently our composite components must return elements that represent primitive DOM nodes, we can’t return other composite component elements. Let’s fix that. We want to be able to do this</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> MyMessage = Feact.createClass({
+    render() {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.props.asTitle) {
+            <span class="keyword">return</span> Feact.createElement(MyTitle, {
+                <span class="attr">message</span>: <span class="keyword">this</span>.props.message
+            });
+        } <span class="keyword">else</span> {
+            <span class="keyword">return</span> Feact.createElement(<span class="string">'p'</span>, <span class="literal">null</span>, <span class="keyword">this</span>.props.message);
+        }
+    }
+}
+</code></pre>
+<p>This composite component’s render() is either going to return a primitive element or a composite component element. Currently Feact can’t handle this, if <code>asTitle</code> was true, <code>FeactCompositeComponentWrapper</code> would give <code>FeactDOMComponent</code> a non-native element, and <code>FeactDOMComponent</code> would blow up. Let’s fix <code>FeactCompositeComponentWrapper</code></p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    <span class="keyword">constructor</span>(element) {
+        <span class="keyword">this</span>._element = element;
+    }
+
+    mountComponent(container) {
+        <span class="keyword">const</span> Component = <span class="keyword">this</span>._element.type;
+        <span class="keyword">const</span> componentInstance = <span class="keyword">new</span> Component(<span class="keyword">this</span>._element.props);
+        <span class="keyword">let</span> element = componentInstance.render();
+
+        <span class="keyword">while</span> (<span class="keyword">typeof</span> element.type === <span class="string">'function'</span>) {
+            element = (<span class="keyword">new</span> element.type(element.props)).render();
+        }
+
+        <span class="keyword">const</span> domComponentInstance = <span class="keyword">new</span> FeactDOMComponent(element);
+        domComponentInstance.mountComponent(container);
+    }
+}
+</code></pre>
+<div class="callout pitfall">
+Heads up, this “fix” is a short cut that’s just good enough to meet our current needs. Notice how it recursively calls <code>render</code> until it gets down to a primitive element? That’s not good enough, because those subcomponents need to participate in the entire lifecycle. For example, if we had support for <code>componentWillMount</code>, those subcomponents would never get their’s called. We’ll fix this later.
+</div>
+
+
+<h2 id="fixing-feact-render-again">Fixing Feact.render() again</h2>
+<p>The first version of <code>Feact.render()</code> could only handle primitive elements. Now it can only handle composite elements. It needs to be able to handle both. We could write a “factory” function that will create a component for us based on the element’s type, but there’s another approach that React took. Since <code>FeactCompositeComponentWrapper</code> components ultimately result in a <code>FeactDOMComponent</code>, let’s just take whatever element we were given and wrap it in such a way that we can just use a <code>FeactCompositeComponentWrapper</code></p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> TopLevelWrapper = <span class="function"><span class="keyword">function</span>(<span class="params">props</span>) </span>{
+    <span class="keyword">this</span>.props = props;
+};
+
+TopLevelWrapper.prototype.render = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+    <span class="keyword">return</span> <span class="keyword">this</span>.props;
+};
+
+<span class="keyword">const</span> Feact = {
+    render(element, container) {
+        <span class="keyword">const</span> wrapperElement =
+            <span class="keyword">this</span>.createElement(TopLevelWrapper, element);
+
+        <span class="keyword">const</span> componentInstance =
+            <span class="keyword">new</span> FeactCompositeComponentWrapper(wrapperElement);
+
+        <span class="comment">// as before</span>
+    }
+};
+</code></pre>
+<p><code>ToplevelWrapper</code> is basically a simple composite component. For example, it could have been defined by calling <code>Feact.createClass()</code>. Its <code>render</code> method just returns the user provided element. Since TopLevelWrapper will get wrapped in a <code>FeactCompositeComponentWrapper</code>, we don’t care what type the user provided element was, <code>FeactCompositeComponentWrapper</code> will do the right thing regardless.</p>
+<h2 id="conclusion-to-part-one">Conclusion to part one</h2>
+<p>With that, Feact can render simple components. As far as basic rendering is concerned, we’ve hit most of the major considerations. In real React, rendering is much more complicated as there are many other things to consider such as events, focus, scroll position of the window, performance, and much more.</p>
+<p>Here’s a final fiddle that wraps up all we’ve built so far:</p>
+<p><a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/15">fiddle</a></p>
+<p><a href="/articles/react-internals-part-two-componentWillMount-and-componentDidMount">on to part two!</a></p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. All opinions expressed here are my own.</p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/mattegreer">@mattegreer</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>
