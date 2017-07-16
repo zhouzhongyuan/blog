@@ -177,9 +177,8 @@ setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&q
         }
     }
 
-    updateTextContent(content) {
+    updateTextContent(text) {
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; node = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._hostNode;
-        node.textContent = content;
 
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; firstChild = node.firstChild;
 
@@ -203,7 +202,7 @@ setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&q
 
 setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
     Feact.render(
-        Feact.createElement(MyCoolComponent,. { &lt;span class=&quot;attr&quot;&gt;myProp&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hello again'&lt;/span&gt; }),
+        Feact.createElement(MyCoolComponent, { &lt;span class=&quot;attr&quot;&gt;myProp&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'hello again'&lt;/span&gt; }),
         &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.getElementById(&lt;span class=&quot;string&quot;&gt;'root'&lt;/span&gt;)
     );
 }, &lt;span class=&quot;number&quot;&gt;2000&lt;/span&gt;);
@@ -344,16 +343,16 @@ Feact.render(
 &lt;p&gt;In order to do this, Feact would need:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;some ability to unmount a component&lt;/li&gt;
-&lt;li&gt;notice the type change and head over to &lt;code&gt;FeactReconciler.mountComponent&lt;/code&gt; instead of &lt;code&gt;FeactComponent.receiveComponent&lt;/code&gt;. When it does this, it creates a new component instance, and stores that new instance in &lt;code&gt;_renderedComponent&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;notice the type change and head over to &lt;code&gt;FeactReconciler.mountComponent&lt;/code&gt; instead of &lt;code&gt;FeactComponent.receiveComponent&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;div class=&quot;callout wisdom&quot;&gt;
 In React, if you render again with the same component type, it will get updated. You don’t actually need to specify a &lt;code&gt;key&lt;/code&gt; for your element to update in most cases. Keys are only necessary when a component is dealing with a collection of children. In this case, React will warn you if you forget your keys. It’s best to heed the warning, because without the key React is not updating, but completely unmounting and mounting again!
 &lt;/div&gt;
 
-&lt;h2 id=&quot;did-you-see-the-virtual-dom-&quot;&gt;Did you see the virtual DOM?&lt;/h2&gt;
+&lt;h2 id=&quot;did-you-spot-the-virtual-dom-&quot;&gt;Did you spot the virtual DOM?&lt;/h2&gt;
 &lt;p&gt;When React first came out, a lot of the hype was around the “virtual DOM”. But the virtual DOM isn’t really a concrete thing. It is more a concept that all of React (and Feact) accomplish together. There isn’t anything inside React called &lt;code&gt;VirtualDOM&lt;/code&gt; or anything like that. Instead &lt;code&gt;prevElement&lt;/code&gt; and &lt;code&gt;nextElement&lt;/code&gt; together capture the diff from render to render, and &lt;code&gt;FeactDOMComponent&lt;/code&gt; applies the diff into the actual DOM.&lt;/p&gt;
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;And with that, Feact is able to update components, albeit only through &lt;code&gt;Feact.render()&lt;/code&gt;. That’s not too practical, but we’ll improve things (and learn even more) next time when we explore &lt;code&gt;setState()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;And with that, Feact is able to update components, albeit only through &lt;code&gt;Feact.render()&lt;/code&gt;. That’s not too practical, but we’ll improve things next time when we explore &lt;code&gt;setState()&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;To wrap things up, here is a fiddle encompassing all that we’ve done so far&lt;/p&gt;
 &lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/9t9xavqL/2/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Stay tuned for part four, coming soon!&lt;/p&gt;
@@ -624,7 +623,7 @@ The truth is the components we create are incomplete. React will take our compon
     mountComponent(container) {
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; domElement =
             &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.createElement(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.type);
-        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; text = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.__currentElement.props.children;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; text = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.props.children;
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; textNode = &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.createTextNode(text);
         domElement.appendChild(textNode);
 
@@ -696,12 +695,12 @@ Feact.render({
 
 &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;constructor&lt;/span&gt;(element) {
-        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element = element;
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement = element;
     }
 
     mountComponent(container) {
-        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Component = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element.type;
-        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Component(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element.props);
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Component = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.type;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Component(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.props);
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; element = componentInstance.render();
 
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; domComponentInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactDOMComponent(element);
@@ -731,12 +730,13 @@ Notice how &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt; is directly c
 &lt;p&gt;This composite component’s render() is either going to return a primitive element or a composite component element. Currently Feact can’t handle this, if &lt;code&gt;asTitle&lt;/code&gt; was true, &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt; would give &lt;code&gt;FeactDOMComponent&lt;/code&gt; a non-native element, and &lt;code&gt;FeactDOMComponent&lt;/code&gt; would blow up. Let’s fix &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
     &lt;span class=&quot;keyword&quot;&gt;constructor&lt;/span&gt;(element) {
-        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element = element;
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement = element;
     }
 
     mountComponent(container) {
-        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Component = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element.type;
-        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Component(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._element.props);
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Component = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.type;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance =
+            &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Component(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.props);
         &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; element = componentInstance.render();
 
         &lt;span class=&quot;keyword&quot;&gt;while&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; element.type === &lt;span class=&quot;string&quot;&gt;'function'&lt;/span&gt;) {

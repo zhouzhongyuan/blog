@@ -141,7 +141,7 @@ class FeactDOMComponent {
     mountComponent(container) {
         const domElement =
             document.createElement(this._currentElement.type);
-        const text = this.__currentElement.props.children;
+        const text = this._currentElement.props.children;
         const textNode = document.createTextNode(text);
         domElement.appendChild(textNode);
 
@@ -227,12 +227,12 @@ Feact = {
 
 class FeactCompositeComponentWrapper {
     constructor(element) {
-        this._element = element;
+        this._currentElement = element;
     }
 
     mountComponent(container) {
-        const Component = this._element.type;
-        const componentInstance = new Component(this._element.props);
+        const Component = this._currentElement.type;
+        const componentInstance = new Component(this._currentElement.props);
         const element = componentInstance.render();
 
         const domComponentInstance = new FeactDOMComponent(element);
@@ -270,12 +270,13 @@ This composite component's render() is either going to return a primitive elemen
 ```javascript
 class FeactCompositeComponentWrapper {
     constructor(element) {
-        this._element = element;
+        this._currentElement = element;
     }
 
     mountComponent(container) {
-        const Component = this._element.type;
-        const componentInstance = new Component(this._element.props);
+        const Component = this._currentElement.type;
+        const componentInstance =
+            new Component(this._currentElement.props);
         let element = componentInstance.render();
 
         while (typeof element.type === 'function') {

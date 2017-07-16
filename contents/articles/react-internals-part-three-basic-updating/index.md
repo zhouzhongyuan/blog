@@ -205,9 +205,8 @@ class FeactDOMComponent {
         }
     }
 
-    updateTextContent(content) {
+    updateTextContent(text) {
         const node = this._hostNode;
-        node.textContent = content;
 
         const firstChild = node.firstChild;
   
@@ -236,7 +235,7 @@ Feact.render(
 
 setTimeout(function() {
     Feact.render(
-        Feact.createElement(MyCoolComponent,. { myProp: 'hello again' }),
+        Feact.createElement(MyCoolComponent, { myProp: 'hello again' }),
         document.getElementById('root')
     );
 }, 2000);
@@ -407,19 +406,19 @@ In this case, the update swapped in a completely different component class. Feac
 In order to do this, Feact would need:
 
 * some ability to unmount a component
-* notice the type change and head over to `FeactReconciler.mountComponent` instead of `FeactComponent.receiveComponent`. When it does this, it creates a new component instance, and stores that new instance in `_renderedComponent`.
+* notice the type change and head over to `FeactReconciler.mountComponent` instead of `FeactComponent.receiveComponent`
 
 <div class="callout wisdom">
 In React, if you render again with the same component type, it will get updated. You don't actually need to specify a `key` for your element to update in most cases. Keys are only necessary when a component is dealing with a collection of children. In this case, React will warn you if you forget your keys. It's best to heed the warning, because without the key React is not updating, but completely unmounting and mounting again!
 </div>
 
-## Did you see the virtual DOM?
+## Did you spot the virtual DOM?
 
 When React first came out, a lot of the hype was around the "virtual DOM". But the virtual DOM isn't really a concrete thing. It is more a concept that all of React (and Feact) accomplish together. There isn't anything inside React called `VirtualDOM` or anything like that. Instead `prevElement` and `nextElement` together capture the diff from render to render, and `FeactDOMComponent` applies the diff into the actual DOM.
 
 ## Conclusion
 
-And with that, Feact is able to update components, albeit only through `Feact.render()`. That's not too practical, but we'll improve things (and learn even more) next time when we explore `setState()`.
+And with that, Feact is able to update components, albeit only through `Feact.render()`. That's not too practical, but we'll improve things next time when we explore `setState()`.
 
 To wrap things up, here is a fiddle encompassing all that we've done so far
 
