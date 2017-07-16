@@ -269,14 +269,16 @@ setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&q
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id=&quot;shouldcomponentupdate-and-componentwillreceiveprops&quot;&gt;shouldComponentUpdate and componentWillReceiveProps&lt;/h2&gt;
 &lt;p&gt;We can now easily add these two lifecycle methods into Feact.&lt;/p&gt;
-&lt;h3 id=&quot;shouldcomponentupdate&quot;&gt;shouldComponentUpdate&lt;/h3&gt;
-&lt;p&gt;We need to call this before updating, and bail if it returns false&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
     ...
     updateComponent(prevElement, nextElement) {
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; lastProps = prevElement.props;
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextProps = nextElement.props;
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (inst.componentWillReceiveProps) {
+            inst.componentWillReceiveProps(nextProps);
+        }
 
         &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; shouldUpdate = &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;;
 
@@ -287,26 +289,11 @@ setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&q
 
         &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (shouldUpdate) {
             &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._performComponentUpdate(nextElement, nextProps);
+        } &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt; {
+            &lt;span class=&quot;comment&quot;&gt;// if skipping the update,&lt;/span&gt;
+            &lt;span class=&quot;comment&quot;&gt;// still need to set the latest props&lt;/span&gt;
+            inst.props = nextProps;
         }
-    }
-    ...
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&quot;componentwillreceiveprops&quot;&gt;componentWillReceiveProps&lt;/h3&gt;
-&lt;p&gt;Just before updating, let’s let the instance know about its new props&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
-    ...
-    _performComponentUpdate(nextElement, nextProps) {
-        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement = nextElement;
-        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
-
-        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (inst.componentWillReceiveProps) {
-            inst.componentWillReceiveProps(nextProps);
-        }
-
-        inst.props = nextProps;
-
-        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._updateRenderedComponent();
     }
     ...
 }
@@ -354,7 +341,7 @@ In React, if you render again with the same component type, it will get updated.
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;And with that, Feact is able to update components, albeit only through &lt;code&gt;Feact.render()&lt;/code&gt;. That’s not too practical, but we’ll improve things next time when we explore &lt;code&gt;setState()&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;To wrap things up, here is a fiddle encompassing all that we’ve done so far&lt;/p&gt;
-&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/9t9xavqL/2/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/9t9xavqL/3/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Stay tuned for part four, coming soon!&lt;/p&gt;
 </description>
     </item>

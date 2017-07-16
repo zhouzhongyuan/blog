@@ -315,10 +315,6 @@ class FeactCompositeComponentWrapper {
 
 We can now easily add these two lifecycle methods into Feact.
 
-### shouldComponentUpdate
-
-We need to call this before updating, and bail if it returns false
-
 ```javascript
 class FeactCompositeComponentWrapper {
 	...
@@ -326,6 +322,10 @@ class FeactCompositeComponentWrapper {
         const lastProps = prevElement.props;
 		const nextProps = nextElement.props;
         const inst = this._instance;
+
+        if (inst.componentWillReceiveProps) {
+            inst.componentWillReceiveProps(nextProps);
+        }
 
         let shouldUpdate = true;
 
@@ -336,30 +336,11 @@ class FeactCompositeComponentWrapper {
                
         if (shouldUpdate) {
             this._performComponentUpdate(nextElement, nextProps);
+        } else {
+            // if skipping the update,
+            // still need to set the latest props
+            inst.props = nextProps;
         }
-	}
-    ...
-}
-```
-
-### componentWillReceiveProps
-
-Just before updating, let's let the instance know about its new props
-
-```javascript
-class FeactCompositeComponentWrapper {
-    ...
-	_performComponentUpdate(nextElement, nextProps) {
-		this._currentElement = nextElement;
-		const inst = this._instance;
-
-        if (inst.componentWillReceiveProps) {
-            inst.componentWillReceiveProps(nextProps);
-        }
-
-		inst.props = nextProps;
-
-		this._updateRenderedComponent();
 	}
     ...
 }
@@ -422,7 +403,7 @@ And with that, Feact is able to update components, albeit only through `Feact.re
 
 To wrap things up, here is a fiddle encompassing all that we've done so far
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/9t9xavqL/2/">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/9t9xavqL/3/">fiddle</a>
 
 Stay tuned for part four, coming soon!
 

@@ -289,14 +289,16 @@ setTimeout(<span class="function"><span class="keyword">function</span>(<span cl
 </code></pre>
 <h2 id="shouldcomponentupdate-and-componentwillreceiveprops">shouldComponentUpdate and componentWillReceiveProps</h2>
 <p>We can now easily add these two lifecycle methods into Feact.</p>
-<h3 id="shouldcomponentupdate">shouldComponentUpdate</h3>
-<p>We need to call this before updating, and bail if it returns false</p>
 <pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
     ...
     updateComponent(prevElement, nextElement) {
         <span class="keyword">const</span> lastProps = prevElement.props;
         <span class="keyword">const</span> nextProps = nextElement.props;
         <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+
+        <span class="keyword">if</span> (inst.componentWillReceiveProps) {
+            inst.componentWillReceiveProps(nextProps);
+        }
 
         <span class="keyword">let</span> shouldUpdate = <span class="literal">true</span>;
 
@@ -307,26 +309,11 @@ setTimeout(<span class="function"><span class="keyword">function</span>(<span cl
 
         <span class="keyword">if</span> (shouldUpdate) {
             <span class="keyword">this</span>._performComponentUpdate(nextElement, nextProps);
+        } <span class="keyword">else</span> {
+            <span class="comment">// if skipping the update,</span>
+            <span class="comment">// still need to set the latest props</span>
+            inst.props = nextProps;
         }
-    }
-    ...
-}
-</code></pre>
-<h3 id="componentwillreceiveprops">componentWillReceiveProps</h3>
-<p>Just before updating, let’s let the instance know about its new props</p>
-<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
-    ...
-    _performComponentUpdate(nextElement, nextProps) {
-        <span class="keyword">this</span>._currentElement = nextElement;
-        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
-
-        <span class="keyword">if</span> (inst.componentWillReceiveProps) {
-            inst.componentWillReceiveProps(nextProps);
-        }
-
-        inst.props = nextProps;
-
-        <span class="keyword">this</span>._updateRenderedComponent();
     }
     ...
 }
@@ -374,7 +361,7 @@ In React, if you render again with the same component type, it will get updated.
 <h2 id="conclusion">Conclusion</h2>
 <p>And with that, Feact is able to update components, albeit only through <code>Feact.render()</code>. That’s not too practical, but we’ll improve things next time when we explore <code>setState()</code>.</p>
 <p>To wrap things up, here is a fiddle encompassing all that we’ve done so far</p>
-<p><a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/9t9xavqL/2/">fiddle</a></p>
+<p><a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/9t9xavqL/3/">fiddle</a></p>
 <p>Stay tuned for part four, coming soon!</p>
 </section>
             </article>
