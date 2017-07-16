@@ -361,5 +361,5 @@ And with that, Feact is able to update components, albeit only through `Feact.re
 
 To wrap things up, here is a fiddle encompassing all that we've done so far
 
-<a class="fiddle" href="https://jsfiddle.net/city41/9t9xavqL/1/">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/9t9xavqL/2/">fiddle</a>
 
