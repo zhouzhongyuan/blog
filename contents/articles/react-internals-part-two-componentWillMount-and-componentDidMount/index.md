@@ -5,11 +5,19 @@ date: 2017-07-16
 template: article.jade
 ---
 
-Continuing to build our little React clone, let's add `componentWillMount` and `componentDidMount`.
+In [part one](/articles/react-internals-part-one-basic-rendering) we established basic rendering in Feact. That touched upon the most important lifecycle method, `render`, and now we're going to add in `componentWillMount` and `componentDidMount` support to Feact.
 
 <span class="more"></span>
 
-In [part one](/articles/react-internals-part-one-basic-rendering) we established basic rendering in Feact. That touched upon the most important lifecycle method, `render`, and now we're going to add in `componentWillMount` and `componentDidMount` support to Feact.
+## The series
+<ul>
+    <li>[part one: basic rendering](/articles/react-internals-part-one-basic-rendering)</li>
+    <li>**part two: componentWillMount and componentDidMount** <- you are here</li>
+    <li>[part three: basic updating](/articles/react-internals-part-three-basic-updating)</li>
+    <li>part four: setState *coming soon!*</li>
+    <li>part five: transactions *coming soon!*</li>
+</ul>
+
 
 ## First, fix createClass
 

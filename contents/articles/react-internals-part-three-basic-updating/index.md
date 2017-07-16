@@ -10,6 +10,15 @@ In [part one](/articles/react-internals-part-one-basic-rendering), our small Rea
 
 <span class="more"></span>
 
+## The series
+<ul>
+    <li>[part one: basic rendering](/articles/react-internals-part-one-basic-rendering)</li>
+    <li>[part two: componentWillMount and componentDidMount](/articles/react-internals-part-two-componentWillMount-and-componentDidMount)</li>
+    <li>**part three: basic updating** <- you are here</li>
+    <li>part four: setState *coming soon!*</li>
+    <li>part five: transactions *coming soon!*</li>
+</ul>
+
 ## Simple updating
 
 Calling `setState()` in a component is the primary way people cause their React apps to update. But React also supports updating through `React.render()`. Take this contrived example

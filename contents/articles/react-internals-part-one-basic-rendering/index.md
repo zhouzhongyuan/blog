@@ -6,7 +6,18 @@ template: article.jade
 ---
 In this five part series, we will "recreate" React from the ground up, learning how it works along the way. Once we've finished, you should have a good grasp of how React works, and when and why it calls the various lifecycle methods of a component.
 
+
 <span class="more"></span>
+
+
+## The series
+<ul>
+    <li>**part one: basic rendering** <- you are here</li>
+    <li>[part two: componentWillMount and componentDidMount](/articles/react-internals-part-two-componentWillMount-and-componentDidMount/)</li>
+    <li>[part three: basic updating](/articles/react-internals-part-three-basic-updating)</li>
+    <li>part four: setState *coming soon!*</li>
+    <li>part five: transactions *coming soon!*</li>
+</ul>
 
 ## disclaimer
 
