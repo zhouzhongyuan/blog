@@ -53,7 +53,7 @@ setTimeout(<span class="function"><span class="keyword">function</span>(<span cl
     React.render(<span class="xml"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>hello again<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span>, root);
 }, <span class="number">2000</span>);
 </code></pre>
-<p>We’ll ignore <code>setState()</code> for now (that’s coming in part four) and instead implement updates through <code>Feact.render()</code>.</p>
+<p>We’ll ignore <code>setState()</code> for now (that’s coming in part four) and instead implement updates through <code>Feact.render()</code>. Truth be told, this is simply “props have changed so update”, which also happens if you render again and pass different props down to a child component. We just happen to be causing the props change through <code>Feact.render()</code>.</p>
 <h2 id="doing-the-update">Doing the update</h2>
 <p>The concept is pretty simple, <code>Feact.render()</code> just needs to check if it has rendered before, and if so, update the page instead of starting fresh.</p>
 <pre><code class="lang-javascript"><span class="keyword">const</span> Feact = {

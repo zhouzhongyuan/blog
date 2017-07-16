@@ -31,7 +31,7 @@ setTimeout(function() {
 }, 2000);
 ```
 
-We'll ignore `setState()` for now (that's coming in part four) and instead implement updates through `Feact.render()`.
+We'll ignore `setState()` for now (that's coming in part four) and instead implement updates through `Feact.render()`. Truth be told, this is simply "props have changed so update", which also happens if you render again and pass different props down to a child component. We just happen to be causing the props change through `Feact.render()`.
 
 ## Doing the update
 
