@@ -87,10 +87,10 @@ JSX is a large topic on its own and a bit of a distraction. So from here on out,
 
 ```javascript
 const Feact = {
-    createElement(type, props = {}, children) {
+    createElement(type, props, children) {
         const element = {
             type,
-            props
+            props: props || {}
         };
 
         if (children) {
@@ -271,25 +271,31 @@ class FeactCompositeComponentWrapper {
 
 ## Fixing Feact.render() again
 
-As it stands now, `Feact.render()` can only accept composite components. When we first started, it could accept primitive elements. Let's fix that by creating a factory that will create a component based on the type of element:
+As it stands now, `Feact.render()` can only accept composite component based elements. When we first started, it could accept primitive elements. We need it to be able to handle both. We could write a "factory" function that will create a component for us based on the element's type, but there's another approach that React took. Since `FeactCompositeComponentWrapper` components ultimately decompose down into `FeactDOMComponent`s, let's just take whatever element we were given and wrap it in such a way that we can just use a `FeactCompositeComponentWrapper`
 
 ```javascript
+    const TopLevelWrapper = function(props) {
+        this.props = props;
+    };
+
+    TopLevelWrapper.prototype.render = function() {
+        return this.props;
+    };
+
     const Feact = {
         render(element, container) {
-            const componentInstance = instantiateFeactComponent(element);
+            const wrapperElement =
+                this.createElement(TopLevelWrapper, element);
+            const componentInstance =
+                new FeactCompositeComponentWrapper(wrapperElement);
 
             // as before
         }
     };
-
-    function instantiateFeactComponent(element) {
-        if (typeof element.type === 'string') {
-            return new FeactDOMComponent(element);
-        } else if (typeof element.type === 'function') {
-            return new FeactCompositeComponentWrapper(element);
-        }
-    }
 ```
+
+`ToplevelWrapper` is basically a user defined composite component. For example, it could have been defined by calling `Feact.createClass()`, but it doesn't need to do very much,
+so no need to go that far. Its `render` method just returns the user provided element. Since TopLevelWrapper will get wrapped in a `FeactCompositeComponentWrapper`, we don't care what type the user provided element was, `FeactCompositeComponentWrapper` will do the right thing regardless.
 
 ## One last addition: componentWillMount
 
@@ -329,4 +335,4 @@ With that, Feact can render simple components. As far as basic rendering is conc
 
 Here's a final fiddle that wraps up all we've built so far:
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/6">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/7">fiddle</a>

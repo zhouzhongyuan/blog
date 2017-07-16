@@ -185,3 +185,23 @@ FeactDOMComponent = {
 ```
 
 `Feact`'s version of `_updateDOMChildren` is hopelessly stupid, it can only handle text content. Obviously there's many more ways to update a DOM node, but this is all we need for our learning purposes. 
+
+## Updating composite components
+
+The work we did above was fine and all, but we can only update `FeactDOMComponent`s. In other words, this won't work
+
+```javascript
+Feact.render(
+    Feact.createElement(MyCoolComponent, { myProp: 'hello' }),
+    document.getElementById('root')
+);
+
+setTimeout(function() {
+    Feact.render(
+        Feact.createElement(MyCoolComponent,. { myProp: 'hello again' }),
+        document.getElementById('root')
+    );
+}, 2000);
+```
+
+Updating composite components is much more interesting and where a lot of the power in React lies. The good news is, a composite component will ultimately boil down to a `FeactDOMComponent`, so all the work we did above won't go to waste.
