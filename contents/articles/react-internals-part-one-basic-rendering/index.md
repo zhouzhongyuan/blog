@@ -329,7 +329,7 @@ With that, Feact can render simple components. As far as basic rendering is conc
 
 Here's a final fiddle that wraps up all we've built so far:
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/15">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/16">fiddle</a>
 
 [on to part two!](/articles/react-internals-part-two-componentWillMount-and-componentDidMount)
 
