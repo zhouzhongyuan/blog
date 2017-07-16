@@ -528,7 +528,7 @@ Remember the tight coupling that was called out in part one? It’s gone now, &l
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;disclaimer&quot;&gt;disclaimer&lt;/h2&gt;
-&lt;p&gt;This series is based on React 15.3, in particular using ReactDOM and the stack reconciler. The fancy new fiber reconciler is out of scope here. The React clone we are going to build, Feact, will not even come close to implementing all of React. But Feact’s source code will mirror React’s as much as possible.&lt;/p&gt;
+&lt;p&gt;This series is based on React 15.3, in particular using ReactDOM and the stack reconciler. The fancy new fiber reconciler is out of scope here. The React clone we are going to build will not even come close to implementing all of React. But Feact’s source code will mirror React’s as much as possible.&lt;/p&gt;
 &lt;h2 id=&quot;some-background-elements-and-components&quot;&gt;Some Background: Elements and Components&lt;/h2&gt;
 &lt;p&gt;At the heart of React are three different types of entities: native DOM elements, virtual elements and components.&lt;/p&gt;
 &lt;h3 id=&quot;native-dom-elements&quot;&gt;native DOM elements&lt;/h3&gt;
@@ -734,7 +734,7 @@ Notice how &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt; is directly c
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;div class=&quot;callout pitfall&quot;&gt;
-Heads up, this “fix” is a short cut that’s just good enough to meet our current needs. Notice how it recursively calls &lt;code&gt;render&lt;/code&gt; until it gets down to a primitive element? That’s not good enough, because those subcomponents need to participate in the entire lifecycle. For example, if we had support for &lt;code&gt;componentWillMount&lt;/code&gt;, those subcomponents would never get their’s called. We’ll fix this later.
+Heads up, this “fix” is a short cut that’s just good enough to meet our current needs. Notice how it repeatedly calls &lt;code&gt;render&lt;/code&gt; until it gets down to a primitive element? That’s not good enough, because those subcomponents need to participate in the entire lifecycle. For example, if we had support for &lt;code&gt;componentWillMount&lt;/code&gt;, those subcomponents would never get their’s called. We’ll fix this later.
 &lt;/div&gt;
 
 
