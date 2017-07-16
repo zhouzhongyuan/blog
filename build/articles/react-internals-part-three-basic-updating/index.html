@@ -302,8 +302,7 @@ setTimeout(<span class="function"><span class="keyword">function</span>(<span cl
         <span class="keyword">let</span> shouldUpdate = <span class="literal">true</span>;
 
         <span class="keyword">if</span> (inst.shouldComponentUpdate) {
-            shouldUpdate =
-                inst.shouldComponentUpdate(nextProps);
+            shouldUpdate = inst.shouldComponentUpdate(nextProps);
         }
 
         <span class="keyword">if</span> (shouldUpdate) {

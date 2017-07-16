@@ -329,8 +329,7 @@ class FeactCompositeComponentWrapper {
         let shouldUpdate = true;
 
         if (inst.shouldComponentUpdate) {
-            shouldUpdate =
-                inst.shouldComponentUpdate(nextProps);
+            shouldUpdate = inst.shouldComponentUpdate(nextProps);
         }
                
         if (shouldUpdate) {

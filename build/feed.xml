@@ -282,8 +282,7 @@ setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&q
         &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; shouldUpdate = &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;;
 
         &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (inst.shouldComponentUpdate) {
-            shouldUpdate =
-                inst.shouldComponentUpdate(nextProps);
+            shouldUpdate = inst.shouldComponentUpdate(nextProps);
         }
 
         &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (shouldUpdate) {
