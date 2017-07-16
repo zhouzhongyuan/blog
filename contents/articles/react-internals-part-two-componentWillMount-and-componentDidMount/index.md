@@ -61,17 +61,19 @@ const Feact = {
 
 Back in part one, I noted that `FeactCompositeComponentWrapper#mountComponent` had taken a shortcut. This shortcut will prevent lifecycle methods such as `componentWillMount` from getting called.
 
-Here's `mountComponent` as it stands now
+Here's `mountComponent` as it stood in part one
 
 ```javascript
 class FeactCompositeComponentWrapper {
     constructor(element) {
-        this._element = element;
+        this._currentElement = element;
     }
 
     mountComponent(container) {
-        const Component = this._element.type;
-        const componentInstance = new Component(this._element.props);
+        const Component = this._currentElement.type;
+        const componentInstance =
+            new Component(this._currentElement.props);
+
         let element = componentInstance.render();
 
         while (typeof element.type === 'function') {
@@ -84,7 +86,7 @@ class FeactCompositeComponentWrapper {
 }
 ```
 
-`mountComponent` is seeking out a native element. As long as `render()` returns a composite component element, it calls `render` again until it finally gets a native element. The problem is these sub composite components are not privy to the entire lifecycle. In other words, their `render` method is being called, but that's it. What we really need to do is properly mount all components.
+`mountComponent` is working its way down to a native element. As long as `render()` returns a composite component element, it calls `render` again until it finally gets a native element. The problem is these sub composite components are not privy to the entire lifecycle. In other words, their `render` method is being called, but that's it. What we really need to do is properly mount all components.
 
 To fix this, let's have something else do the mounting for us
 
@@ -92,8 +94,9 @@ To fix this, let's have something else do the mounting for us
 class FeactCompositeComponentWrapper {
     ...
     mountComponent(container) {
-        const Component = this._element.type;
-        const componentInstance = new Component(this._element.props);
+        const Component = this._currentElement.type;
+        const componentInstance =
+            new Component(this._currentElement.props);
         this._instance = componentInstance;
 
         const markup = this.performInitialMount(container);
@@ -128,6 +131,10 @@ function instantiateFeactComponent(element) {
 
 This is a fair amount of new code, but the basic idea is to move mounting out into another layer. That's the job of `FeactReconciler`, which will also gain more jobs as we move forward. Over in React, there is `ReactReconciler` which is serving the same role.
 
+<div class="callout wisdom">
+Remember the tight coupling that was called out in part one? It's gone now, `FeactCompositeComponentWrapper` is usable in more places now, which is a good thing.
+</div>
+
 ## Tweaking `Feact.render()`
 
 `Feact.render()` is calling `componentInstance.mountComponent(container)` in part one. Let's change that and instead have `FeactReconciler` deal with all mounting
@@ -154,27 +161,28 @@ And with that, all composite component elements will get properly mounted. This 
 
 ## Finally adding componentWillMount and componentDidMount
 
-Now with all the setup out of the way, actually adding support for these two is very simple. Just before mounting, call `componentWillMount` if it exists. Likewise, just after mounting, call `componentDidMount` if it exists
+Now with all the setup out of the way, actually adding support for these two is simple. Just before mounting, call `componentWillMount` if it exists. Likewise, just after mounting, call `componentDidMount` if it exists
 
 ```javascript
 class FeactCompositeComponentWrapper {
     ...
     mountComponent(container) {
-        const Component = this._element.type;
-        const componentInstance = new Component(this._element.props);
+        const Component = this._currentElement.type;
+        const componentInstance =
+            new Component(this._currentElement.props);
         this._instance = componentInstance;
 
         if (componentInstance.componentWillMount) {
             componentInstance.componentWillMount();
         }
 
-        const markup = this.performInitialMount(container);
+        const markUp = this.performInitialMount(container);
 
         if (componentInstance.componentDidMount) {
             componentInstance.componentDidMount();
         }
 
-        return markup;
+        return markUp;
     },
     ...
 }
@@ -184,7 +192,7 @@ class FeactCompositeComponentWrapper {
 
 That wraps up part two. Here is a fiddle encompassing all we've done
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/L5u2z592/1/">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/L5u2z592/2/">fiddle</a>
 
-In part three, we'll add support for updates.
+In [part three](/articles/react-internals-part-three-basic-updating), we'll add support for updates.
 
