@@ -115,9 +115,7 @@ const Feact = {
 
     render(element, container) {
         const componentInstance = new FeactDOMComponent(element);
-        componentInstance.mountComponent(container);
-
-        return componentInstance;
+        return componentInstance.mountComponent(container);
     }
 };
 ```
@@ -136,11 +134,18 @@ class FeactDOMComponent {
         domElement.appendChild(textNode);
 
         container.appendChild(domElement);
+
+        this._hostNode = domElement;
+        return domElement;
     }
 }
 ```
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/ohmzvb4o/5">fiddle</a>
+<div class="callout wisdom">
+`mountComponent` stores the DOM element it creates. We don't need that in part one, but it will be needed in part two.
+</div>
+
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/ohmzvb4o/6">fiddle</a>
 
 In about 20 lines of really crappy code we've got an incredibly limited and pathetic little "React clone!" Feact isn't going to take over the world, but it's serving as a great learning sandbox.
 
@@ -204,9 +209,7 @@ Feact = {
         const componentInstance =
             new FeactCompositeComponentWrapper(element);
 
-        componentInstance.mountComponent(container);
-
-        return componentInstance;
+        return componentInstance.mountComponent(container);
     }
 }
 
@@ -335,4 +338,4 @@ With that, Feact can render simple components. As far as basic rendering is conc
 
 Here's a final fiddle that wraps up all we've built so far:
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/7">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/8">fiddle</a>
