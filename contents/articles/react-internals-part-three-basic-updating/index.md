@@ -319,7 +319,6 @@ We can now easily add these two lifecycle methods into Feact.
 class FeactCompositeComponentWrapper {
 	...
 	updateComponent(prevElement, nextElement) {
-        const lastProps = prevElement.props;
 		const nextProps = nextElement.props;
         const inst = this._instance;
 
