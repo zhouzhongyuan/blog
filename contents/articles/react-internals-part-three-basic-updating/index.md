@@ -1,7 +1,7 @@
 ---
-title: "React Internals, Part Two: basic updating"
+title: "React Internals, Part Three: basic updating"
 author: Matt
-date: 2017-03-20
+date: 2017-07-15
 template: article.jade
 ---
 

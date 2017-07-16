@@ -4,7 +4,7 @@ author: Matt
 date: 2017-07-15
 template: article.jade
 ---
-In this four part series, we will "recreate" React from the ground up, learning how it works along the way. Our recreation will be dramatically simpler than actual React. Once we've finished, you should have a good grasp of how React works, and when and why it calls the various lifecycle methods of a component.
+In this four part series, we will "recreate" React from the ground up, learning how it works along the way. Once we've finished, you should have a good grasp of how React works, and when and why it calls the various lifecycle methods of a component.
 
 <span class="more"></span>
 
@@ -22,15 +22,15 @@ These are exactly what they sound like, the actual DOM elements that the browser
 
 ### virtual React elements
 
-A virtual React element (typically just called an "element" in the source code), is an in memory representation of what you'd like a given DOM node to be for a particular render. This explanation is overly simple as React elements can also represent a complex component, and they can also represent more primtive DOM nodes such as text nodes. 
+A virtual React element (typically just called an "element" in the source code), is an in memory representation of what you'd like a given DOM element to be for a particular render. This explanation is overly simple as React elements can also represent a complex component, and they can also represent more primtive DOM nodes such as text nodes. 
 
 ### Components
   
-Components provide the bridge between React elements and DOM elements. In most situations a component is working with both a React element and a DOM element, and during the course of a render it will ensure the DOM element gets updated to represent the current state of the React element.
+"Component" is a pretty generic term in React. They are entities within React that do various types of work. Different types of components do different things. For example, `ReactDOMComponent` from ReactDOM is responsible for bridging between React elements and their corresponding native DOM elements.
 
 ### User Defined Composite Components
 
-You are already familiar with one type of component: the composite component. Whenever you call `React.createClass()`, or have an es6 class extend `React.Component`, you are creating a Composite Component class. It turns out our view of the component lifecycle with methods like `componentWillMount`, `shouldComponentUpdate`, etc is just one piece of the puzzle. These are the lifecycle methods that we hook into, because they benefit us. But React components have other lifecycle methods such as `mountComponent` and `receiveComponent`. We never implement, call, or even know these other lifecycle methods exist. They are only used internally by React.
+You are already familiar with one type of component: the composite component. Whenever you call `React.createClass()`, or have an es6 class extend `React.Component`, you are creating a Composite Component class. It turns out our view of the component lifecycle with methods like `componentWillMount`, `shouldComponentUpdate` is just one piece of the puzzle. These are the lifecycle methods that we hook into because they benefit us. But React components have other lifecycle methods such as `mountComponent` and `receiveComponent`. We never implement, call, or even know these other lifecycle methods exist. They are only used internally by React.
 
 <div class="callout wisdom">
 The truth is the components we create are incomplete. React will take our component class, and wrap it in a `ReactCompositeComponentWrapper`, which then gives the components we wrote the full lifecycle hooks and ability to participate in React.
@@ -38,7 +38,7 @@ The truth is the components we create are incomplete. React will take our compon
 
 ## React is declarative
 
-When it comes to components, our job is to define component **classes**. But we never instantiate them. Instead React will instantiate an instance of our classes when it makes sense.
+When it comes to components, our job is to define component **classes**. But we never instantiate them. Instead React will instantiate an instance of our classes when it needs to.
 
 We also don't consciously instantiate elements. But we do implicitly when we write JSX, such as:
 
@@ -74,7 +74,7 @@ Let's pretend we want to create this tiny Feact app:
 Feact.render(<h1>hello world</h1>, document.getElementById('root'));
 ```
 
-For starters, let's get rid of the JSX. If we told JSX about `Feact.createElement`, we'd get this after compiling:
+For starters, let's ditch the JSX. If we told JSX about `Feact.createElement`, we'd get this after compiling:
 
 ```javascript
 Feact.render(
@@ -83,7 +83,7 @@ Feact.render(
 );
 ```
 
-JSX is a large topic on its own and a bit of a distraction. So from here on out, we will use `Feact.createElement` instead, so let's go ahead and implement it:
+JSX is a large topic on its own and a bit of a distraction. So from here on out, we will use `Feact.createElement` instead of JSX, so let's go ahead and implement it:
 
 ```javascript
 const Feact = {
@@ -102,7 +102,7 @@ const Feact = {
 }
 ```
 
-This implementation gives us a pretty good idea of what an element is. Elements are just simple objects representing somethign we want rendered.
+Elements are just simple objects representing something we want rendered.
 
 ### What should Feact.render() do?
 
@@ -142,14 +142,14 @@ class FeactDOMComponent {
 ```
 
 <div class="callout wisdom">
-`mountComponent` stores the DOM element it creates. We don't need that in part one, but it will be needed in part two.
+`mountComponent` stores the DOM element it creates in `this._hostNode`. We don't need that in part one, but we will in part two.
 </div>
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/ohmzvb4o/6">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/ohmzvb4o/8">fiddle</a>
 
-In about 20 lines of really crappy code we've got an incredibly limited and pathetic little "React clone!" Feact isn't going to take over the world, but it's serving as a great learning sandbox.
+In about 20 lines of pretty crappy code we've got an incredibly limited and pathetic little "React clone"! Feact isn't going to take over the world, but it's serving as a great learning sandbox.
 
-## Feact step two: user defined components
+## Adding user defined components
 
 We want to be able to render more than just a single, hardcoded, DOM element. So let's add support for defining component classes:
 
@@ -199,7 +199,7 @@ Feact.render(
 Woah. we passed the component class into `createElement`. An element can either represent a primitive DOM element, or it can represent a composite component. The distinction is easy, if `type` is a string, the element is a native primitive. If it is a function, the element represents a composite component.
 
 
-### improving Feact.render()
+### Improving Feact.render()
 
 If you trace back through the code so far, you will see that `Feact.render()` as it stands now can't handle composite components, so let's fix that:
 
@@ -224,7 +224,7 @@ class FeactCompositeComponentWrapper {
         const element = componentInstance.render();
 
         const domComponentInstance = new FeactDOMComponent(element);
-        domComponentInstance.mountComponent(container);
+        return domComponentInstance.mountComponent(container);
     }
 }
 ```
@@ -232,7 +232,7 @@ class FeactCompositeComponentWrapper {
 By giving users the ability to define their own components, Feact can now create dynamic DOM nodes that can change depending on the value of the props. There's a lot going on in this upgrade to Feact, but if you trace through it, it's not too bad. You can see where we call `componentInstance.render()`, to get our hands on an element that we can then pass into FeactDOMComponent.
 
 ### An improvement for composite components
-Currently our composite components must return elements that represent primitive DOM nodes, we can't return other composite component elements. Let's fix that. We want to be able to do this:
+Currently our composite components must return elements that represent primitive DOM nodes, we can't return other composite component elements. Let's fix that. We want to be able to do this
 
 ```javascript
 const MyMessage = Feact.createClass({
@@ -271,10 +271,14 @@ class FeactCompositeComponentWrapper {
 }
 ```
 
+<div class="callout pitfall">
+Heads up, `mountComponent` is taking a shortcut. Notice how it recursively calls `render` until it gets down to a primitive element? That's not good enough, because those subcomponents need to participate in the entire lifecycle. For example, if we had support for `componentWillMount`, those subcomponents would never get their's called. We'll fix this later.
+</div>
+
 
 ## Fixing Feact.render() again
 
-As it stands now, `Feact.render()` can only accept composite component based elements. When we first started, it could accept primitive elements. We need it to be able to handle both. We could write a "factory" function that will create a component for us based on the element's type, but there's another approach that React took. Since `FeactCompositeComponentWrapper` components ultimately decompose down into `FeactDOMComponent`s, let's just take whatever element we were given and wrap it in such a way that we can just use a `FeactCompositeComponentWrapper`
+The first version of `Feact.render()` could only handle primitive elements. Now it can only handle composite elements. It needs to be able to handle both. We could write a "factory" function that will create a component for us based on the element's type, but there's another approach that React took. Since `FeactCompositeComponentWrapper` components ultimately result in a `FeactDOMComponent`, let's just take whatever element we were given and wrap it in such a way that we can just use a `FeactCompositeComponentWrapper`
 
 ```javascript
     const TopLevelWrapper = function(props) {
@@ -300,42 +304,11 @@ As it stands now, `Feact.render()` can only accept composite component based ele
 `ToplevelWrapper` is basically a user defined composite component. For example, it could have been defined by calling `Feact.createClass()`, but it doesn't need to do very much,
 so no need to go that far. Its `render` method just returns the user provided element. Since TopLevelWrapper will get wrapped in a `FeactCompositeComponentWrapper`, we don't care what type the user provided element was, `FeactCompositeComponentWrapper` will do the right thing regardless.
 
-## One last addition: componentWillMount
-
-Let's go ahead and implement one more lifecycle method, componentWillMount. As the name suggests, we should call it just before a composite component mounts
-
-```javascript
-class FeactCompositeComponentWrapper {
-    constructor(element) {
-        this._element = element;
-    }
-
-    mountComponent(container) {
-        const Component = this._element.type;
-        const componentInstance = new Component(this._element.props);
-
-        if (componentInstance.componentWillMount) {
-            componentInstance.componentWillMount();
-        }
-
-        let element = componentInstance.render();
-
-        while (typeof element.type === 'function') {
-            element = (new element.type(element.props)).render();
-        }
-
-        const domComponentInstance = new FeactDOMComponent(element);
-        domComponentInstance.mountComponent(container);
-    }
-}
-```
-
-`mountComponent()` is only called once, when a component is first being mounted. So `componentWillMount()` is also only called once.
 
 ## Conclusion to part one
 
-With that, Feact can render simple components. As far as basic rendering is concerned, we've hit the major considerations. In real React, rendering is much more complicated as there are many other things to consider. But if you were to create this React app: `React.render(<h1>hello</h1>, root)`, and step through it in the debugger, you should be able to follow along. Yes, React will take you on a wild goose chase as it deals with many other things, but overall the path it takes matches what Feact is doing.
+With that, Feact can render simple components. As far as basic rendering is concerned, we've hit most of the major considerations. In real React, rendering is much more complicated as there are many other things to consider.
 
 Here's a final fiddle that wraps up all we've built so far:
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/8">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/14">fiddle</a>
