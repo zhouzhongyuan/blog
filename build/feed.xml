@@ -339,7 +339,7 @@ In React, if you render again with the same component type, it will get updated.
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;And with that, Feact is able to update components, albeit only through &lt;code&gt;Feact.render()&lt;/code&gt;. That’s not too practical, but we’ll improve things next time when we explore &lt;code&gt;setState()&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;To wrap things up, here is a fiddle encompassing all that we’ve done so far&lt;/p&gt;
-&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/9t9xavqL/3/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/9t9xavqL/4/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Stay tuned for part four, coming soon!&lt;/p&gt;
 </description>
     </item>
