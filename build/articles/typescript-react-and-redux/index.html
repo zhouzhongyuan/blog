@@ -49,7 +49,7 @@
 <span class="keyword">export</span> <span class="keyword">default</span> Action;
 </code></pre>
 <p>So far I’m not using <code>error</code> or <code>meta</code>, but that’s what redux-actions calls for so going with it. With this we get statically typed Actions</p>
-<pre><code class="lang-typescript"><span class="keyword">import</span> Action <span class="keyword">from</span> <span class="string">"./action"</span>;
+<pre><code class="lang-typescript"><span class="keyword">import</span> Action from <span class="string">"./action"</span>;
 <span class="keyword">export</span> <span class="keyword">const</span> MY_ACTION = <span class="string">"MY_ACTION"</span>;
 <span class="keyword">export</span> <span class="keyword">type</span> MY_ACTION = { foo: <span class="built_in">number</span>, message: <span class="built_in">string</span> }
 
@@ -66,9 +66,9 @@
 <p>Exporting both a string and a type named <code>MY_ACTION</code> felt a little weird. But since TypeScript can distinguish them by their type, it works. It reduces the cognitive load a bit when working with actions.</p>
 <h2 id="and-the-reducer">And The Reducer</h2>
 <p>And now with the action set up, the reducer can consume it</p>
-<pre><code class="lang-typescript"><span class="keyword">import</span> Action <span class="keyword">from</span> <span class="string">"../actions/action"</span>;
-<span class="keyword">import</span> { MY_ACTION } <span class="keyword">from</span> <span class="string">"../actions/myAction"</span>;
-<span class="keyword">import</span> { handleActions } <span class="keyword">from</span> <span class="string">"redux-actions"</span>;
+<pre><code class="lang-typescript"><span class="keyword">import</span> Action from <span class="string">"../actions/action"</span>;
+<span class="keyword">import</span> { MY_ACTION } from <span class="string">"../actions/myAction"</span>;
+<span class="keyword">import</span> { handleActions } from <span class="string">"redux-actions"</span>;
 
 <span class="keyword">const</span> reducer = handleActions({
   [MY_ACTION]: <span class="function"><span class="keyword">function</span>(<span class="params">state, action: Action&lt;MY_ACTION&gt;</span>) </span>{
@@ -161,9 +161,9 @@ ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="name">App</
 <h2 id="cheating-a-little-bit">Cheating A Little Bit</h2>
 <p>Redux itself is getting along just fine with TypeScript. The problem is only in react-redux’s <code>Provider</code>. react-redux is a tiny library, gluing a Redux store to a React component. Even better, react-redux is almost entirely inside <code>connect</code>, if you look at <a href="https://github.com/reactjs/react-redux/blob/master/src/components/Provider.js">Provider’s source</a>, it’s nice and simple!</p>
 <p>All Provider is doing is placing the Redux store on the child context, so that the component that <code>connect()</code> generated can find it. So I just wrote my own Provider that does the same thing, in a way that skirts around TypeScript</p>
-<pre><code class="lang-typescript"><span class="keyword">import</span> * <span class="keyword">as</span> React <span class="keyword">from</span> <span class="string">"react"</span>;
+<pre><code class="lang-typescript"><span class="keyword">import</span> * as React from <span class="string">"react"</span>;
 
-<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> Provider <span class="keyword">extends</span> React.Component&lt;<span class="built_in">any</span>, <span class="built_in">any</span>&gt; {
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> Provider extends React.Component&lt;<span class="built_in">any</span>, <span class="built_in">any</span>&gt; {
   <span class="keyword">static</span> childContextTypes = {
     store: React.PropTypes.object.isRequired
   }
@@ -178,8 +178,8 @@ ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="name">App</
 }
 </code></pre>
 <p>This is enough to make everyone happy. But it’s a little irksome that the Provider is completely relying on <code>any</code>. By using generics, you can fix that</p>
-<pre><code class="lang-typescript"><span class="keyword">import</span> * <span class="keyword">as</span> React <span class="keyword">from</span> <span class="string">"react"</span>;
-<span class="keyword">import</span> { Store } <span class="keyword">from</span> <span class="string">"redux"</span>;
+<pre><code class="lang-typescript"><span class="keyword">import</span> * as React from <span class="string">"react"</span>;
+<span class="keyword">import</span> { Store } from <span class="string">"redux"</span>;
 
 <span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">createProvider</span>&lt;<span class="title">P</span>&gt;(<span class="params"></span>) </span>{
   <span class="keyword">interface</span> ProviderProps&lt;P&gt; {
@@ -187,7 +187,7 @@ ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="name">App</
     target: React.ComponentClass&lt;P&gt;
   }
 
-  <span class="keyword">return</span> <span class="keyword">class</span> Provider <span class="keyword">extends</span> React.Component&lt;ProviderProps&lt;P&gt;, <span class="built_in">any</span>&gt; {
+  <span class="keyword">return</span> <span class="keyword">class</span> Provider extends React.Component&lt;ProviderProps&lt;P&gt;, <span class="built_in">any</span>&gt; {
     <span class="keyword">static</span> childContextTypes = {
       store: React.PropTypes.object.isRequired
     }
@@ -203,16 +203,16 @@ ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="name">App</
 }
 </code></pre>
 <p>then over in index.tsx</p>
-<pre><code class="lang-typescript"><span class="keyword">import</span> * <span class="keyword">as</span> React <span class="keyword">from</span> <span class="string">"react"</span>;
-<span class="keyword">import</span> * <span class="keyword">as</span> ReactDOM <span class="keyword">from</span> <span class="string">"react-dom"</span>;
-<span class="keyword">import</span> createProvider <span class="keyword">from</span> <span class="string">"./createProvider"</span>;
-<span class="keyword">import</span> Home, { HomeProps } <span class="keyword">from</span> <span class="string">"./components/Home"</span>;
-<span class="keyword">import</span> configureStore <span class="keyword">from</span> <span class="string">"./store/configureStore"</span>;
+<pre><code class="lang-typescript"><span class="keyword">import</span> * as React from <span class="string">"react"</span>;
+<span class="keyword">import</span> * as ReactDOM from <span class="string">"react-dom"</span>;
+<span class="keyword">import</span> createProvider from <span class="string">"./createProvider"</span>;
+<span class="keyword">import</span> Home, { HomeProps } from <span class="string">"./components/Home"</span>;
+<span class="keyword">import</span> configureStore from <span class="string">"./store/configureStore"</span>;
 
 <span class="keyword">const</span> store = configureStore();
 <span class="keyword">const</span> Provider = createProvider&lt;HomeProps&gt;();
 
-<span class="keyword">const</span> App: React.StatelessComponent&lt;<span class="built_in">any</span>&gt; = <span class="function"><span class="params">()</span> =&gt;</span> (
+<span class="keyword">const</span> App: React.StatelessComponent&lt;<span class="built_in">any</span>&gt; = () =&gt; (
   &lt;Provider store={store} target={Home} /&gt;
 );
 

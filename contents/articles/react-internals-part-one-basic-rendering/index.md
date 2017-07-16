@@ -110,7 +110,7 @@ const Feact = {
 
         return element;
     }
-}
+};
 ```
 
 Elements are just simple objects representing something we want rendered.
@@ -130,7 +130,7 @@ const Feact = {
     }
 };
 ```
-When `render()` finishes, we have a finished webpage. So based on that, we know FeactDOMComponent is truly digging in and creating DOM for us. Based on that, let's go ahead and take a stab at implementing it:
+When `render()` finishes, we have a finished webpage. So based on that, we know FeactDOMComponent is truly digging in and creating DOM for us. Let's go ahead and take a stab at implementing it:
 
 ```javascript
 class FeactDOMComponent {
