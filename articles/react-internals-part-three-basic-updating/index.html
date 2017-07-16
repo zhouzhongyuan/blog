@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>React Internals, Part Three: basic updating - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>React Internals, Part Three: basic updating</h1>
+            <div class="date"><span>16 July 2017</span></div>
+            <article class="article">
+              <section class="content"><p>In <a href="/articles/react-internals-part-one-basic-rendering">part one</a>, our small React clone, Feact, was implemented far enough to do basic rendering. But once the render happens, that was it. In this part, we’ll add the ability to make changes to the app with subsequent renders. This part will begin to show how the virtual DOM diffing works.</p>
+<p><span class="more"></span></p>
+<h2 id="the-series">The series</h2>
+<ul>
+    <li><a href="/articles/react-internals-part-one-basic-rendering">part one: basic rendering</a></li>
+    <li><a href="/articles/react-internals-part-two-componentWillMount-and-componentDidMount">part two: componentWillMount and componentDidMount</a></li>
+    <li><strong>part three: basic updating</strong> &lt;- you are here</li>
+    <li>part four: setState <em>coming soon!</em></li>
+    <li>part five: transactions <em>coming soon!</em></li>
+</ul>
+
+<h2 id="simple-updating">Simple updating</h2>
+<p>Calling <code>setState()</code> in a component is the primary way people cause their React apps to update. But React also supports updating through <code>React.render()</code>. Take this contrived example</p>
+<pre><code class="lang-javascript">React.render(<span class="xml"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>hello<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span>, root);
+
+setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+    React.render(<span class="xml"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>hello again<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span>, root);
+}, <span class="number">2000</span>);
+</code></pre>
+<p>We’ll ignore <code>setState()</code> for now (that’s coming in part four) and instead implement updates through <code>Feact.render()</code>.</p>
+<h2 id="doing-the-update">Doing the update</h2>
+<p>The concept is pretty simple, <code>Feact.render()</code> just needs to check if it has rendered before, and if so, update the page instead of starting fresh.</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> Feact = {
+    ...
+    render(element, container) {
+        <span class="keyword">const</span> prevComponent =
+            getTopLevelComponentInContainer(container);
+
+        <span class="keyword">if</span> (prevComponent) {
+            <span class="keyword">return</span> updateRootComponent(
+                prevComponent,
+                element, 
+                container
+            );
+        } <span class="keyword">else</span> {
+            <span class="keyword">return</span> renderNewRootComponent(element, container);
+        }
+    }
+    ...
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">renderNewRootComponent</span>(<span class="params">element, container</span>) </span>{
+    <span class="keyword">const</span> wrapperElement =
+        Feact.createElement(TopLevelWrapper, element);
+
+    <span class="keyword">const</span> componentInstance =
+        <span class="keyword">new</span> FeactCompositeComponentWrapper(wrapperElement);
+
+    <span class="keyword">return</span> FeactReconciler.mountComponent(
+        componentInstance,
+        container
+    );
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">getTopLevelComponentInContainer</span>(<span class="params">container</span>) </span>{
+    <span class="comment">// need to figure this out</span>
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">updateRootComponent</span>(<span class="params">prevComponent, nextElement</span>) </span>{
+    <span class="comment">// need to figure this out too</span>
+}
+</code></pre>
+<p>This is looking pretty promising. If we rendered before, then take the state of the previous render, grab the new desired state, and pass that off to a function that will figure out what DOM updates need to happen to update the app. Otherwise if there’s no signs of a previous render, then render into the DOM exactly how we did in part one and two.</p>
+<p>We just need to figure out the two missing pieces.</p>
+<h2 id="remembering-what-we-did">Remembering what we did</h2>
+<p>For each render, We need to store the components we created, so we can refer to them in a subsequent render. Where to store them? Why not on the DOM nodes they create?</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">renderNewRootComponent</span>(<span class="params">element, container</span>) </span>{
+    <span class="keyword">const</span> wrapperElement =
+        Feact.createElement(TopLevelWrapper, element);
+
+    <span class="keyword">const</span> componentInstance =
+        <span class="keyword">new</span> FeactCompositeComponentWrapper(wrapperElement);
+
+
+    <span class="keyword">const</span> markUp = FeactReconciler.mountComponent(
+        componentInstance,
+        container
+    );
+
+    <span class="comment">// new line here, store the component instance on the container</span>
+    <span class="comment">// we want its _renderedComponent because componentInstance is just</span>
+    <span class="comment">// the TopLevelWrapper, which we don't need for updates</span>
+    container.__feactComponentInstance =
+        componentInstance._renderedComponent;
+
+    <span class="keyword">return</span> markUp;
+}
+</code></pre>
+<p>Well, that was easy. Similarly retrieving the stashed component is easy too:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">getTopLevelComponentInContainer</span>(<span class="params">container</span>) </span>{
+    <span class="keyword">return</span> container.__feactComponentInstance;
+}
+</code></pre>
+<h2 id="updating-to-the-new-state">Updating to the new state</h2>
+<p>This is the simple example we are working through</p>
+<pre><code class="lang-javascript">Feact.render(
+    Feact.createElement(<span class="string">'h1'</span>, <span class="literal">null</span>, <span class="string">'hello'</span>),
+    root
+);
+
+setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+    Feact.render(
+        Feact.createElement(<span class="string">'h1'</span>, <span class="literal">null</span>, <span class="string">'hello again'</span>),
+        root
+    );
+}, <span class="number">2000</span>);
+</code></pre>
+<p>2 seconds has elapsed, so we are now calling <code>Feact.render()</code> again, but this time with an element that looks like</p>
+<pre><code class="lang-javascript">{
+    <span class="attr">type</span>: <span class="string">'h1'</span>,
+    <span class="attr">props</span>: {
+        <span class="attr">children</span>: <span class="string">'hello again'</span>
+    }
+}
+</code></pre>
+<p>Since Feact determined this is an update, we ended up in <code>updateRootComponent</code>, which is just going to delegate to the component</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">updateRootComponent</span>(<span class="params">prevComponent, nextElement</span>) </span>{
+    prevComponent.receiveComponent(nextElement)
+}
+</code></pre>
+<p>Notice a new component is not getting created. <code>prevComponent</code> is the component that got created during the first render, and now it’s going to take a new element and update itself with it. Components get created once at mount, and live on until unmount (which, does make sense…)</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactDOMComponent</span> </span>{
+    ...
+    receiveComponent(nextElement) {
+        <span class="keyword">const</span> prevElement = <span class="keyword">this</span>._currentElement;
+        <span class="keyword">this</span>.updateComponent(prevElement, nextElement);
+    }
+
+    updateComponent(prevElement, nextElement) {
+        <span class="keyword">const</span> lastProps = prevElement.props;
+        <span class="keyword">const</span> nextProps = nextElement.props;
+
+        <span class="keyword">this</span>._updateDOMProperties(lastProps, nextProps);
+        <span class="keyword">this</span>._updateDOMChildren(lastProps, nextProps);
+
+        <span class="keyword">this</span>._currentElement = nextElement;
+    }
+
+    _updateDOMProperties(lastProps, nextProps) {
+        <span class="comment">// nothing to do! I'll explain why below</span>
+    }
+
+    _updateDOMChildren(lastProps, nextProps) {
+        <span class="comment">// finally, the component can update the DOM here</span>
+        <span class="comment">// we'll implement this next</span>
+    }
+};
+</code></pre>
+<p><code>receiveComponent</code> just sets up updateComponent, which ultimately calls <code>_updateDOMProperties</code> and <code>_updateDOMChildren</code> which are the meaty functions which will finally cause the actual DOM to get updated. <code>_updateDOMProperties</code> is mostly concerned with updating CSS styles. We’re not going to implement it in this blog post series, but just pointing it out as that is the method React uses to deal with style changes.</p>
+<p><code>_updateDOMChildren</code> in React can handle complex trees of children, but in <code>Feact</code> the children is just the contents of the DOM element, in this case the children will go from <code>&quot;hello&quot;</code> to <code>&quot;hello again&quot;</code></p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactDOMComponent</span> </span>{
+    ...
+    _updateDOMChildren(lastProps, nextProps) {
+        <span class="keyword">const</span> lastContent = lastProps.children;
+        <span class="keyword">const</span> nextContent = nextProps.children;
+
+        <span class="keyword">if</span> (!nextContent) {
+            <span class="keyword">this</span>.updateTextContent(<span class="string">''</span>);
+        } <span class="keyword">else</span> <span class="keyword">if</span> (lastContent !== nextContent) {
+            <span class="keyword">this</span>.updateTextContent(<span class="string">''</span> + nextContent);
+        }
+    }
+
+    updateTextContent(content) {
+        <span class="keyword">const</span> node = <span class="keyword">this</span>._hostNode;
+        node.textContent = content;
+
+        <span class="keyword">const</span> firstChild = node.firstChild;
+
+        <span class="keyword">if</span> (firstChild &amp;&amp; firstChild === node.lastChild
+                &amp;&amp; firstChild.nodeType === <span class="number">3</span>) {
+            firstChild.nodeValue = text;
+            <span class="keyword">return</span>;
+        }
+
+        node.textContent = text;
+    }
+};
+</code></pre>
+<p><code>Feact</code>‘s version of <code>_updateDOMChildren</code> is hopelessly stupid, it can only handle text content. Obviously there’s many more ways to update a DOM node, but this is all we need for our learning purposes. </p>
+<h2 id="updating-composite-components">Updating composite components</h2>
+<p>The work we did above was fine and all, but we can only update <code>FeactDOMComponent</code>s. In other words, this won’t work</p>
+<pre><code class="lang-javascript">Feact.render(
+    Feact.createElement(MyCoolComponent, { <span class="attr">myProp</span>: <span class="string">'hello'</span> }),
+    <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)
+);
+
+setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+    Feact.render(
+        Feact.createElement(MyCoolComponent,. { <span class="attr">myProp</span>: <span class="string">'hello again'</span> }),
+        <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)
+    );
+}, <span class="number">2000</span>);
+</code></pre>
+<p>Updating composite components is much more interesting and where a lot of the power in React lies. The good news is, a composite component will ultimately boil down to a <code>FeactDOMComponent</code>, so all the work we did above won’t go to waste.</p>
+<p>Even more good news, <code>updateRootComponent</code> has no idea what kind of component it received. It just blindly calls <code>receiveComponent</code> on it. So all we need to do is add <code>receiveComponent</code> to <code>FeactCompositeComponentWrapper</code> and we’re good!</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    ...
+    receiveComponent(nextElement) {
+        <span class="keyword">const</span> prevElement = <span class="keyword">this</span>._currentElement;
+        <span class="keyword">this</span>.updateComponent(prevElement, nextElement);
+    }
+
+    updateComponent(prevElement, nextElement) {
+        <span class="keyword">const</span> nextProps = nextElement.props;
+
+        <span class="keyword">this</span>._performComponentUpdate(nextElement, nextProps);
+    }
+
+    _performComponentUpdate(nextElement, nextProps) {
+        <span class="keyword">this</span>._currentElement = nextElement;
+        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+
+        inst.props = nextProps;
+
+        <span class="keyword">this</span>._updateRenderedComponent();
+    }
+
+    _updateRenderedComponent() {
+        <span class="keyword">const</span> prevComponentInstance = <span class="keyword">this</span>._renderedComponent;
+        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+        <span class="keyword">const</span> nextRenderedElement = inst.render();
+
+        prevComponentInstance.receiveComponent(nextRenderedElement);
+    }
+}
+</code></pre>
+<p>It’s a little silly to spread such little logic across four methods, but it will make more sense as we progress. These four methods are also what is found in React’s <code>ReactCompositeComponentWrapper</code>.</p>
+<p>Ultimately the update boils down to calling <code>render</code> with the current set of props. Take the resulting element and passing it on to the <code>_renderedComponent</code>, and telling it to update. <code>_renderedComponent</code> could be another <code>FeactCompositeComponentWrapper</code>, or possibly a <code>FeactDOMComponent</code>. It was created during the first render.</p>
+<h2 id="let-s-use-feactreconciler-again">Let’s use FeactReconciler again</h2>
+<p>Mounting components always goes through <code>FeactReconciler</code>, so updating them should to. This isn’t that important for Feact, but it keeps us consistent with React.</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> FeactReconciler = {
+    ...
+    receiveComponent(internalInstance, nextElement) {
+        internalInstance.receiveComponent(nextElement);
+    }
+};
+
+
+<span class="function"><span class="keyword">function</span> <span class="title">updateRootComponent</span>(<span class="params">prevComponent, nextElement</span>) </span>{
+    FeactReconciler.receiveComponent(prevComponent, nextElement);
+}
+
+<span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    ...
+    _updateRenderedComponent() {
+        <span class="keyword">const</span> prevComponentInstance = <span class="keyword">this</span>._renderedComponent;
+        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+        <span class="keyword">const</span> nextRenderedElement = inst.render();
+
+        FeactReconciler.receiveComponent(
+            prevComponentInstance, nextRenderedElement);
+    }
+</code></pre>
+<h2 id="shouldcomponentupdate-and-componentwillreceiveprops">shouldComponentUpdate and componentWillReceiveProps</h2>
+<p>We can now easily add these two lifecycle methods into Feact.</p>
+<h3 id="shouldcomponentupdate">shouldComponentUpdate</h3>
+<p>We need to call this before updating, and bail if it returns false</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    ...
+    updateComponent(prevElement, nextElement) {
+        <span class="keyword">const</span> lastProps = prevElement.props;
+        <span class="keyword">const</span> nextProps = nextElement.props;
+        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+
+        <span class="keyword">let</span> shouldUpdate = <span class="literal">true</span>;
+
+        <span class="keyword">if</span> (inst.shouldComponentUpdate) {
+            shouldUpdate =
+                inst.shouldComponentUpdate(lastProps, nextProps);
+        }
+
+        <span class="keyword">if</span> (shouldUpdate) {
+            <span class="keyword">this</span>._performComponentUpdate(nextElement, nextProps);
+        }
+    }
+    ...
+}
+</code></pre>
+<h3 id="componentwillreceiveprops">componentWillReceiveProps</h3>
+<p>Just before updating, let’s let the instance know about its new props</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    ...
+    _performComponentUpdate(nextElement, nextProps) {
+        <span class="keyword">this</span>._currentElement = nextElement;
+        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+
+        <span class="keyword">if</span> (inst.componentWillReceiveProps) {
+            inst.componentWillReceiveProps(nextProps);
+        }
+
+        inst.props = nextProps;
+
+        <span class="keyword">this</span>._updateRenderedComponent();
+    }
+    ...
+}
+</code></pre>
+<h2 id="a-major-hole">A Major Hole</h2>
+<p>There’s a big problem with Feact’s updating that we won’t be addressing. It’s making the assumption that when the update happens, it can keep using the same type of component.</p>
+<p>In other words, Feact can handle this just fine</p>
+<pre><code class="lang-javascript">Feact.render(
+    Feact.createElement(MyCoolComponent, { <span class="attr">myProp</span>: <span class="string">'hi'</span> }),
+    root
+);
+
+<span class="comment">// some time passes</span>
+
+Feact.render(
+    Feact.createElement(MyCoolComponent, { <span class="attr">myProp</span>: <span class="string">'hi again'</span> }),
+    root
+);
+</code></pre>
+<p>but it can’t handle this</p>
+<pre><code class="lang-javascript">Feact.render(
+    Feact.createElement(MyCoolComponent, { <span class="attr">myProp</span>: <span class="string">'hi'</span> }),
+    root
+);
+
+<span class="comment">// some time passes</span>
+
+Feact.render(
+    Feact.createElement(SomeOtherComponent, { <span class="attr">someOtherProp</span>: <span class="string">'hmmm'</span> }),
+    root
+);
+</code></pre>
+<p>In this case, the update swapped in a completely different component class. Feact will just naively grab the previous component, which would be a <code>MyCoolComponent</code>, and tell it to update with the new props <code>{ someOtherProp: &#39;hmmm&#39;}</code>. What it should have done is notice the component type changed, and instead of updating, unmounted <code>MyCoolComponent</code> and mounted <code>SomeOtherComponent</code>.</p>
+<p>In order to do this, Feact would need:</p>
+<ul>
+<li>some ability to unmount a component</li>
+<li>notice the type change and head over to <code>FeactReconciler.mountComponent</code> instead of <code>FeactComponent.receiveComponent</code>. When it does this, it creates a new component instance, and stores that new instance in <code>_renderedComponent</code>.</li>
+</ul>
+<div class="callout wisdom">
+In React, if you render again with the same component type, it will get updated. You don’t actually need to specify a <code>key</code> for your element to update in most cases. Keys are only necessary when a component is dealing with a collection of children. In this case, React will warn you if you forget your keys. It’s best to heed the warning, because without the key React is not updating, but completely unmounting and mounting again!
+</div>
+
+<h2 id="did-you-see-the-virtual-dom-">Did you see the virtual DOM?</h2>
+<p>When React first came out, a lot of the hype was around the “virtual DOM”. But the virtual DOM isn’t really a concrete thing. It is more a concept that all of React (and Feact) accomplish together. There isn’t anything inside React called <code>VirtualDOM</code> or anything like that. Instead <code>prevElement</code> and <code>nextElement</code> together capture the diff from render to render, and <code>FeactDOMComponent</code> applies the diff into the actual DOM.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>And with that, Feact is able to update components, albeit only through <code>Feact.render()</code>. That’s not too practical, but we’ll improve things (and learn even more) next time when we explore <code>setState()</code>.</p>
+<p>To wrap things up, here is a fiddle encompassing all that we’ve done so far</p>
+<p><a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/9t9xavqL/2/">fiddle</a></p>
+<p>Stay tuned for part four, coming soon!</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. All opinions expressed here are my own.</p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/mattegreer">@mattegreer</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>

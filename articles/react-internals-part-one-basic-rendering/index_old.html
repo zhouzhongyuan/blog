@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>React Internals: Part One (of Three) - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>React Internals: Part One (of Three)</h1>
+            <div class="date"><span>19 March 2017</span></div>
+            <article class="article">
+              <section class="content"><p>I have suddenly found myself needing to understand how React works, internally. So this three part blog series is me doing just that. Part one is exploring how React renders the simplest DOM content possible, then the series builds from there.</p>
+<p><span class="more"></span></p>
+<h2 id="hello-react">Hello React</h2>
+<p>In this part, we are going to learn what React does with this code:</p>
+<pre><code class="lang-javascript">ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello World<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span>, <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>));
+</code></pre>
+<p>The above is almost exactly equivalent to this:</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> h1 = <span class="built_in">document</span>.createElement(<span class="string">'h1'</span>);
+<span class="keyword">const</span> text = <span class="built_in">document</span>.createTextNode(<span class="string">'hello world'</span>);
+h1.appendChild(text);
+<span class="keyword">const</span> root = <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>);
+root.insertBefore(h1, <span class="literal">null</span>);
+</code></pre>
+<p>So as we dig into React’s code, our goal is to trace the path from the <code>&lt;h1&gt;Hello World&lt;/h1&gt;</code> JSX all the way down to <code>document.createElement</code>.</p>
+<h2 id="some-background-an-element-versus-a-component">Some Background: An Element Versus a Component</h2>
+<p>When using React, we never really instantiate anything. Instead we describe what we want to happen, and React handles the details for us. Inside React, an element is an object that represents our intent. Whenever we write JSX into our code, it gets translated into <code>React.createElement(type, props, children)</code> calls.</p>
+<p>So the JSX <code>&lt;h1&gt;Hello World&lt;/h1&gt;</code> gets translated into <code>React.createElement(&#39;h1&#39;, null, &#39;hello world&#39;)</code>, and the result of <code>createElement</code> is a simple object representing our h1 DOM node:</p>
+<pre><code class="lang-javascript">{
+  <span class="attr">$$typeof</span>: <span class="built_in">Symbol</span>(react.element),
+  <span class="attr">type</span>: <span class="string">"h1"</span>,
+  <span class="attr">key</span>: <span class="literal">null</span>,
+  <span class="attr">ref</span>: <span class="literal">null</span>,
+  <span class="attr">props</span>: {
+    <span class="attr">children</span>: <span class="string">"hello world"</span>
+  },
+  <span class="attr">_owner</span>: <span class="literal">null</span>,
+  <span class="attr">_store</span>: {}
+}
+</code></pre>
+<p><code>$$typeof</code> is just a simple way for React to know some random JavaScript object is actually an Element. Don’t worry about the other extra properties like <code>_owner</code>, <code>_store</code> and <code>ref</code>. They aren’t yet important to us.</p>
+<div class="callout wisdom">
+Since <code>createElement</code>‘s output is so predictable, it’s possible to have Babel eliminate the call and just replace it with the resulting object at compile time. This can give your app a slight performance boost.
+
+&lt;&lt;&lt; GET THE DETAILS ON THIS &gt;&gt;&gt;
+</div>
+
+<h3 id="component-classes">Component Classes</h3>
+<p>A component class is a class who’s ultimate goal is to produce a tree of elements. Whenever we call <code>React.createClass()</code> or create an ES6 class that extends <code>React.Component</code>, we are creating a component class.</p>
+<p>Our earlier example with h1 produced an element whose type is a string. If we instead created a class called <code>MyComponent</code> then used it with <code>&lt;MyComponent myProp={123} /&gt;</code>, then the resulting element would be:</p>
+<pre><code class="lang-javascript">{
+  <span class="attr">$$typeof</span>: <span class="built_in">Symbol</span>(react.element),
+  <span class="attr">type</span>: <span class="function"><span class="keyword">function</span>(<span class="params">props, context, updater</span>) </span>{ ... },
+  <span class="attr">key</span>: <span class="literal">null</span>,
+  <span class="attr">ref</span>: <span class="literal">null</span>,
+  <span class="attr">props</span>: {
+    <span class="attr">myProp</span>: <span class="number">123</span>
+  },
+  <span class="attr">_owner</span>: <span class="literal">null</span>,
+  <span class="attr">_store</span>: {}
+}
+</code></pre>
+<div class="callout wisdom">
+If an element’s type is a string, that means it’s representing a primitive DOM node. If its type is a function, that means it’s representing a React Component class. React Component classes define a <code>render()</code> method, which returns an element. If the element returned has a component as its type, then that component’s render() gets called, all the way down until all we are left with is a tree of elements that all represent primitive DOM nodes.
+</div>
+
+<h3 id="composite-components">Composite Components</h3>
+<p>Composite components are the most common type of Component inside of React. Whenever we call <code>React.createClass()</code>, the resulting class is for a composite component.</p>
+<p>&lt;&lt;&lt; understand composite components better &gt;&gt;&gt;</p>
+<h3 id="reactemptycomponent">ReactEmptyComponent</h3>
+<p>Represents an empty or nonexistant element. For example</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">MySwitchComponent</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>{
+    render() {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.props.flag) {
+            <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>foo<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;
+        } <span class="keyword">else</span> {
+            <span class="keyword">return</span> <span class="literal">null</span>;
+        }
+    }
+}
+</code></pre>
+<p>Whenever <code>MySwitchComponent</code> returns null, React will represent it with a ReactEmptyComponent.</p>
+<h3 id="reacthostcomponent-internal-component">ReactHostComponent / Internal Component</h3>
+<p>This is basically the “primitive component” for the current React environment. In ReactDOM, it is a ReactDOMComponent. Whenever an element’s type is a string, that platform’s ReactHostComponent will get created. The platform tells React what the class is <code>ReactHostComponentInjection#injectGenericComponentClass()</code>.</p>
+<h3 id="isinternalcomponenttype-type-">isInternalComponentType(type)</h3>
+<p>checks to see if the given type is a Component type internal to React, as opposed to a composite component provided to React. Internal components have receiveComponent and updateComponent methods, where composite components do not.</p>
+<h3 id="reactcompositecomponentwrapper">ReactCompositeComponentWrapper</h3>
+<p>This is an internal Component type that wraps a user provided composite component.</p>
+<h3 id="reactdomcomponent">ReactDOMComponent</h3>
+<p>This Component type wraps a primitive/native element. Its <code>mountComponent</code> method will call <code>document.createElement</code></p>
+<p>Its <code>receiveComponent</code> will update based on the element diff</p>
+<h3 id="internal-component-types">Internal Component types</h3>
+<p>generally speaking they have a <code>_currentElement</code> property that they hold onto. As the app progresses, the next element will be diffed against currentElement. This is pretty much the heart of React.</p>
+<h2 id="let-s-ditch-the-jsx">Let’s Ditch the JSX</h2>
+<p>With a better understanding of JSX, Components and Elements, we can simplifiy our example. Let’s manually translate the JSX into a call to <code>React.createElement</code>, giving us:</p>
+<pre><code class="lang-javascript">ReactDOM.render(
+    React.createElement(<span class="string">'h1'</span>, <span class="literal">null</span>, <span class="string">'hello world'</span>),
+    <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)
+);
+</code></pre>
+<p>And once <code>React.createElement()</code> returns, we will have:</p>
+<pre><code class="lang-javascript">ReactDOM.render(
+    {
+        <span class="attr">$$typeof</span>: <span class="built_in">Symbol</span>(react.element),
+        <span class="attr">type</span>: <span class="string">"h1"</span>,
+        <span class="attr">key</span>: <span class="literal">null</span>,
+        <span class="attr">ref</span>: <span class="literal">null</span>,
+        <span class="attr">props</span>: {
+        <span class="attr">children</span>: <span class="string">"hello world"</span>
+        },
+        <span class="attr">_owner</span>: <span class="literal">null</span>,
+        <span class="attr">_store</span>: {}
+    },
+    <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)
+);
+</code></pre>
+<h2 id="wrapping-the-element">Wrapping the Element</h2>
+<p><code>ReactDOM.render()</code> is going to do many things, but at a very high level, it’s going to take our element, wrap it a couple times, then peel off the wrappers one by one. As it peels off the layers, it works its way towards ultimately calling <code>document.createElement()</code> and sticking the new DOM element into the DOM.</p>
+<p>First React will wrap our element into a new element, this element’s type will be of <code>TopLevelWrapper</code>. TopLevelWrapper is an internal composite component class. By wrapping our element in the TopLevelWrapper element, then React doesn’t have to consider what type of element its working with, it knows the element will be of a composite component, which has a <code>render()</code> method.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. All opinions expressed here are my own.</p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/mattegreer">@mattegreer</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>
