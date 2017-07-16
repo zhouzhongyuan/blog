@@ -95,13 +95,18 @@ function renderNewRootComponent(element, container) {
 	const componentInstance =
 		new FeactCompositeComponentWrapper(wrapperElement);
 
-	// new line here, store the component instance on the container
-    container.__feactComponentInstance = componentInstance;
 
-	return FeactReconciler.mountComponent(
+	const markUp = FeactReconciler.mountComponent(
 		componentInstance,
 		container
 	);
+
+	// new line here, store the component instance on the container
+    // we want its _renderedComponent because componentInstance is just
+    // the TopLevelWrapper, which we don't need for updates
+    container.__feactComponentInstance = componentInstance._renderedComponent;
+
+    return markUp;
 }
 ```
 
@@ -147,12 +152,12 @@ function updateRootComponent(prevComponent, nextElement) {
 Notice a new component is not getting created. `prevComponent` is the component that got created during the first render, and now it's going to take a new element and update itself with it. Components get created once at mount, and live on until unmount (which, does make sense...)
 
 ```javascript
-FeactDOMComponent = {
+class FeactDOMComponent {
     ...
     receiveComponent(nextElement) {
-        var prevElement = this._currentElement;
+        const prevElement = this._currentElement;
         this.updateComponent(prevElement, nextElement);
-    },
+    }
 
     updateComponent(prevElement, nextElement) {
         const lastProps = prevElement.props;
@@ -160,11 +165,11 @@ FeactDOMComponent = {
 
         this._updateDOMProperties(lastProps, nextProps);
         this._updateDOMChildren(lastProps, nextProps);
-    },
+    }
 
     _updateDOMProperties(lastProps, nextProps) {
         // nothing to do! I'll explain why below
-    },
+    }
 
     _updateDOMChildren(lastProps, nextProps) {
         // finally, the component can update the DOM here
@@ -178,7 +183,7 @@ FeactDOMComponent = {
 `_updateDOMChildren` in React can handle complex trees of children, but in `Feact` the children is just the contents of the DOM element, in this case the children will go from `"hello"` to `"hello again"`
 
 ```javascript
-FeactDOMComponent = {
+class FeactDOMComponent {
     ...
     _updateDOMChildren(lastProps, nextProps) {
         const lastContent = lastProps.children;
@@ -189,7 +194,7 @@ FeactDOMComponent = {
         } else if (lastContent !== nextContent) {
             this.updateTextContent('' + nextContent);
         }
-    },
+    }
 
     updateTextContent(content) {
         const node = this._hostNode;
@@ -253,7 +258,7 @@ class FeactCompositeComponentWrapper {
 		inst.props = nextProps;
 
 		this._updateRenderedComponent();
-	},
+	}
 
 	_updateRenderedComponent() {
 		const prevComponentInstance = this._renderedComponent;
@@ -271,7 +276,7 @@ Ultimately the update boils down to calling `render` with the current set of pro
 
 ## Let's use FeactReconciler again
 
-Mounting components always goes through `FeactReconciler`, so updating them should to.
+Mounting components always goes through `FeactReconciler`, so updating them should to. This isn't that important for Feact, but it keeps us consistent with React.
 
 ```javascript
 const FeactReconciler = {
@@ -345,7 +350,9 @@ class FeactCompositeComponentWrapper {
 		inst.props = nextProps;
 
 		this._updateRenderedComponent();
-	},
+	}
+    ...
+}
 ```
 
 ## Conclusion
@@ -354,5 +361,5 @@ And with that, Feact is able to update components, albeit only through `Feact.re
 
 To wrap things up, here is a fiddle encompassing all that we've done so far
 
-<a class="fiddle" href="">fiddle</a>
+<a class="fiddle" href="https://jsfiddle.net/city41/9t9xavqL/1/">fiddle</a>
 
