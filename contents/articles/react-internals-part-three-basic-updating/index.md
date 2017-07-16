@@ -31,11 +31,11 @@ setTimeout(function() {
 }, 2000);
 ```
 
-We'll ignore `setState()` for now and instead implement updates through `Feact.render()`.
+We'll ignore `setState()` for now (that's coming in part four) and instead implement updates through `Feact.render()`.
 
 ## Doing the update
 
-The concept is pretty simple, `Feact.render()` just needs to check if it's rendered before, and if so, update the page instead of starting fresh.
+The concept is pretty simple, `Feact.render()` just needs to check if it has rendered before, and if so, update the page instead of starting fresh.
 
 ```javascript
 const Feact = {
@@ -58,10 +58,16 @@ const Feact = {
 }
 
 function renderNewRootComponent(element, container) {
-    const componentInstance = instantiateFeactComponent(element);
-    componentInstance.mountComponent(container);
+	const wrapperElement =
+		Feact.createElement(TopLevelWrapper, element);
 
-    return componentInstance;
+	const componentInstance =
+		new FeactCompositeComponentWrapper(wrapperElement);
+
+	return FeactReconciler.mountComponent(
+		componentInstance,
+		container
+	);
 }
 
 function getTopLevelComponentInContainer(container) {
@@ -73,7 +79,7 @@ function updateRootComponent(prevComponent, nextElement) {
 }
 ```
 
-This is looking pretty promising. If we rendered before, then take the state of the previous render, grab the new desired state, and pass that off to a function that will figure out what DOM updates need to happen to update the app. Otherwise if there's no signs of a previous render, then render into the DOM exactly how we did in part one.
+This is looking pretty promising. If we rendered before, then take the state of the previous render, grab the new desired state, and pass that off to a function that will figure out what DOM updates need to happen to update the app. Otherwise if there's no signs of a previous render, then render into the DOM exactly how we did in part one and two.
 
 We just need to figure out the two missing pieces.
 
@@ -83,12 +89,19 @@ For each render, We need to store the components we created, so we can refer to 
 
 ```javascript
 function renderNewRootComponent(element, container) {
-    const componentInstance = instantiateFeactComponent(element);
-    componentInstance.mountComponent(container);
+	const wrapperElement =
+		Feact.createElement(TopLevelWrapper, element);
 
+	const componentInstance =
+		new FeactCompositeComponentWrapper(wrapperElement);
+
+	// new line here, store the component instance on the container
     container.__feactComponentInstance = componentInstance;
 
-    return componentInstance;
+	return FeactReconciler.mountComponent(
+		componentInstance,
+		container
+	);
 }
 ```
 
@@ -102,7 +115,7 @@ function getTopLevelComponentInContainer(container) {
 
 ## Updating to the new state
 
-Remember, this is the simple example we are working through
+This is the simple example we are working through
 
 ```javascript
 React.render(<h1>hello</h1>, root);
@@ -131,7 +144,7 @@ function updateRootComponent(prevComponent, nextElement) {
 }
 ```
 
-There is an important thing happening here, a new component is not getting created. `prevComponent` is the component that got created during the first render, and now it's going to take a new element and update itself with it.
+Notice a new component is not getting created. `prevComponent` is the component that got created during the first render, and now it's going to take a new element and update itself with it. Components get created once at mount, and live on until unmount (which, does make sense...)
 
 ```javascript
 FeactDOMComponent = {
@@ -155,6 +168,7 @@ FeactDOMComponent = {
 
     _updateDOMChildren(lastProps, nextProps) {
         // finally, the component can update the DOM here
+		// we'll implement this next
     }
 };
 ```
@@ -215,3 +229,130 @@ setTimeout(function() {
 ```
 
 Updating composite components is much more interesting and where a lot of the power in React lies. The good news is, a composite component will ultimately boil down to a `FeactDOMComponent`, so all the work we did above won't go to waste.
+
+Even more good news, `updateRootComponent` has no idea what kind of component it received. It just blindly calls `receiveComponent` on it. So all we need to do is add `receiveComponent` to `FeactCompositeComponentWrapper` and we're good!
+
+```javascript
+class FeactCompositeComponentWrapper {
+	...
+	receiveComponent(nextElement) {
+		const prevElement = this._currentElement;
+		this.updateComponent(prevElement, nextElement);
+	}
+
+	updateComponent(prevElement, nextElement) {
+		const nextProps = nextElement.props;
+		
+		this._performComponentUpdate(nextElement, nextProps);
+	}
+
+	_performComponentUpdate(nextElement, nextProps) {
+		this._currentElement = nextElement;
+		const inst = this._instance;
+
+		inst.props = nextProps;
+
+		this._updateRenderedComponent();
+	},
+
+	_updateRenderedComponent() {
+		const prevComponentInstance = this._renderedComponent;
+		const inst = this._instance;
+		const nextRenderedElement = inst.render();
+
+		prevComponentInstance.receiveComponent(nextRenderedElement);
+	}
+}
+```
+
+The update is split across four methods because that is how React does it. Granted, React needs the breakdown a lot more, because each of its methods is doing a lot more.
+
+Ultimately the update boils down to calling `render` with the current set of props. Take the resulting element and passing it on to the `_renderedComponent`, and telling it to update. `_renderedComponent` could be another `FeactCompositeComponentWrapper`, or possibly a `FeactDOMComponent`, it was created during the first render.
+
+## Let's use FeactReconciler again
+
+Mounting components always goes through `FeactReconciler`, so updating them should to.
+
+```javascript
+const FeactReconciler = {
+	...
+	receiveComponent(internalInstance, nextElement) {
+		internalInstance.receiveComponent(nextElement);
+	}
+};
+
+
+function updateRootComponent(prevComponent, nextElement) {
+	FeactReconciler.receiveComponent(prevComponent, nextElement);
+}
+
+class FeactCompositeComponentWrapper {
+	...
+	_updateRenderedComponent() {
+		const prevComponentInstance = this._renderedComponent;
+		const inst = this._instance;
+		const nextRenderedElement = inst.render();
+
+		FeactReconciler.receiveComponent(prevComponentInstance, nextRenderedElement);
+	}
+```
+
+## shouldComponentUpdate and componentWillReceiveProps
+
+We can now easily add these two lifecycle methods into Feact.
+
+### shouldComponentUpdate
+
+We need to call this before updating, and bail if it returns false
+
+```javascript
+class FeactCompositeComponentWrapper {
+	...
+	updateComponent(prevElement, nextElement) {
+        const lastProps = prevElement.props;
+		const nextProps = nextElement.props;
+        const inst = this._instance;
+
+        let shouldUpdate = true;
+
+        if (inst.shouldComponentUpdate) {
+            shouldUpdate = inst.shouldComponentUpdate(lastProps, nextProps);
+        }
+               
+        if (shouldUpdate) {
+            this._performComponentUpdate(nextElement, nextProps);
+        }
+	}
+    ...
+}
+```
+
+### componentWillReceiveProps
+
+Just before updating, let's let the instance know about its new props
+
+```javascript
+class FeactCompositeComponentWrapper {
+    ...
+	_performComponentUpdate(nextElement, nextProps) {
+		this._currentElement = nextElement;
+		const inst = this._instance;
+
+        if (inst.componentWillReceiveProps) {
+            inst.componentWillReceiveProps(nextProps);
+        }
+
+		inst.props = nextProps;
+
+		this._updateRenderedComponent();
+	},
+```
+
+## Conclusion
+
+And with that, Feact is able to update components, albeit only through `Feact.render()`. That's not too practical, but we'll improve things (and learn even more) next time when we explore `setState()`.
+
+To wrap things up, here is a fiddle encompassing all that we've done so far
+
+<a class="fiddle" href="">fiddle</a>
+

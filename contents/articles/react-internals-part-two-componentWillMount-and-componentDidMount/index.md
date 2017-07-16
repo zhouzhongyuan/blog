@@ -135,14 +135,14 @@ This is a fair amount of new code, but the basic idea is to move mounting out in
 ```javascript
 const Feact = {
     ...
-    render(container) {
+    render(element, container) {
         const wrapperElement =
             this.createElement(TopLevelWrapper, element);
 
-      	const componentInstance =
+        const componentInstance =
             new FeactCompositeComponentWrapper(wrapperElement);
 
-      	return FeactReconciler.mountComponent(
+        return FeactReconciler.mountComponent(
             componentInstance,
             container
         );
