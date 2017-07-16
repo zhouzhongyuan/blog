@@ -33,7 +33,7 @@ These are exactly what they sound like, the actual DOM elements that the browser
 
 ### virtual React elements
 
-A virtual React element (typically just called an "element" in the source code), is an in memory representation of what you'd like a given DOM element to be for a particular render. This explanation is overly simple as React elements can also represent a complex component, and they can also represent more primtive DOM nodes such as text nodes. 
+A virtual React element (just called an "element" in the source code), is an in memory representation of what you'd like a given DOM element (or entire tree of elements) to be for a particular render. An element can either directly represent a DOM element such as `h1`, `div`, etc. Or it can represent a user defined composite component, which is explained below.
 
 ### Components
   
@@ -85,7 +85,7 @@ Let's pretend we want to create this tiny Feact app:
 Feact.render(<h1>hello world</h1>, document.getElementById('root'));
 ```
 
-For starters, let's ditch the JSX. If we told JSX about `Feact.createElement`, we'd get this after compiling:
+For starters, let's ditch the JSX. Assuming Feact was fully implemented, after running the JSX through the compiler we'd end up with
 
 ```javascript
 Feact.render(
@@ -94,7 +94,7 @@ Feact.render(
 );
 ```
 
-JSX is a large topic on its own and a bit of a distraction. So from here on out, we will use `Feact.createElement` instead of JSX, so let's go ahead and implement it:
+JSX is a large topic on its own and a bit of a distraction. So from here on out, we will use `Feact.createElement` instead of JSX, so let's go ahead and implement it
 
 ```javascript
 const Feact = {
@@ -117,7 +117,7 @@ Elements are just simple objects representing something we want rendered.
 
 ### What should Feact.render() do?
 
-Our call to `Feact.render()` passes in what we want rendered and where it should go. This is the starting point of any Feact app. For our first attempt, let's define `render()` to look something like this:
+Our call to `Feact.render()` passes in what we want rendered and where it should go. This is the starting point of any Feact app. For our first attempt, let's define `render()` to look something like this
 
 
 ```javascript
@@ -135,12 +135,13 @@ When `render()` finishes, we have a finished webpage. So based on that, we know 
 ```javascript
 class FeactDOMComponent {
     constructor(element) {
-        this._element = element;
+        this._currentElement = element;
     }
 
     mountComponent(container) {
-        const domElement = document.createElement(this._element.type);
-        const text = this._element.props.children;
+        const domElement =
+            document.createElement(this._currentElement.type);
+        const text = this.__currentElement.props.children;
         const textNode = document.createTextNode(text);
         domElement.appendChild(textNode);
 
@@ -153,12 +154,12 @@ class FeactDOMComponent {
 ```
 
 <div class="callout wisdom">
-`mountComponent` stores the DOM element it creates in `this._hostNode`. We don't need that in part one, but we will in part two.
+`mountComponent` stores the DOM element it creates in `this._hostNode`. We don't need that in part one, but we will in part three.
 </div>
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/ohmzvb4o/8">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/ohmzvb4o/9">fiddle</a>
 
-In about 20 lines of pretty crappy code we've got an incredibly limited and pathetic little "React clone"! Feact isn't going to take over the world, but it's serving as a great learning sandbox.
+In about 20 lines of pretty crappy code we've got an incredibly limited and pathetic little "React clone"! Feact isn't going to take over the world, but it's serving as a nice learning sandbox.
 
 ## Adding user defined components
 
@@ -187,14 +188,14 @@ const Feact = {
     }
 };
 
-const MyH1 = Feact.createClass({
+const MyTitle = Feact.createClass({
     render() {
         return Feact.createElement('h1', null, this.props.message);
     }
 };
 
 Feact.render({
-    Feact.createElement(MyH1, { message: 'hey there Feact' }),
+    Feact.createElement(MyTitle, { message: 'hey there Feact' }),
     document.getElementById('root')
 );
 ```
@@ -202,12 +203,12 @@ Remember, we're not dealing with JSX for this blog post series, because we've go
 
 ```javascript
 Feact.render(
-    <MyH1 message="hey there Feact" />,
+    <MyTitle message="hey there Feact" />,
     document.getElementById('root')
 );
 ```
 
-Woah. we passed the component class into `createElement`. An element can either represent a primitive DOM element, or it can represent a composite component. The distinction is easy, if `type` is a string, the element is a native primitive. If it is a function, the element represents a composite component.
+We passed the component class into `createElement`. An element can either represent a primitive DOM element, or it can represent a composite component. The distinction is easy, if `type` is a string, the element is a native primitive. If it is a function, the element represents a composite component.
 
 
 ### Improving Feact.render()
@@ -242,6 +243,10 @@ class FeactCompositeComponentWrapper {
 
 By giving users the ability to define their own components, Feact can now create dynamic DOM nodes that can change depending on the value of the props. There's a lot going on in this upgrade to Feact, but if you trace through it, it's not too bad. You can see where we call `componentInstance.render()`, to get our hands on an element that we can then pass into FeactDOMComponent.
 
+<div class="callout pitfall">
+Notice how `FeactCompositeComponentWrapper` is directly creating a `FeactDOMComponent`? That's a tight coupling which isn't so great. We'll fix this later. If React was this tightly coupled, it'd only ever be able to build web apps. Keeping `ReactCompositeComponentWrapper` in the dark about other component types surely made building React Native easier.
+</div>
+
 ### An improvement for composite components
 Currently our composite components must return elements that represent primitive DOM nodes, we can't return other composite component elements. Let's fix that. We want to be able to do this
 
@@ -249,7 +254,7 @@ Currently our composite components must return elements that represent primitive
 const MyMessage = Feact.createClass({
     render() {
         if (this.props.asTitle) {
-            return Feact.createElement(MyH1, {
+            return Feact.createElement(MyTitle, {
                 message: this.props.message
             });
         } else {
@@ -259,7 +264,8 @@ const MyMessage = Feact.createClass({
 }
 ```
 
-This composite component's render() is either going to return a primitive element or a component element. Currently Feact can't handle this, if `asTitle` was true, FeactCompositeComponentWrapper would give FeactDOMComponent a non-native element, and FeactDOMComponent would blow up. Let's fix FeactCompositeComponentWrapper:
+This composite component's render() is either going to return a primitive element or a composite component element. Currently Feact can't handle this, if `asTitle` was true, `FeactCompositeComponentWrapper` would give `FeactDOMComponent` a non-native element, and `FeactDOMComponent` would blow up. Let's fix `FeactCompositeComponentWrapper`
+
 
 ```javascript
 class FeactCompositeComponentWrapper {
@@ -283,7 +289,7 @@ class FeactCompositeComponentWrapper {
 ```
 
 <div class="callout pitfall">
-Heads up, `mountComponent` is taking a shortcut. Notice how it recursively calls `render` until it gets down to a primitive element? That's not good enough, because those subcomponents need to participate in the entire lifecycle. For example, if we had support for `componentWillMount`, those subcomponents would never get their's called. We'll fix this later.
+Heads up, this "fix" is a short cut that's just good enough to meet our current needs. Notice how it recursively calls `render` until it gets down to a primitive element? That's not good enough, because those subcomponents need to participate in the entire lifecycle. For example, if we had support for `componentWillMount`, those subcomponents would never get their's called. We'll fix this later.
 </div>
 
 
@@ -292,34 +298,37 @@ Heads up, `mountComponent` is taking a shortcut. Notice how it recursively calls
 The first version of `Feact.render()` could only handle primitive elements. Now it can only handle composite elements. It needs to be able to handle both. We could write a "factory" function that will create a component for us based on the element's type, but there's another approach that React took. Since `FeactCompositeComponentWrapper` components ultimately result in a `FeactDOMComponent`, let's just take whatever element we were given and wrap it in such a way that we can just use a `FeactCompositeComponentWrapper`
 
 ```javascript
-    const TopLevelWrapper = function(props) {
-        this.props = props;
-    };
+const TopLevelWrapper = function(props) {
+    this.props = props;
+};
 
-    TopLevelWrapper.prototype.render = function() {
-        return this.props;
-    };
+TopLevelWrapper.prototype.render = function() {
+    return this.props;
+};
 
-    const Feact = {
-        render(element, container) {
-            const wrapperElement =
-                this.createElement(TopLevelWrapper, element);
-            const componentInstance =
-                new FeactCompositeComponentWrapper(wrapperElement);
+const Feact = {
+    render(element, container) {
+        const wrapperElement =
+            this.createElement(TopLevelWrapper, element);
 
-            // as before
-        }
-    };
+        const componentInstance =
+            new FeactCompositeComponentWrapper(wrapperElement);
+
+        // as before
+    }
+};
 ```
 
-`ToplevelWrapper` is basically a user defined composite component. For example, it could have been defined by calling `Feact.createClass()`, but it doesn't need to do very much,
-so no need to go that far. Its `render` method just returns the user provided element. Since TopLevelWrapper will get wrapped in a `FeactCompositeComponentWrapper`, we don't care what type the user provided element was, `FeactCompositeComponentWrapper` will do the right thing regardless.
+`ToplevelWrapper` is basically a simple composite component. For example, it could have been defined by calling `Feact.createClass()`. Its `render` method just returns the user provided element. Since TopLevelWrapper will get wrapped in a `FeactCompositeComponentWrapper`, we don't care what type the user provided element was, `FeactCompositeComponentWrapper` will do the right thing regardless.
 
 
 ## Conclusion to part one
 
-With that, Feact can render simple components. As far as basic rendering is concerned, we've hit most of the major considerations. In real React, rendering is much more complicated as there are many other things to consider.
+With that, Feact can render simple components. As far as basic rendering is concerned, we've hit most of the major considerations. In real React, rendering is much more complicated as there are many other things to consider such as events, focus, scroll position of the window, performance, and much more.
 
 Here's a final fiddle that wraps up all we've built so far:
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/14">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/15">fiddle</a>
+
+[on to part two!](/articles/react-internals-part-two-componentWillMount-and-componentDidMount)
+

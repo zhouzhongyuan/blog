@@ -355,6 +355,53 @@ class FeactCompositeComponentWrapper {
 }
 ```
 
+## A Major Hole
+
+There's a big problem with Feact's updating that we won't be addressing. It's making the assumption that when the update happens, it can keep using the same type of component.
+
+In other words, Feact can handle this just fine
+
+```javascript
+Feact.render(
+    Feact.createElement(MyCoolComponent, { myProp: 'hi' }),
+    root
+);
+
+// some time passes
+
+Feact.render(
+    Feact.createElement(MyCoolComponent, { myProp: 'hi again' }),
+    root
+);
+```
+
+but it can't handle this
+
+```javascript
+Feact.render(
+    Feact.createElement(MyCoolComponent, { myProp: 'hi' }),
+    root
+);
+
+// some time passes
+
+Feact.render(
+    Feact.createElement(SomeOtherComponent, { someOtherProp: 'hmmm' }),
+    root
+);
+```
+
+In this case, the update swapped in a completely different component class. Feact will just merrily grab the previous component, which would be a `MyCoolComponent`, and tell it to update with the new props `{ someOtherProp: 'hmmm'}`. What it should have done is notice the component type changed, and instead of updating, unmounted `MyCoolComponent` and mounted `SomeOtherComponent`.
+
+In order to do this, Feact would need:
+
+* some ability to unmount a component
+* notice the type change and head over to `FeactReconciler.mountComponent` instead of `FeactComponent.receiveComponent`. When it does this, it creates a new component instance, and stores that new instance in `_renderedComponent`.
+
+<div class="callout wisdom">
+In React, if you render again with the same component type, it will get updated. You don't actually need to specify a `key` for your element to update in most cases. Keys are only necessary when a component is dealing with a collection of children. In this case, React will warn you if you forget your keys. It's best to heed the warning, because without the key React is not updating, but completely unmounting and mounting again!
+</div>
+
 ## Conclusion
 
 And with that, Feact is able to update components, albeit only through `Feact.render()`. That's not too practical, but we'll improve things (and learn even more) next time when we explore `setState()`.
