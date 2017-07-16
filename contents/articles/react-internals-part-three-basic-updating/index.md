@@ -1,8 +1,9 @@
 ---
 title: "React Internals, Part Three: basic updating"
 author: Matt
-date: 2017-07-15
+date: 2017-07-16
 template: article.jade
+inProgress: "true"
 ---
 
 In [part one](/articles/react-internals-part-one-basic-rendering), our small React clone, Feact, was implemented far enough to do basic rendering. But once the render happens, that was it. In this part, we'll add the ability to make changes to the app with subsequent renders. This part will begin to show how the virtual DOM diffing works.

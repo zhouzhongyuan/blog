@@ -4,7 +4,7 @@ author: Matt
 date: 2017-07-15
 template: article.jade
 ---
-In this four part series, we will "recreate" React from the ground up, learning how it works along the way. Once we've finished, you should have a good grasp of how React works, and when and why it calls the various lifecycle methods of a component.
+In this five part series, we will "recreate" React from the ground up, learning how it works along the way. Once we've finished, you should have a good grasp of how React works, and when and why it calls the various lifecycle methods of a component.
 
 <span class="more"></span>
 
