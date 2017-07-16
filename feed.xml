@@ -272,7 +272,6 @@ setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&q
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
     ...
     updateComponent(prevElement, nextElement) {
-        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; lastProps = prevElement.props;
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextProps = nextElement.props;
         &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
 
