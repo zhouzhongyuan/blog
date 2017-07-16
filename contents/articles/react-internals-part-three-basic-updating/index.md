@@ -104,7 +104,8 @@ function renderNewRootComponent(element, container) {
 	// new line here, store the component instance on the container
     // we want its _renderedComponent because componentInstance is just
     // the TopLevelWrapper, which we don't need for updates
-    container.__feactComponentInstance = componentInstance._renderedComponent;
+    container.__feactComponentInstance =
+        componentInstance._renderedComponent;
 
     return markUp;
 }
@@ -123,14 +124,20 @@ function getTopLevelComponentInContainer(container) {
 This is the simple example we are working through
 
 ```javascript
-React.render(<h1>hello</h1>, root);
+Feact.render(
+    Feact.createElement('h1', null, 'hello'),
+    root
+);
 
 setTimeout(function() {
-    React.render(<h1>hello again</h1>, root);
+    Feact.render(
+        Feact.createElement('h1', null, 'hello again'),
+        root
+    );
 }, 2000);
 ```
 
-2 seconds has elapsed, so we are now calling `render()` again, but this time with an element that looks like
+2 seconds has elapsed, so we are now calling `Feact.render()` again, but this time with an element that looks like
 
 ```javascript
 {
@@ -165,6 +172,8 @@ class FeactDOMComponent {
 
         this._updateDOMProperties(lastProps, nextProps);
         this._updateDOMChildren(lastProps, nextProps);
+
+        this._currentElement = nextElement;
     }
 
     _updateDOMProperties(lastProps, nextProps) {
@@ -270,9 +279,9 @@ class FeactCompositeComponentWrapper {
 }
 ```
 
-The update is split across four methods because that is how React does it. Granted, React needs the breakdown a lot more, because each of its methods is doing a lot more.
+It's a little silly to spread such little logic across four methods, but it will make more sense as we progress. These four methods are also what is found in React's `ReactCompositeComponentWrapper`.
 
-Ultimately the update boils down to calling `render` with the current set of props. Take the resulting element and passing it on to the `_renderedComponent`, and telling it to update. `_renderedComponent` could be another `FeactCompositeComponentWrapper`, or possibly a `FeactDOMComponent`, it was created during the first render.
+Ultimately the update boils down to calling `render` with the current set of props. Take the resulting element and passing it on to the `_renderedComponent`, and telling it to update. `_renderedComponent` could be another `FeactCompositeComponentWrapper`, or possibly a `FeactDOMComponent`. It was created during the first render.
 
 ## Let's use FeactReconciler again
 
@@ -298,7 +307,8 @@ class FeactCompositeComponentWrapper {
 		const inst = this._instance;
 		const nextRenderedElement = inst.render();
 
-		FeactReconciler.receiveComponent(prevComponentInstance, nextRenderedElement);
+		FeactReconciler.receiveComponent(
+            prevComponentInstance, nextRenderedElement);
 	}
 ```
 
@@ -321,7 +331,8 @@ class FeactCompositeComponentWrapper {
         let shouldUpdate = true;
 
         if (inst.shouldComponentUpdate) {
-            shouldUpdate = inst.shouldComponentUpdate(lastProps, nextProps);
+            shouldUpdate =
+                inst.shouldComponentUpdate(lastProps, nextProps);
         }
                
         if (shouldUpdate) {
@@ -391,7 +402,7 @@ Feact.render(
 );
 ```
 
-In this case, the update swapped in a completely different component class. Feact will just merrily grab the previous component, which would be a `MyCoolComponent`, and tell it to update with the new props `{ someOtherProp: 'hmmm'}`. What it should have done is notice the component type changed, and instead of updating, unmounted `MyCoolComponent` and mounted `SomeOtherComponent`.
+In this case, the update swapped in a completely different component class. Feact will just naively grab the previous component, which would be a `MyCoolComponent`, and tell it to update with the new props `{ someOtherProp: 'hmmm'}`. What it should have done is notice the component type changed, and instead of updating, unmounted `MyCoolComponent` and mounted `SomeOtherComponent`.
 
 In order to do this, Feact would need:
 
@@ -409,4 +420,6 @@ And with that, Feact is able to update components, albeit only through `Feact.re
 To wrap things up, here is a fiddle encompassing all that we've done so far
 
 <a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/9t9xavqL/2/">fiddle</a>
+
+Stay tuned for part four, coming soon!
 
