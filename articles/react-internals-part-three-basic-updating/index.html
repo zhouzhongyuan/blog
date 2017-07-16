@@ -197,9 +197,8 @@ setTimeout(<span class="function"><span class="keyword">function</span>(<span cl
         }
     }
 
-    updateTextContent(content) {
+    updateTextContent(text) {
         <span class="keyword">const</span> node = <span class="keyword">this</span>._hostNode;
-        node.textContent = content;
 
         <span class="keyword">const</span> firstChild = node.firstChild;
 
@@ -223,7 +222,7 @@ setTimeout(<span class="function"><span class="keyword">function</span>(<span cl
 
 setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
     Feact.render(
-        Feact.createElement(MyCoolComponent,. { <span class="attr">myProp</span>: <span class="string">'hello again'</span> }),
+        Feact.createElement(MyCoolComponent, { <span class="attr">myProp</span>: <span class="string">'hello again'</span> }),
         <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)
     );
 }, <span class="number">2000</span>);
@@ -364,16 +363,16 @@ Feact.render(
 <p>In order to do this, Feact would need:</p>
 <ul>
 <li>some ability to unmount a component</li>
-<li>notice the type change and head over to <code>FeactReconciler.mountComponent</code> instead of <code>FeactComponent.receiveComponent</code>. When it does this, it creates a new component instance, and stores that new instance in <code>_renderedComponent</code>.</li>
+<li>notice the type change and head over to <code>FeactReconciler.mountComponent</code> instead of <code>FeactComponent.receiveComponent</code></li>
 </ul>
 <div class="callout wisdom">
 In React, if you render again with the same component type, it will get updated. You don’t actually need to specify a <code>key</code> for your element to update in most cases. Keys are only necessary when a component is dealing with a collection of children. In this case, React will warn you if you forget your keys. It’s best to heed the warning, because without the key React is not updating, but completely unmounting and mounting again!
 </div>
 
-<h2 id="did-you-see-the-virtual-dom-">Did you see the virtual DOM?</h2>
+<h2 id="did-you-spot-the-virtual-dom-">Did you spot the virtual DOM?</h2>
 <p>When React first came out, a lot of the hype was around the “virtual DOM”. But the virtual DOM isn’t really a concrete thing. It is more a concept that all of React (and Feact) accomplish together. There isn’t anything inside React called <code>VirtualDOM</code> or anything like that. Instead <code>prevElement</code> and <code>nextElement</code> together capture the diff from render to render, and <code>FeactDOMComponent</code> applies the diff into the actual DOM.</p>
 <h2 id="conclusion">Conclusion</h2>
-<p>And with that, Feact is able to update components, albeit only through <code>Feact.render()</code>. That’s not too practical, but we’ll improve things (and learn even more) next time when we explore <code>setState()</code>.</p>
+<p>And with that, Feact is able to update components, albeit only through <code>Feact.render()</code>. That’s not too practical, but we’ll improve things next time when we explore <code>setState()</code>.</p>
 <p>To wrap things up, here is a fiddle encompassing all that we’ve done so far</p>
 <p><a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/9t9xavqL/2/">fiddle</a></p>
 <p>Stay tuned for part four, coming soon!</p>

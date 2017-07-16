@@ -126,7 +126,7 @@ The truth is the components we create are incomplete. React will take our compon
     mountComponent(container) {
         <span class="keyword">const</span> domElement =
             <span class="built_in">document</span>.createElement(<span class="keyword">this</span>._currentElement.type);
-        <span class="keyword">const</span> text = <span class="keyword">this</span>.__currentElement.props.children;
+        <span class="keyword">const</span> text = <span class="keyword">this</span>._currentElement.props.children;
         <span class="keyword">const</span> textNode = <span class="built_in">document</span>.createTextNode(text);
         domElement.appendChild(textNode);
 
@@ -198,12 +198,12 @@ Feact.render({
 
 <span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
     <span class="keyword">constructor</span>(element) {
-        <span class="keyword">this</span>._element = element;
+        <span class="keyword">this</span>._currentElement = element;
     }
 
     mountComponent(container) {
-        <span class="keyword">const</span> Component = <span class="keyword">this</span>._element.type;
-        <span class="keyword">const</span> componentInstance = <span class="keyword">new</span> Component(<span class="keyword">this</span>._element.props);
+        <span class="keyword">const</span> Component = <span class="keyword">this</span>._currentElement.type;
+        <span class="keyword">const</span> componentInstance = <span class="keyword">new</span> Component(<span class="keyword">this</span>._currentElement.props);
         <span class="keyword">const</span> element = componentInstance.render();
 
         <span class="keyword">const</span> domComponentInstance = <span class="keyword">new</span> FeactDOMComponent(element);
@@ -233,12 +233,13 @@ Notice how <code>FeactCompositeComponentWrapper</code> is directly creating a <c
 <p>This composite component’s render() is either going to return a primitive element or a composite component element. Currently Feact can’t handle this, if <code>asTitle</code> was true, <code>FeactCompositeComponentWrapper</code> would give <code>FeactDOMComponent</code> a non-native element, and <code>FeactDOMComponent</code> would blow up. Let’s fix <code>FeactCompositeComponentWrapper</code></p>
 <pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
     <span class="keyword">constructor</span>(element) {
-        <span class="keyword">this</span>._element = element;
+        <span class="keyword">this</span>._currentElement = element;
     }
 
     mountComponent(container) {
-        <span class="keyword">const</span> Component = <span class="keyword">this</span>._element.type;
-        <span class="keyword">const</span> componentInstance = <span class="keyword">new</span> Component(<span class="keyword">this</span>._element.props);
+        <span class="keyword">const</span> Component = <span class="keyword">this</span>._currentElement.type;
+        <span class="keyword">const</span> componentInstance =
+            <span class="keyword">new</span> Component(<span class="keyword">this</span>._currentElement.props);
         <span class="keyword">let</span> element = componentInstance.render();
 
         <span class="keyword">while</span> (<span class="keyword">typeof</span> element.type === <span class="string">'function'</span>) {
