@@ -331,7 +331,7 @@ class FeactCompositeComponentWrapper {
 
         if (inst.shouldComponentUpdate) {
             shouldUpdate =
-                inst.shouldComponentUpdate(lastProps, nextProps);
+                inst.shouldComponentUpdate(nextProps);
         }
                
         if (shouldUpdate) {
