@@ -21,7 +21,7 @@ In this five part series, we will "recreate" React from the ground up, learning 
 
 ## disclaimer
 
-This series is based on React 15.3, in particular using ReactDOM and the stack reconciler. The fancy new fiber reconciler is out of scope here. The React clone we are going to build, Feact, will not even come close to implementing all of React. But Feact's source code will mirror React's as much as possible.
+This series is based on React 15.3, in particular using ReactDOM and the stack reconciler. The fancy new fiber reconciler is out of scope here. The React clone we are going to build will not even come close to implementing all of React. But Feact's source code will mirror React's as much as possible.
   
 ## Some Background: Elements and Components
 
@@ -290,7 +290,7 @@ class FeactCompositeComponentWrapper {
 ```
 
 <div class="callout pitfall">
-Heads up, this "fix" is a short cut that's just good enough to meet our current needs. Notice how it recursively calls `render` until it gets down to a primitive element? That's not good enough, because those subcomponents need to participate in the entire lifecycle. For example, if we had support for `componentWillMount`, those subcomponents would never get their's called. We'll fix this later.
+Heads up, this "fix" is a short cut that's just good enough to meet our current needs. Notice how it repeatedly calls `render` until it gets down to a primitive element? That's not good enough, because those subcomponents need to participate in the entire lifecycle. For example, if we had support for `componentWillMount`, those subcomponents would never get their's called. We'll fix this later.
 </div>
 
 
