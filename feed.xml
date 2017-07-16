@@ -33,7 +33,7 @@ setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&q
     React.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;hello again&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;, root);
 }, &lt;span class=&quot;number&quot;&gt;2000&lt;/span&gt;);
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;We’ll ignore &lt;code&gt;setState()&lt;/code&gt; for now (that’s coming in part four) and instead implement updates through &lt;code&gt;Feact.render()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;We’ll ignore &lt;code&gt;setState()&lt;/code&gt; for now (that’s coming in part four) and instead implement updates through &lt;code&gt;Feact.render()&lt;/code&gt;. Truth be told, this is simply “props have changed so update”, which also happens if you render again and pass different props down to a child component. We just happen to be causing the props change through &lt;code&gt;Feact.render()&lt;/code&gt;.&lt;/p&gt;
 &lt;h2 id=&quot;doing-the-update&quot;&gt;Doing the update&lt;/h2&gt;
 &lt;p&gt;The concept is pretty simple, &lt;code&gt;Feact.render()&lt;/code&gt; just needs to check if it has rendered before, and if so, update the page instead of starting fresh.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
