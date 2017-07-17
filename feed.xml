@@ -162,7 +162,7 @@ setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&q
 };
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;code&gt;receiveComponent&lt;/code&gt; just sets up updateComponent, which ultimately calls &lt;code&gt;_updateDOMProperties&lt;/code&gt; and &lt;code&gt;_updateDOMChildren&lt;/code&gt; which are the meaty functions which will finally cause the actual DOM to get updated. &lt;code&gt;_updateDOMProperties&lt;/code&gt; is mostly concerned with updating CSS styles. We’re not going to implement it in this blog post series, but just pointing it out as that is the method React uses to deal with style changes.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;_updateDOMChildren&lt;/code&gt; in React can handle complex trees of children, but in &lt;code&gt;Feact&lt;/code&gt; the children is just the contents of the DOM element, in this case the children will go from &lt;code&gt;&amp;quot;hello&amp;quot;&lt;/code&gt; to &lt;code&gt;&amp;quot;hello again&amp;quot;&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;_updateDOMChildren&lt;/code&gt; in React this method is pretty complex, handling a lot of different scenarios. But in &lt;code&gt;Feact&lt;/code&gt; the children is just the text contents of the DOM element, in this case the children will go from &lt;code&gt;&amp;quot;hello&amp;quot;&lt;/code&gt; to &lt;code&gt;&amp;quot;hello again&amp;quot;&lt;/code&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactDOMComponent&lt;/span&gt; &lt;/span&gt;{
     ...
     _updateDOMChildren(lastProps, nextProps) {
@@ -191,7 +191,7 @@ setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&q
     }
 };
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;code&gt;Feact&lt;/code&gt;‘s version of &lt;code&gt;_updateDOMChildren&lt;/code&gt; is hopelessly stupid, it can only handle text content. Obviously there’s many more ways to update a DOM node, but this is all we need for our learning purposes. &lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Feact&lt;/code&gt;‘s version of &lt;code&gt;_updateDOMChildren&lt;/code&gt; is hopelessly stupid, but this is all we need for our learning purposes. &lt;/p&gt;
 &lt;h2 id=&quot;updating-composite-components&quot;&gt;Updating composite components&lt;/h2&gt;
 &lt;p&gt;The work we did above was fine and all, but we can only update &lt;code&gt;FeactDOMComponent&lt;/code&gt;s. In other words, this won’t work&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;Feact.render(

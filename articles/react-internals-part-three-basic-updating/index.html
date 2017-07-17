@@ -182,7 +182,7 @@ setTimeout(<span class="function"><span class="keyword">function</span>(<span cl
 };
 </code></pre>
 <p><code>receiveComponent</code> just sets up updateComponent, which ultimately calls <code>_updateDOMProperties</code> and <code>_updateDOMChildren</code> which are the meaty functions which will finally cause the actual DOM to get updated. <code>_updateDOMProperties</code> is mostly concerned with updating CSS styles. We’re not going to implement it in this blog post series, but just pointing it out as that is the method React uses to deal with style changes.</p>
-<p><code>_updateDOMChildren</code> in React can handle complex trees of children, but in <code>Feact</code> the children is just the contents of the DOM element, in this case the children will go from <code>&quot;hello&quot;</code> to <code>&quot;hello again&quot;</code></p>
+<p><code>_updateDOMChildren</code> in React this method is pretty complex, handling a lot of different scenarios. But in <code>Feact</code> the children is just the text contents of the DOM element, in this case the children will go from <code>&quot;hello&quot;</code> to <code>&quot;hello again&quot;</code></p>
 <pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactDOMComponent</span> </span>{
     ...
     _updateDOMChildren(lastProps, nextProps) {
@@ -211,7 +211,7 @@ setTimeout(<span class="function"><span class="keyword">function</span>(<span cl
     }
 };
 </code></pre>
-<p><code>Feact</code>‘s version of <code>_updateDOMChildren</code> is hopelessly stupid, it can only handle text content. Obviously there’s many more ways to update a DOM node, but this is all we need for our learning purposes. </p>
+<p><code>Feact</code>‘s version of <code>_updateDOMChildren</code> is hopelessly stupid, but this is all we need for our learning purposes. </p>
 <h2 id="updating-composite-components">Updating composite components</h2>
 <p>The work we did above was fine and all, but we can only update <code>FeactDOMComponent</code>s. In other words, this won’t work</p>
 <pre><code class="lang-javascript">Feact.render(
