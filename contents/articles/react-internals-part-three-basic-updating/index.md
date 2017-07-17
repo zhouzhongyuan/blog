@@ -188,7 +188,7 @@ class FeactDOMComponent {
 
 `receiveComponent` just sets up updateComponent, which ultimately calls `_updateDOMProperties` and `_updateDOMChildren` which are the meaty functions which will finally cause the actual DOM to get updated. `_updateDOMProperties` is mostly concerned with updating CSS styles. We're not going to implement it in this blog post series, but just pointing it out as that is the method React uses to deal with style changes.
 
-`_updateDOMChildren` in React can handle complex trees of children, but in `Feact` the children is just the contents of the DOM element, in this case the children will go from `"hello"` to `"hello again"`
+`_updateDOMChildren` in React this method is pretty complex, handling a lot of different scenarios. But in `Feact` the children is just the text contents of the DOM element, in this case the children will go from `"hello"` to `"hello again"`
 
 ```javascript
 class FeactDOMComponent {
@@ -220,7 +220,7 @@ class FeactDOMComponent {
 };
 ```
 
-`Feact`'s version of `_updateDOMChildren` is hopelessly stupid, it can only handle text content. Obviously there's many more ways to update a DOM node, but this is all we need for our learning purposes. 
+`Feact`'s version of `_updateDOMChildren` is hopelessly stupid, but this is all we need for our learning purposes. 
 
 ## Updating composite components
 
