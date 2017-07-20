@@ -1,7 +1,7 @@
 ---
 things:
 - name: pxtobrx
-  url: http://pxtobrx.com
+  url: http://city41.github.io/pxtobrx/
   github: https://github.com/city41/pxtobrx
   thumbnail: /media/img/stuff/pxtobrx.png
   description: A little React webapp that takes your video game sprites and shows you how to build them out of LEGO.
@@ -27,7 +27,7 @@ things:
     <p>Breakouts got its start by being the basis for a <a href=\"http://buildnewgames.com/game-engine-comparison/\">game engine comparison article</a> that I wrote for <a href=\"http://buildnewgames.com\">buildnewgames.com</a></p>"
 
 - name: L7 and my engagement website
-  url: http://yaysarahandmatt.org
+  url: http://city41.github.io/L7/
   thumbnail: /media/img/stuff/yay.png
   github: https://github.com/city41/l7
   description:
@@ -39,9 +39,5 @@ things:
   thumbnail: /media/img/stuff/particle-systems.png
   description: Another article I wrote for <a href="http://buildnewgames.com">buildnewgames.com</a>. This one goes into details of how to create particle systems from the ground up. It includes an interactive particle editor I wrote called <a href="http://github.com/city41/particle.js">particle.js</a>
 
-- name: Turrets
-  url: https://itunes.apple.com/app/turrets!/id551344421?ign-mpt=uo%3D5
-  thumbnail: /media/img/stuff/turrets.png
-  description: A game I made for the iPhone a while back. It's written in Objective-C and OpenGL ES and uses its own engine as it predates Cocos2D and the like.
 template: things.jade
 ---
