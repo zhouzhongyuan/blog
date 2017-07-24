@@ -255,7 +255,7 @@ FeactComponent.prototype.setState = function(partialState) {
     internalInstance._pendingPartialState =
         internalInstance._pendingPartialState || [];
 
-    internalInstance.push(partialState);
+    internalInstance._pendingPartialState.push(partialState);
     ...
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Over in &lt;code&gt;updateComponent&lt;/code&gt;, let’s pull the state processing out into its own method&lt;/p&gt;
