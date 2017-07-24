@@ -41,7 +41,7 @@
     <li><strong>part one: basic rendering</strong> &lt;- you are here</li>
     <li><a href="/articles/react-internals-part-two-componentWillMount-and-componentDidMount/">part two: componentWillMount and componentDidMount</a></li>
     <li><a href="/articles/react-internals-part-three-basic-updating">part three: basic updating</a></li>
-    <li>part four: setState <em>coming soon!</em></li>
+    <li><a href="/articles/react-internals-part-four-setState">part four: setState</a></li>
     <li>part five: transactions <em>coming soon!</em></li>
 </ul>
 
@@ -150,14 +150,14 @@ The truth is the components we create are incomplete. React will take our compon
 </div>
 
 <pre><code class="lang-javascript"><span class="keyword">const</span> Feact = {
-    createClass(config) {
-        <span class="function"><span class="keyword">function</span> <span class="title">ComponentClass</span>(<span class="params">props</span>) </span>{
+    createClass(spec) {
+        <span class="function"><span class="keyword">function</span> <span class="title">Constructor</span>(<span class="params">props</span>) </span>{
             <span class="keyword">this</span>.props = props;
         }
 
-        ComponentClass.prototype.render = config.render;
+        Constructor.prototype.render = spec.render;
 
-        <span class="keyword">return</span> ComponentClass;
+        <span class="keyword">return</span> Constructor;
     }, 
 
     render(element, container) {
@@ -282,7 +282,7 @@ TopLevelWrapper.prototype.render = <span class="function"><span class="keyword">
 <h2 id="conclusion-to-part-one">Conclusion to part one</h2>
 <p>With that, Feact can render simple components. As far as basic rendering is concerned, we’ve hit most of the major considerations. In real React, rendering is much more complicated as there are many other things to consider such as events, focus, scroll position of the window, performance, and much more.</p>
 <p>Here’s a final fiddle that wraps up all we’ve built so far:</p>
-<p><a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/16">fiddle</a></p>
+<p><a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/17">fiddle</a></p>
 <p><a href="/articles/react-internals-part-two-componentWillMount-and-componentDidMount">on to part two!</a></p>
 </section>
             </article>

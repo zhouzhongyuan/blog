@@ -15,7 +15,7 @@ In [part one](/articles/react-internals-part-one-basic-rendering), our small Rea
     <li>[part one: basic rendering](/articles/react-internals-part-one-basic-rendering)</li>
     <li>[part two: componentWillMount and componentDidMount](/articles/react-internals-part-two-componentWillMount-and-componentDidMount)</li>
     <li>**part three: basic updating** <- you are here</li>
-    <li>part four: setState *coming soon!*</li>
+    <li>[part four: setState](/articles/react-internals-part-four-setState)</li>
     <li>part five: transactions *coming soon!*</li>
 </ul>
 
@@ -31,7 +31,7 @@ setTimeout(function() {
 }, 2000);
 ```
 
-We'll ignore `setState()` for now (that's coming in part four) and instead implement updates through `Feact.render()`. Truth be told, this is simply "props have changed so update", which also happens if you render again and pass different props down to a child component. We just happen to be causing the props change through `Feact.render()`.
+We'll ignore `setState()` for now (that's coming in [part four](/articles/react-internals-part-four-setState)) and instead implement updates through `Feact.render()`. Truth be told, this is simply "props have changed so update", which also happens if you render again and pass different props down to a child component. We just happen to be causing the props change through `Feact.render()`.
 
 ## Doing the update
 
@@ -400,7 +400,7 @@ And with that, Feact is able to update components, albeit only through `Feact.re
 
 To wrap things up, here is a fiddle encompassing all that we've done so far
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/9t9xavqL/5/">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/s5d9prf6/2/">fiddle</a>
 
-Stay tuned for part four, coming soon!
+On to [part four](/articles/react-internals-part-four-setState)!
 

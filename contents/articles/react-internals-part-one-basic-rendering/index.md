@@ -15,7 +15,7 @@ In this five part series, we will "recreate" React from the ground up, learning 
     <li>**part one: basic rendering** <- you are here</li>
     <li>[part two: componentWillMount and componentDidMount](/articles/react-internals-part-two-componentWillMount-and-componentDidMount/)</li>
     <li>[part three: basic updating](/articles/react-internals-part-three-basic-updating)</li>
-    <li>part four: setState *coming soon!*</li>
+    <li>[part four: setState](/articles/react-internals-part-four-setState)</li>
     <li>part five: transactions *coming soon!*</li>
 </ul>
 
@@ -171,14 +171,14 @@ We want to be able to render more than just a single, hardcoded, DOM element. So
 
 ```javascript
 const Feact = {
-    createClass(config) {
-        function ComponentClass(props) {
+    createClass(spec) {
+        function Constructor(props) {
             this.props = props;
         }
 
-        ComponentClass.prototype.render = config.render;
+        Constructor.prototype.render = spec.render;
 
-        return ComponentClass;
+        return Constructor;
     }, 
 
     render(element, container) {
@@ -329,7 +329,7 @@ With that, Feact can render simple components. As far as basic rendering is conc
 
 Here's a final fiddle that wraps up all we've built so far:
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/16">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/7x2zgevj/17">fiddle</a>
 
 [on to part two!](/articles/react-internals-part-two-componentWillMount-and-componentDidMount)
 

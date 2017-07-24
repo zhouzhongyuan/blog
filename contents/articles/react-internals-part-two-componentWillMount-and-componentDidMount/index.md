@@ -14,7 +14,7 @@ In [part one](/articles/react-internals-part-one-basic-rendering) we established
     <li>[part one: basic rendering](/articles/react-internals-part-one-basic-rendering)</li>
     <li>**part two: componentWillMount and componentDidMount** <- you are here</li>
     <li>[part three: basic updating](/articles/react-internals-part-three-basic-updating)</li>
-    <li>part four: setState *coming soon!*</li>
+    <li>[part four: setState](/articles/react-internals-part-four-setState)</li>
     <li>part five: transactions *coming soon!*</li>
 </ul>
 
@@ -25,33 +25,33 @@ In [part one](/articles/react-internals-part-one-basic-rendering) we established
 
 ```javascript
 const Feact = {
-    createClass(config) {
-        function ComponentClass(props) {
+    createClass(spec) {
+        function Constructor(props) {
             this.props = props;
         }
 
-        // we pluck render off and ignore the rest of config
-        ComponentClass.prototype.render = config.render;
+        // we pluck render off and ignore the rest of spec
+        Constructor.prototype.render = spec.render;
 
-        return ComponentClass;
+        return Constructor;
     }
     ...
 }
 ```
 
-This is a simple fix, let's add the entire config to the component's prototype. That allows methods like `componentWillMount`, but it also allows any arbitrary methods the user defined to be used.
+This is a simple fix, let's add the entire spec to the component's prototype. That allows methods like `componentWillMount`, but it also allows any arbitrary methods the user defined to be used.
 
 ```javascript
 const Feact = {
-    createClass(config) {
-        function ComponentClass(props) {
+    createClass(spec) {
+        function Constructor(props) {
             this.props = props;
         }
 
-        ComponentClass.prototype =
-            Object.assign(ComponentClass.prototype, config);
+        Constructor.prototype =
+            Object.assign(Constructor.prototype, spec);
 
-        return ComponentClass;
+        return Constructor;
     }
     ...
 }
@@ -192,7 +192,7 @@ class FeactCompositeComponentWrapper {
 
 That wraps up part two. Here is a fiddle encompassing all we've done
 
-<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/L5u2z592/2/">fiddle</a>
+<a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/L5u2z592/3/">fiddle</a>
 
 In [part three](/articles/react-internals-part-three-basic-updating), we'll add support for updates.
 
