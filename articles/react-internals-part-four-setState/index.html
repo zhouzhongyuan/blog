@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>React Internals, Part Four: setState - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>React Internals, Part Four: setState</h1>
+            <div class="date"><span>23 July 2017</span></div>
+            <article class="article">
+              <section class="content"><p>In part four of this series we finally add <code>setState</code> to our little React clone. <code>setState</code> is a beast, so grab your favorite beverage and get comfortable!</p>
+<h2 id="the-series">The series</h2>
+<ul>
+    <li><a href="/articles/react-internals-part-one-basic-rendering">part one: basic rendering</a></li>
+    <li><a href="/articles/react-internals-part-two-componentWillMount-and-componentDidMount/">part two: componentWillMount and componentDidMount</a></li>
+    <li><a href="/articles/react-internals-part-three-basic-updating">part three: basic updating</a></li>
+    <li><strong>part four: setState</strong> &lt;- you are here</li>
+    <li>part five: transactions <em>coming soon!</em></li>
+</ul>
+
+<h2 id="adding-state-to-feact">Adding state to Feact</h2>
+<p>State and props are very similar in that they are both data and both influence how and when a component renders. The core difference is props come from an outside source, where state is entirely internal to the component. So far Feact only supports props, so before we can implement <code>setState</code> we need to add the notion of state itself to the framework.</p>
+<h3 id="getinitialstate">getInitialState</h3>
+<p>When mounting a fresh component, we need to set up its initial state, that’s where this lifecycle method comes in. It’s just called when a component is getting instantiated, so we need to hook into this method in the constructor function that <code>Feact.createClass</code> creates</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> Feact = {
+    createClass(spec) {
+        <span class="function"><span class="keyword">function</span> <span class="title">Constructor</span>(<span class="params">props</span>) </span>{
+            <span class="keyword">this</span>.props = props;
+
+            <span class="comment">// new lines added for state</span>
+            <span class="keyword">const</span> initialState = <span class="keyword">this</span>.getInitialState ?
+                <span class="keyword">this</span>.getInitialState() :
+                <span class="literal">null</span>;
+            <span class="keyword">this</span>.state = initialState;
+        }
+
+        Constructor.prototype =
+            <span class="built_in">Object</span>.assign(Constructor.prototype, spec);
+
+        <span class="keyword">return</span> Constructor;
+    }
+}
+</code></pre>
+<p>Just like props, we set the state on the instance.</p>
+<div class="callout pitfall">
+Notice if the component does not have <code>getInitialState</code> defined, the initial state will be <code>null</code>?
+React won’t default initial state to an empty object, so if you want to use state, chances are you
+need to implement this method and return an object, otherwise your first render will blow up if it
+tries to do <code>this.state.foo</code>
+</div>
+
+<p>Now with <code>getInitialState</code> defined, Feact components can start using <code>this.state</code> whenever they’d like.</p>
+<h2 id="adding-a-simple-setstate-">Adding a simple setState()</h2>
+<p>Whenever a component wants to update, it needs to tell Feact “hey, I’d like to render again!”, and <code>this.setState()</code> is the primary way to accomplish that. <code>setState</code> updates <code>this.state</code>, and triggers a render, which will send the component through the lifecycle methods <code>shouldComponentUpdate</code> -&gt; <code>componentWillUpdate</code> -&gt; <code>render</code> -&gt; <code>componentDidUpdate</code> (which Feact doesn’t have, but of course React does). </p>
+<h3 id="defining-setstate-on-the-component">Defining setState on the component</h3>
+<p>Again we need to tweak <code>Feact.createClass</code> to get setState in place. To do this, we’ll give all classes created this way a prototype, and this prototype will have <code>setState</code> defined</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">FeactComponent</span>(<span class="params"></span>) </span>{
+}
+
+FeactComponent.prototype.setState = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+    <span class="comment">// to be implemented later</span>
+};
+
+<span class="function"><span class="keyword">function</span> <span class="title">mixSpecIntoComponent</span>(<span class="params">Constructor, spec</span>) </span>{
+    <span class="keyword">const</span> proto = Constructor.prototype;
+
+    <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> spec) {
+        proto[key] = spec[key];
+    }
+}
+
+<span class="keyword">const</span> Feact = {
+    createClass(spec) {
+        <span class="function"><span class="keyword">function</span> <span class="title">Constructor</span>(<span class="params">props</span>) </span>{
+            <span class="keyword">this</span>.props = props;
+
+            <span class="comment">// new lines added for state</span>
+            <span class="keyword">const</span> initialState = <span class="keyword">this</span>.getInitialState ?
+                <span class="keyword">this</span>.getInitialState() :
+                <span class="literal">null</span>;
+            <span class="keyword">this</span>.state = initialState;
+        }
+
+        Constructor.prototype = <span class="keyword">new</span> FeactComponent();
+
+        mixSpecIntoComponent(Constructor, spec);
+        <span class="keyword">return</span> Constructor;
+    }
+}
+</code></pre>
+<p>Prototypical inheritance in action. <code>mixSpecIntoComponent</code> in React is more complicated (and robust), dealing with things like mixins and making sure users don’t accidentally clobber a React method.</p>
+<h3 id="threading-setstate-over-to-updatecomponent">Threading setState over to updateComponent</h3>
+<p>Back in <a href="/articles/react-internals-part-three-basic-updating">part three</a> we updated a component by calling <code>FeactCompositeComponentWrapper#receiveComponent</code>, which in turn called <code>updateComponent</code>. It makes sense to not repeat ourselves, so we should thread state updates through <code>updateComponent</code> too. We need to get all the way from <code>FeactComponent.prototype.setState</code> to <code>FeactCompositeComponentWrapper#updateComponent</code>. Currently Feact has no means of accomplishing this.</p>
+<p>In React, there is the notion of “public instances” and “internal instances”. Public instances are the objects that get created from the classes defined with <code>createClass</code>, and internal instances are the objects that React internally creates. In this scenario the internal instance is the <code>FeactCompositeComponentWrapper</code> that the framework created. The internal instance knows about the public instance, since it wraps it. But the relationship doesn’t go in the opposite direction, yet now it needs to. Here <code>setState</code> is the public instance attempting to communicate with the internal instance, so with that in mind, let’s take a stab at implementing <code>setState</code></p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">FeactComponent</span>(<span class="params"></span>) </span>{
+}
+
+FeactComponent.prototype.setState = <span class="function"><span class="keyword">function</span>(<span class="params">partialState</span>) </span>{
+    <span class="keyword">const</span> internalInstance = getMyInternalInstancePlease(<span class="keyword">this</span>);
+
+    internalInstance._pendingPartialState = partialState;
+
+    FeactReconciler.performUpdateIfNecessary(internalInstance);
+}
+</code></pre>
+<p>React solves the “get my internal instance” problem with an instance map, which really just stores the internal instance on the public instance</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> FeactInstanceMap = {
+    set(key, value) {
+        key.__feactInternalInstance = value;
+    },
+
+    get(key) {
+        <span class="keyword">return</span> key.__feactInternalInstance;
+    }
+};
+</code></pre>
+<p>We’ll set up this relationship while mounting</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    ...
+    mountComponent(container) {
+        <span class="keyword">const</span> Component = <span class="keyword">this</span>._currentElement.type;
+        <span class="keyword">const</span> componentInstance =
+            <span class="keyword">new</span> Component(<span class="keyword">this</span>._currentElement.props);
+        <span class="keyword">this</span>._instance = componentInstance;
+
+        FeactInstanceMap.set(componentInstance, <span class="keyword">this</span>);
+        ...
+    }
+}
+</code></pre>
+<p>We have one other unimplemented method, <code>FeactReconciler.performUpdateIfNecessary</code>, but just like other reconciler methods, it will just delegate to the instance</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> FeactReconciler = {
+    ...
+    performUpdateIfNecessary(internalInstance) {
+        internalInstance.performUpdateIfNecessary();
+    }
+    ...
+}
+
+<span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    ...
+    performUpdateIfNecessary() {
+        <span class="keyword">this</span>.updateComponent(<span class="keyword">this</span>._currentElement, <span class="keyword">this</span>._currentElement);
+    }
+    ...
+}
+</code></pre>
+<p>Finally, we are calling <code>updateComponent</code>! Notice we seem to be cheating a little bit. We are saying to update the component, but with the same element being used as both previous and next. Whenever <code>updateComponent</code> is called with the same element, then React knows only state is getting updated, otherwise props are updating. React will decide whether to call <code>componentWillReceiveProps</code> based on <code>prevElement !== nextElement</code>, so let’s go ahead and throw that into Feact too</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    ...
+    updateComponent(prevElement, nextElement) {
+        <span class="keyword">const</span> nextProps = nextElement.props;
+        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+
+        <span class="keyword">const</span> willReceive = prevElement !== nextElement;
+
+        <span class="keyword">if</span> (willReceive &amp;&amp; inst.componentWillReceiveProps) {
+            inst.componentWillReceiveProps(nextProps);
+        }
+        ...
+    }
+}
+</code></pre>
+<p>That isn’t the entirety of <code>updateComponent</code>, (check the fiddle at the end of the article for all the code), just enough to show that calling <code>setState()</code> does not cause <code>componentWillReceiveProps</code> to get called before the render happens. Which does make sense, <code>setState</code> has no means of influencing props, just state.</p>
+<div class="callout wisdom">
+If you want a heads up on every render, whether caused by prop changes or state changes, then implement <code>componentWillUpdate</code> in your component. We won’t add it to Feact since this blog series is already too long, but it’s called right before a render, no matter what caused the render. The only exception is the first render, where you can hook into <code>componentWillMount</code> instead.
+</div>
+
+
+<h3 id="updating-with-the-new-state">Updating with the new state</h3>
+<p>If you trace through the code we’ve written so far, you’ll see we’re now hanging out in <code>updateComponent</code>, <em>and</em> the internal instance has the pending partial state waiting to be used at <code>internalInstance._pendingPartialState</code>. Now all we need to do is have the component render again – this time with state –, then from there actually getting the update all the way into the DOM is the same procedure as done back in part three</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    ...
+    updateComponent(prevElement, nextElement) {
+        <span class="keyword">const</span> nextProps = nextElement.props;
+        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+
+        <span class="keyword">const</span> willReceive = prevElement !== nextElement;
+
+        <span class="keyword">if</span> (willReceive &amp;&amp; inst.componentWillReceiveProps) {
+            inst.componentWillReceiveProps(nextProps);
+        }
+
+        <span class="keyword">let</span> shouldUpdate = <span class="literal">true</span>;
+        <span class="keyword">const</span> nextState =
+            <span class="built_in">Object</span>.assign({}, inst.state, <span class="keyword">this</span>._pendingPartialState);
+        <span class="keyword">this</span>._pendingPartialState = <span class="literal">null</span>;
+
+        <span class="keyword">if</span> (inst.shouldComponentUpdate) {
+            shouldUpdate =
+                inst.shouldComponentUpdate(nextProps, nextState);
+        }
+
+        <span class="keyword">if</span> (shouldUpdate) {
+            <span class="keyword">this</span>._performComponentUpdate(
+                nextElement, nextProps, nextState
+            );
+        } <span class="keyword">else</span> {
+            inst.props = nextProps;
+            inst.state = nextState;
+        }
+    }
+
+    _performComponentUpdate(nextElement, nextProps, nextState) {
+        <span class="keyword">this</span>._currentElement = nextElement;
+        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+
+        inst.props = nextProps;
+        inst.state = nextState;
+
+        <span class="keyword">this</span>._updateRenderedComponent();
+    }
+
+    _updateRenderedComponent() {
+        <span class="keyword">const</span> prevComponentInstance = <span class="keyword">this</span>._renderedComponent;
+        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+        <span class="keyword">const</span> nextRenderedElement = inst.render();
+
+        FeactReconciler.receiveComponent(
+            prevComponentInstance,
+            nextRenderedElement
+        );
+    }
+    ...
+}
+</code></pre>
+<p>This updating of the component is almost identical to part three, with the exception of the added state of course. Since state just sits on the public instance at <code>this.state</code>, <code>_performComponentUpdate</code> only had a one line change and <code>_updateRenderedComponent</code> had no change at all. The real key change was in the middle of <code>updateComponent</code> where we merge the previous state with the new partial state, and this partial state originated way back in <code>this.setState()</code>.</p>
+<h3 id="all-done-right-">All done! … right?</h3>
+<p>Phew, we now have <code>setState</code>! Here is a fiddle of what we have so far</p>
+<p><a class="fiddle" href="https://jsfiddle.net/city41/jth636nz/2/" target="_blank">fiddle</a></p>
+<p>But Feact’s setState is a bit simple, not performant and could even be a little surprising. The main problem is every distinct call to <code>setState</code> causes the component to render. This forces the user to either figure out how to fit all their changes into one call, or accept that each call will render. It’d be better if the programmer could call <code>setState</code> when it’s convenient, and let the framework batch the calls when it can, resulting in fewer renders.</p>
+<h2 id="batching-setstate-calls">Batching setState calls</h2>
+<p>If you take a look at Feact’s render lifecycle, you can see we call <code>componentWillReceiveProps</code> just before we’re about to render. What if inside <code>componentWillReceiveProps</code> the user was to call <code>setState</code>? Currently in Feact, that’d cause it to go ahead and start a second render, while in the middle of the first render! That doesn’t sound good. Not to mention, responding to incoming props by updating your state is a common need. It makes sense to expect your state update and the new props to all flow into the same render, otherwise you’d get an intermediate render with only the state change, then the final render with both state and props change, which would probably be unexpected.</p>
+<div class="callout wisdom">
+<div>Here is a fiddle that demonstrates this</div>
+
+<p><a class="fiddle" href="https://jsfiddle.net/city41/62edejvz/2/" target="_blank">fiddle</a></p>
+<div>Depending on your browser, you might not be able to see the second render. But if you open the debugger and place a <code>debugger;</code> statement in <code>FeactDOMComponent#_updateTextContent</code>, you should be able to see how Feact naively does three renders when it should have been just two.</div>
+</div>
+
+<h3 id="batching-step-one-a-place-to-store-the-batched-state-changes">batching step one, a place to store the batched state changes</h3>
+<p>We need a place to store more than one state update, so we will change <code>_pendingPartialState</code> into an array</p>
+<pre><code>function FeactComponent() {
+}
+
+FeactComponent.prototype.setState = function(partialState) {
+    const internalInstance = FeactInstanceMap.get(this);
+
+    internalInstance._pendingPartialState =
+        internalInstance._pendingPartialState || [];
+
+    internalInstance.push(partialState);
+    ...
+}
+</code></pre><p>Over in <code>updateComponent</code>, let’s pull the state processing out into its own method</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    ...
+    updateComponent(prevElement, nextElement) {
+        ...
+        const nextState = <span class="keyword">this</span>._processPendingState();
+        ...
+    }
+
+    _processPendingState() {
+        <span class="keyword">const</span> inst = <span class="keyword">this</span>._instance;
+        <span class="keyword">if</span> (!<span class="keyword">this</span>._pendingPartialState) {
+            <span class="keyword">return</span> inst.state;
+        }
+
+        <span class="keyword">let</span> nextState = inst.state;
+
+        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>._pendingPartialState.length; ++i) {
+            nextState =
+                <span class="built_in">Object</span>.assign(nextState, <span class="keyword">this</span>._pendingPartialState[i]);
+        }
+
+        <span class="keyword">this</span>._pendingPartialState = <span class="literal">null</span>;
+        <span class="keyword">return</span> nextState;
+    }
+}
+</code></pre>
+<h3 id="batching-step-two-batching-up-the-state-changes-into-one-render">batching step two, batching up the state changes into one render</h3>
+<div class="callout pitfall">
+The batching mechanism we’re about to add to Feact is very simple and not at all what React does. The point is to just show the general idea of how batching works (and later, show why it can make <code>setState</code> tricky).
+</div>
+
+<p>For Feact, we will batch updates while rendering, otherwise, we won’t batch them. So during <code>updateComponent</code>, we just set a flag that tells the world we are rendering, then unset it at the end. If <code>setState</code> sees we are rendering, it will set the pending state, but not cause a new render, as it knows the current render that is going on will pick up this state change</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">FeactCompositeComponentWrapper</span> </span>{
+    ...
+    updateComponent(prevElement, nextElement) {
+        <span class="keyword">this</span>._rendering = <span class="literal">true</span>;
+
+        <span class="comment">// entire rest of the method</span>
+
+        <span class="keyword">this</span>._rendering = <span class="literal">false</span>;
+    }
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">FeactComponent</span>(<span class="params"></span>) </span>{
+}
+
+FeactComponent.prototype.setState = <span class="function"><span class="keyword">function</span>(<span class="params">partialState</span>) </span>{
+    <span class="keyword">const</span> internalInstance = FeactInstanceMap.get(<span class="keyword">this</span>);
+
+    internalInstance._pendingPartialState =
+        internalInstance._pendingPartialState || [];
+
+    internalInstance.push(partialState);
+
+    <span class="keyword">if</span> (!internalInstance._rendering) {
+        FeactReconciler.performUpdateIfNecessary(internalInstance);
+    }
+}
+</code></pre>
+<h2 id="wrapping-it-up">wrapping it up</h2>
+<p>Here is a fiddle that contains the final version of Feact</p>
+<p><a class="fiddle" href="https://jsfiddle.net/city41/fbw81p5e/5/" target="_blank">fiddle</a></p>
+<p>It contains the simple batching, so it will only render twice (whereas the previous fiddle above rendered three times).</p>
+<h3 id="setstate-pitfalls">setState pitfalls</h3>
+<p>Now that we understand how setState works and the overall concept on how batching works, we can see there are some pitfalls in <code>setState</code>. The problem is it takes several steps to update a component’s state, as each pending partial state needs to get applied one by one. That means using <code>this.state</code> when setting state is dangerous</p>
+<pre><code>componentWillReceiveProps(nextProps) {
+    this.setState({ counter: this.state.counter + 1 });
+    this.setState({ counter: this.state.counter + 1 });
+}
+</code></pre><p>This contrived example shows what I mean. You might expect counter to get 2 added to it, but since states are being batched up, the second call to <code>setState</code> has the same values for <code>this.state</code> as the first call, so counter will only get incremented once.</p>
+<p>React solves this problem by allowing a callback to be passed into <code>setState</code></p>
+<pre><code>componentWillReceiveProps(nextProps) {
+    this.setState((currentState) =&gt; ({
+        counter: currentState.counter + 1
+    });
+    this.setState((currentState) =&gt; ({
+        counter: currentState.counter + 1
+    });
+}
+</code></pre><p>By using the callback flavor of <code>setState</code>, you get access to the intermediate values state works through. If Feact were to implement this, it’d look like</p>
+<pre><code>_processPendingState() {
+    const inst = this._instance;
+    if (!this._pendingPartialState) {
+        return inst.state;
+    }
+
+    let nextState = inst.state;
+
+    for (let i = 0; i &lt; this._pendingPartialState.length; ++i) {
+        const partialState = this._pendingPartialState[i];
+
+        if (typeof partialState === &#39;function&#39;) {
+            nextState = partialState(nextState);
+        } else {
+            nextState = Object.assign(nextState, patialState);
+        }
+    }
+
+    this._pendingPartialState = null;
+    return nextState;
+}
+</code></pre><p>You can see how the callback gets access to the intermediate values of <code>nextState</code> as we work our way through all the pending changes.</p>
+<h2 id="up-next">Up Next</h2>
+<p>If you’ve read this far then holy cow, thanks! Feel free to <a href="mailto:matt.e.greer@gmail.com">email me</a> if you have any feedback.</p>
+<p>Part five is just around the corner. It will go over React’s transactions and wrap the whole shebang up. Stay tuned.</p>
+<p>Here is the final fiddle for Feact one more time:</p>
+<p><a class="fiddle" href="https://jsfiddle.net/city41/fbw81p5e/5/" target="_blank">fiddle</a></p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. All opinions expressed here are my own.</p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/mattegreer">@mattegreer</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>

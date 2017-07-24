@@ -41,7 +41,7 @@
     <li><a href="/articles/react-internals-part-one-basic-rendering">part one: basic rendering</a></li>
     <li><strong>part two: componentWillMount and componentDidMount</strong> &lt;- you are here</li>
     <li><a href="/articles/react-internals-part-three-basic-updating">part three: basic updating</a></li>
-    <li>part four: setState <em>coming soon!</em></li>
+    <li><a href="/articles/react-internals-part-four-setState">part four: setState</a></li>
     <li>part five: transactions <em>coming soon!</em></li>
 </ul>
 
@@ -49,30 +49,30 @@
 <h2 id="first-fix-createclass">First, fix createClass</h2>
 <p><code>createClass</code> back in part one only supported <code>render</code></p>
 <pre><code class="lang-javascript"><span class="keyword">const</span> Feact = {
-    createClass(config) {
-        <span class="function"><span class="keyword">function</span> <span class="title">ComponentClass</span>(<span class="params">props</span>) </span>{
+    createClass(spec) {
+        <span class="function"><span class="keyword">function</span> <span class="title">Constructor</span>(<span class="params">props</span>) </span>{
             <span class="keyword">this</span>.props = props;
         }
 
-        <span class="comment">// we pluck render off and ignore the rest of config</span>
-        ComponentClass.prototype.render = config.render;
+        <span class="comment">// we pluck render off and ignore the rest of spec</span>
+        Constructor.prototype.render = spec.render;
 
-        <span class="keyword">return</span> ComponentClass;
+        <span class="keyword">return</span> Constructor;
     }
     ...
 }
 </code></pre>
-<p>This is a simple fix, let’s add the entire config to the component’s prototype. That allows methods like <code>componentWillMount</code>, but it also allows any arbitrary methods the user defined to be used.</p>
+<p>This is a simple fix, let’s add the entire spec to the component’s prototype. That allows methods like <code>componentWillMount</code>, but it also allows any arbitrary methods the user defined to be used.</p>
 <pre><code class="lang-javascript"><span class="keyword">const</span> Feact = {
-    createClass(config) {
-        <span class="function"><span class="keyword">function</span> <span class="title">ComponentClass</span>(<span class="params">props</span>) </span>{
+    createClass(spec) {
+        <span class="function"><span class="keyword">function</span> <span class="title">Constructor</span>(<span class="params">props</span>) </span>{
             <span class="keyword">this</span>.props = props;
         }
 
-        ComponentClass.prototype =
-            <span class="built_in">Object</span>.assign(ComponentClass.prototype, config);
+        Constructor.prototype =
+            <span class="built_in">Object</span>.assign(Constructor.prototype, spec);
 
-        <span class="keyword">return</span> ComponentClass;
+        <span class="keyword">return</span> Constructor;
     }
     ...
 }
@@ -191,7 +191,7 @@ Remember the tight coupling that was called out in part one? It’s gone now, <c
 </code></pre>
 <h2 id="concluding-part-two">Concluding part two</h2>
 <p>That wraps up part two. Here is a fiddle encompassing all we’ve done</p>
-<p><a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/L5u2z592/2/">fiddle</a></p>
+<p><a class="fiddle" target="_blank" href="https://jsfiddle.net/city41/L5u2z592/3/">fiddle</a></p>
 <p>In <a href="/articles/react-internals-part-three-basic-updating">part three</a>, we’ll add support for updates.</p>
 </section>
             </article>

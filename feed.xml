@@ -5,9 +5,369 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Sat, 15 Jul 2017 17:00:00 -0700</pubDate>
+    <pubDate>Sat, 22 Jul 2017 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>React Internals, Part Four: setState</title>
+      <link>http://mattgreer.org/articles/react-internals-part-four-setState/</link>
+      <pubDate>Sat, 22 Jul 2017 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/react-internals-part-four-setState/</guid>
+      <author></author>
+      <description>&lt;p&gt;In part four of this series we finally add &lt;code&gt;setState&lt;/code&gt; to our little React clone. &lt;code&gt;setState&lt;/code&gt; is a beast, so grab your favorite beverage and get comfortable!&lt;/p&gt;
+&lt;h2 id=&quot;the-series&quot;&gt;The series&lt;/h2&gt;
+&lt;ul&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-one-basic-rendering&quot;&gt;part one: basic rendering&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount/&quot;&gt;part two: componentWillMount and componentDidMount&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three: basic updating&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;part four: setState&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
+    &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;adding-state-to-feact&quot;&gt;Adding state to Feact&lt;/h2&gt;
+&lt;p&gt;State and props are very similar in that they are both data and both influence how and when a component renders. The core difference is props come from an outside source, where state is entirely internal to the component. So far Feact only supports props, so before we can implement &lt;code&gt;setState&lt;/code&gt; we need to add the notion of state itself to the framework.&lt;/p&gt;
+&lt;h3 id=&quot;getinitialstate&quot;&gt;getInitialState&lt;/h3&gt;
+&lt;p&gt;When mounting a fresh component, we need to set up its initial state, that’s where this lifecycle method comes in. It’s just called when a component is getting instantiated, so we need to hook into this method in the constructor function that &lt;code&gt;Feact.createClass&lt;/code&gt; creates&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
+    createClass(spec) {
+        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Constructor&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props = props;
+
+            &lt;span class=&quot;comment&quot;&gt;// new lines added for state&lt;/span&gt;
+            &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; initialState = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getInitialState ?
+                &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getInitialState() :
+                &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.state = initialState;
+        }
+
+        Constructor.prototype =
+            &lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.assign(Constructor.prototype, spec);
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Constructor;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Just like props, we set the state on the instance.&lt;/p&gt;
+&lt;div class=&quot;callout pitfall&quot;&gt;
+Notice if the component does not have &lt;code&gt;getInitialState&lt;/code&gt; defined, the initial state will be &lt;code&gt;null&lt;/code&gt;?
+React won’t default initial state to an empty object, so if you want to use state, chances are you
+need to implement this method and return an object, otherwise your first render will blow up if it
+tries to do &lt;code&gt;this.state.foo&lt;/code&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now with &lt;code&gt;getInitialState&lt;/code&gt; defined, Feact components can start using &lt;code&gt;this.state&lt;/code&gt; whenever they’d like.&lt;/p&gt;
+&lt;h2 id=&quot;adding-a-simple-setstate-&quot;&gt;Adding a simple setState()&lt;/h2&gt;
+&lt;p&gt;Whenever a component wants to update, it needs to tell Feact “hey, I’d like to render again!”, and &lt;code&gt;this.setState()&lt;/code&gt; is the primary way to accomplish that. &lt;code&gt;setState&lt;/code&gt; updates &lt;code&gt;this.state&lt;/code&gt;, and triggers a render, which will send the component through the lifecycle methods &lt;code&gt;shouldComponentUpdate&lt;/code&gt; -&amp;gt; &lt;code&gt;componentWillUpdate&lt;/code&gt; -&amp;gt; &lt;code&gt;render&lt;/code&gt; -&amp;gt; &lt;code&gt;componentDidUpdate&lt;/code&gt; (which Feact doesn’t have, but of course React does). &lt;/p&gt;
+&lt;h3 id=&quot;defining-setstate-on-the-component&quot;&gt;Defining setState on the component&lt;/h3&gt;
+&lt;p&gt;Again we need to tweak &lt;code&gt;Feact.createClass&lt;/code&gt; to get setState in place. To do this, we’ll give all classes created this way a prototype, and this prototype will have &lt;code&gt;setState&lt;/code&gt; defined&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactComponent&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+}
+
+FeactComponent.prototype.setState = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;comment&quot;&gt;// to be implemented later&lt;/span&gt;
+};
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mixSpecIntoComponent&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;Constructor, spec&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; proto = Constructor.prototype;
+
+    &lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; key &lt;span class=&quot;keyword&quot;&gt;in&lt;/span&gt; spec) {
+        proto[key] = spec[key];
+    }
+}
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
+    createClass(spec) {
+        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Constructor&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props = props;
+
+            &lt;span class=&quot;comment&quot;&gt;// new lines added for state&lt;/span&gt;
+            &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; initialState = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getInitialState ?
+                &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getInitialState() :
+                &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.state = initialState;
+        }
+
+        Constructor.prototype = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; FeactComponent();
+
+        mixSpecIntoComponent(Constructor, spec);
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Constructor;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Prototypical inheritance in action. &lt;code&gt;mixSpecIntoComponent&lt;/code&gt; in React is more complicated (and robust), dealing with things like mixins and making sure users don’t accidentally clobber a React method.&lt;/p&gt;
+&lt;h3 id=&quot;threading-setstate-over-to-updatecomponent&quot;&gt;Threading setState over to updateComponent&lt;/h3&gt;
+&lt;p&gt;Back in &lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three&lt;/a&gt; we updated a component by calling &lt;code&gt;FeactCompositeComponentWrapper#receiveComponent&lt;/code&gt;, which in turn called &lt;code&gt;updateComponent&lt;/code&gt;. It makes sense to not repeat ourselves, so we should thread state updates through &lt;code&gt;updateComponent&lt;/code&gt; too. We need to get all the way from &lt;code&gt;FeactComponent.prototype.setState&lt;/code&gt; to &lt;code&gt;FeactCompositeComponentWrapper#updateComponent&lt;/code&gt;. Currently Feact has no means of accomplishing this.&lt;/p&gt;
+&lt;p&gt;In React, there is the notion of “public instances” and “internal instances”. Public instances are the objects that get created from the classes defined with &lt;code&gt;createClass&lt;/code&gt;, and internal instances are the objects that React internally creates. In this scenario the internal instance is the &lt;code&gt;FeactCompositeComponentWrapper&lt;/code&gt; that the framework created. The internal instance knows about the public instance, since it wraps it. But the relationship doesn’t go in the opposite direction, yet now it needs to. Here &lt;code&gt;setState&lt;/code&gt; is the public instance attempting to communicate with the internal instance, so with that in mind, let’s take a stab at implementing &lt;code&gt;setState&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactComponent&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+}
+
+FeactComponent.prototype.setState = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;partialState&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; internalInstance = getMyInternalInstancePlease(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);
+
+    internalInstance._pendingPartialState = partialState;
+
+    FeactReconciler.performUpdateIfNecessary(internalInstance);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;React solves the “get my internal instance” problem with an instance map, which really just stores the internal instance on the public instance&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; FeactInstanceMap = {
+    set(key, value) {
+        key.__feactInternalInstance = value;
+    },
+
+    get(key) {
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; key.__feactInternalInstance;
+    }
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We’ll set up this relationship while mounting&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    mountComponent(container) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Component = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.type;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; componentInstance =
+            &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Component(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement.props);
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance = componentInstance;
+
+        FeactInstanceMap.set(componentInstance, &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);
+        ...
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We have one other unimplemented method, &lt;code&gt;FeactReconciler.performUpdateIfNecessary&lt;/code&gt;, but just like other reconciler methods, it will just delegate to the instance&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; FeactReconciler = {
+    ...
+    performUpdateIfNecessary(internalInstance) {
+        internalInstance.performUpdateIfNecessary();
+    }
+    ...
+}
+
+&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    performUpdateIfNecessary() {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.updateComponent(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement, &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement);
+    }
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Finally, we are calling &lt;code&gt;updateComponent&lt;/code&gt;! Notice we seem to be cheating a little bit. We are saying to update the component, but with the same element being used as both previous and next. Whenever &lt;code&gt;updateComponent&lt;/code&gt; is called with the same element, then React knows only state is getting updated, otherwise props are updating. React will decide whether to call &lt;code&gt;componentWillReceiveProps&lt;/code&gt; based on &lt;code&gt;prevElement !== nextElement&lt;/code&gt;, so let’s go ahead and throw that into Feact too&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    updateComponent(prevElement, nextElement) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextProps = nextElement.props;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; willReceive = prevElement !== nextElement;
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (willReceive &amp;amp;&amp;amp; inst.componentWillReceiveProps) {
+            inst.componentWillReceiveProps(nextProps);
+        }
+        ...
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;That isn’t the entirety of &lt;code&gt;updateComponent&lt;/code&gt;, (check the fiddle at the end of the article for all the code), just enough to show that calling &lt;code&gt;setState()&lt;/code&gt; does not cause &lt;code&gt;componentWillReceiveProps&lt;/code&gt; to get called before the render happens. Which does make sense, &lt;code&gt;setState&lt;/code&gt; has no means of influencing props, just state.&lt;/p&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+If you want a heads up on every render, whether caused by prop changes or state changes, then implement &lt;code&gt;componentWillUpdate&lt;/code&gt; in your component. We won’t add it to Feact since this blog series is already too long, but it’s called right before a render, no matter what caused the render. The only exception is the first render, where you can hook into &lt;code&gt;componentWillMount&lt;/code&gt; instead.
+&lt;/div&gt;
+
+
+&lt;h3 id=&quot;updating-with-the-new-state&quot;&gt;Updating with the new state&lt;/h3&gt;
+&lt;p&gt;If you trace through the code we’ve written so far, you’ll see we’re now hanging out in &lt;code&gt;updateComponent&lt;/code&gt;, &lt;em&gt;and&lt;/em&gt; the internal instance has the pending partial state waiting to be used at &lt;code&gt;internalInstance._pendingPartialState&lt;/code&gt;. Now all we need to do is have the component render again – this time with state –, then from there actually getting the update all the way into the DOM is the same procedure as done back in part three&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    updateComponent(prevElement, nextElement) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextProps = nextElement.props;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; willReceive = prevElement !== nextElement;
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (willReceive &amp;amp;&amp;amp; inst.componentWillReceiveProps) {
+            inst.componentWillReceiveProps(nextProps);
+        }
+
+        &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; shouldUpdate = &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextState =
+            &lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.assign({}, inst.state, &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._pendingPartialState);
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._pendingPartialState = &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (inst.shouldComponentUpdate) {
+            shouldUpdate =
+                inst.shouldComponentUpdate(nextProps, nextState);
+        }
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (shouldUpdate) {
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._performComponentUpdate(
+                nextElement, nextProps, nextState
+            );
+        } &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt; {
+            inst.props = nextProps;
+            inst.state = nextState;
+        }
+    }
+
+    _performComponentUpdate(nextElement, nextProps, nextState) {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._currentElement = nextElement;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+
+        inst.props = nextProps;
+        inst.state = nextState;
+
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._updateRenderedComponent();
+    }
+
+    _updateRenderedComponent() {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; prevComponentInstance = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._renderedComponent;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; nextRenderedElement = inst.render();
+
+        FeactReconciler.receiveComponent(
+            prevComponentInstance,
+            nextRenderedElement
+        );
+    }
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This updating of the component is almost identical to part three, with the exception of the added state of course. Since state just sits on the public instance at &lt;code&gt;this.state&lt;/code&gt;, &lt;code&gt;_performComponentUpdate&lt;/code&gt; only had a one line change and &lt;code&gt;_updateRenderedComponent&lt;/code&gt; had no change at all. The real key change was in the middle of &lt;code&gt;updateComponent&lt;/code&gt; where we merge the previous state with the new partial state, and this partial state originated way back in &lt;code&gt;this.setState()&lt;/code&gt;.&lt;/p&gt;
+&lt;h3 id=&quot;all-done-right-&quot;&gt;All done! … right?&lt;/h3&gt;
+&lt;p&gt;Phew, we now have &lt;code&gt;setState&lt;/code&gt;! Here is a fiddle of what we have so far&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; href=&quot;https://jsfiddle.net/city41/jth636nz/2/&quot; target=&quot;_blank&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;But Feact’s setState is a bit simple, not performant and could even be a little surprising. The main problem is every distinct call to &lt;code&gt;setState&lt;/code&gt; causes the component to render. This forces the user to either figure out how to fit all their changes into one call, or accept that each call will render. It’d be better if the programmer could call &lt;code&gt;setState&lt;/code&gt; when it’s convenient, and let the framework batch the calls when it can, resulting in fewer renders.&lt;/p&gt;
+&lt;h2 id=&quot;batching-setstate-calls&quot;&gt;Batching setState calls&lt;/h2&gt;
+&lt;p&gt;If you take a look at Feact’s render lifecycle, you can see we call &lt;code&gt;componentWillReceiveProps&lt;/code&gt; just before we’re about to render. What if inside &lt;code&gt;componentWillReceiveProps&lt;/code&gt; the user was to call &lt;code&gt;setState&lt;/code&gt;? Currently in Feact, that’d cause it to go ahead and start a second render, while in the middle of the first render! That doesn’t sound good. Not to mention, responding to incoming props by updating your state is a common need. It makes sense to expect your state update and the new props to all flow into the same render, otherwise you’d get an intermediate render with only the state change, then the final render with both state and props change, which would probably be unexpected.&lt;/p&gt;
+&lt;div class=&quot;callout wisdom&quot;&gt;
+&lt;div&gt;Here is a fiddle that demonstrates this&lt;/div&gt;
+
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; href=&quot;https://jsfiddle.net/city41/62edejvz/2/&quot; target=&quot;_blank&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;div&gt;Depending on your browser, you might not be able to see the second render. But if you open the debugger and place a &lt;code&gt;debugger;&lt;/code&gt; statement in &lt;code&gt;FeactDOMComponent#_updateTextContent&lt;/code&gt;, you should be able to see how Feact naively does three renders when it should have been just two.&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;batching-step-one-a-place-to-store-the-batched-state-changes&quot;&gt;batching step one, a place to store the batched state changes&lt;/h3&gt;
+&lt;p&gt;We need a place to store more than one state update, so we will change &lt;code&gt;_pendingPartialState&lt;/code&gt; into an array&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;function FeactComponent() {
+}
+
+FeactComponent.prototype.setState = function(partialState) {
+    const internalInstance = FeactInstanceMap.get(this);
+
+    internalInstance._pendingPartialState =
+        internalInstance._pendingPartialState || [];
+
+    internalInstance.push(partialState);
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Over in &lt;code&gt;updateComponent&lt;/code&gt;, let’s pull the state processing out into its own method&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    updateComponent(prevElement, nextElement) {
+        ...
+        const nextState = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._processPendingState();
+        ...
+    }
+
+    _processPendingState() {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; inst = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._instance;
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (!&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._pendingPartialState) {
+            &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; inst.state;
+        }
+
+        &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; nextState = inst.state;
+
+        &lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; i = &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._pendingPartialState.length; ++i) {
+            nextState =
+                &lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.assign(nextState, &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._pendingPartialState[i]);
+        }
+
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._pendingPartialState = &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt;;
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; nextState;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;batching-step-two-batching-up-the-state-changes-into-one-render&quot;&gt;batching step two, batching up the state changes into one render&lt;/h3&gt;
+&lt;div class=&quot;callout pitfall&quot;&gt;
+The batching mechanism we’re about to add to Feact is very simple and not at all what React does. The point is to just show the general idea of how batching works (and later, show why it can make &lt;code&gt;setState&lt;/code&gt; tricky).
+&lt;/div&gt;
+
+&lt;p&gt;For Feact, we will batch updates while rendering, otherwise, we won’t batch them. So during &lt;code&gt;updateComponent&lt;/code&gt;, we just set a flag that tells the world we are rendering, then unset it at the end. If &lt;code&gt;setState&lt;/code&gt; sees we are rendering, it will set the pending state, but not cause a new render, as it knows the current render that is going on will pick up this state change&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactCompositeComponentWrapper&lt;/span&gt; &lt;/span&gt;{
+    ...
+    updateComponent(prevElement, nextElement) {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._rendering = &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;;
+
+        &lt;span class=&quot;comment&quot;&gt;// entire rest of the method&lt;/span&gt;
+
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._rendering = &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;;
+    }
+}
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;FeactComponent&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+}
+
+FeactComponent.prototype.setState = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;partialState&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; internalInstance = FeactInstanceMap.get(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);
+
+    internalInstance._pendingPartialState =
+        internalInstance._pendingPartialState || [];
+
+    internalInstance.push(partialState);
+
+    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (!internalInstance._rendering) {
+        FeactReconciler.performUpdateIfNecessary(internalInstance);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;wrapping-it-up&quot;&gt;wrapping it up&lt;/h2&gt;
+&lt;p&gt;Here is a fiddle that contains the final version of Feact&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; href=&quot;https://jsfiddle.net/city41/fbw81p5e/5/&quot; target=&quot;_blank&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;It contains the simple batching, so it will only render twice (whereas the previous fiddle above rendered three times).&lt;/p&gt;
+&lt;h3 id=&quot;setstate-pitfalls&quot;&gt;setState pitfalls&lt;/h3&gt;
+&lt;p&gt;Now that we understand how setState works and the overall concept on how batching works, we can see there are some pitfalls in &lt;code&gt;setState&lt;/code&gt;. The problem is it takes several steps to update a component’s state, as each pending partial state needs to get applied one by one. That means using &lt;code&gt;this.state&lt;/code&gt; when setting state is dangerous&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;componentWillReceiveProps(nextProps) {
+    this.setState({ counter: this.state.counter + 1 });
+    this.setState({ counter: this.state.counter + 1 });
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This contrived example shows what I mean. You might expect counter to get 2 added to it, but since states are being batched up, the second call to &lt;code&gt;setState&lt;/code&gt; has the same values for &lt;code&gt;this.state&lt;/code&gt; as the first call, so counter will only get incremented once.&lt;/p&gt;
+&lt;p&gt;React solves this problem by allowing a callback to be passed into &lt;code&gt;setState&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;componentWillReceiveProps(nextProps) {
+    this.setState((currentState) =&amp;gt; ({
+        counter: currentState.counter + 1
+    });
+    this.setState((currentState) =&amp;gt; ({
+        counter: currentState.counter + 1
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By using the callback flavor of &lt;code&gt;setState&lt;/code&gt;, you get access to the intermediate values state works through. If Feact were to implement this, it’d look like&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;_processPendingState() {
+    const inst = this._instance;
+    if (!this._pendingPartialState) {
+        return inst.state;
+    }
+
+    let nextState = inst.state;
+
+    for (let i = 0; i &amp;lt; this._pendingPartialState.length; ++i) {
+        const partialState = this._pendingPartialState[i];
+
+        if (typeof partialState === &amp;#39;function&amp;#39;) {
+            nextState = partialState(nextState);
+        } else {
+            nextState = Object.assign(nextState, patialState);
+        }
+    }
+
+    this._pendingPartialState = null;
+    return nextState;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You can see how the callback gets access to the intermediate values of &lt;code&gt;nextState&lt;/code&gt; as we work our way through all the pending changes.&lt;/p&gt;
+&lt;h2 id=&quot;up-next&quot;&gt;Up Next&lt;/h2&gt;
+&lt;p&gt;If you’ve read this far then holy cow, thanks! Feel free to &lt;a href=&quot;mailto:matt.e.greer@gmail.com&quot;&gt;email me&lt;/a&gt; if you have any feedback.&lt;/p&gt;
+&lt;p&gt;Part five is just around the corner. It will go over React’s transactions and wrap the whole shebang up. Stay tuned.&lt;/p&gt;
+&lt;p&gt;Here is the final fiddle for Feact one more time:&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; href=&quot;https://jsfiddle.net/city41/fbw81p5e/5/&quot; target=&quot;_blank&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>React Internals, Part Three: basic updating</title>
       <link>http://mattgreer.org/articles/react-internals-part-three-basic-updating/</link>
@@ -21,7 +381,7 @@
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-one-basic-rendering&quot;&gt;part one: basic rendering&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount&quot;&gt;part two: componentWillMount and componentDidMount&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;strong&gt;part three: basic updating&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
-    &lt;li&gt;part four: setState &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-four-setState&quot;&gt;part four: setState&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -33,7 +393,7 @@ setTimeout(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&q
     React.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;hello again&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;, root);
 }, &lt;span class=&quot;number&quot;&gt;2000&lt;/span&gt;);
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;We’ll ignore &lt;code&gt;setState()&lt;/code&gt; for now (that’s coming in part four) and instead implement updates through &lt;code&gt;Feact.render()&lt;/code&gt;. Truth be told, this is simply “props have changed so update”, which also happens if you render again and pass different props down to a child component. We just happen to be causing the props change through &lt;code&gt;Feact.render()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;We’ll ignore &lt;code&gt;setState()&lt;/code&gt; for now (that’s coming in &lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-four-setState&quot;&gt;part four&lt;/a&gt;) and instead implement updates through &lt;code&gt;Feact.render()&lt;/code&gt;. Truth be told, this is simply “props have changed so update”, which also happens if you render again and pass different props down to a child component. We just happen to be causing the props change through &lt;code&gt;Feact.render()&lt;/code&gt;.&lt;/p&gt;
 &lt;h2 id=&quot;doing-the-update&quot;&gt;Doing the update&lt;/h2&gt;
 &lt;p&gt;The concept is pretty simple, &lt;code&gt;Feact.render()&lt;/code&gt; just needs to check if it has rendered before, and if so, update the page instead of starting fresh.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
@@ -338,8 +698,8 @@ In React, if you render again with the same component type, it will get updated.
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;And with that, Feact is able to update components, albeit only through &lt;code&gt;Feact.render()&lt;/code&gt;. That’s not too practical, but we’ll improve things next time when we explore &lt;code&gt;setState()&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;To wrap things up, here is a fiddle encompassing all that we’ve done so far&lt;/p&gt;
-&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/9t9xavqL/5/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Stay tuned for part four, coming soon!&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/s5d9prf6/2/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;On to &lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-four-setState&quot;&gt;part four&lt;/a&gt;!&lt;/p&gt;
 </description>
     </item>
     <item>
@@ -355,7 +715,7 @@ In React, if you render again with the same component type, it will get updated.
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-one-basic-rendering&quot;&gt;part one: basic rendering&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;strong&gt;part two: componentWillMount and componentDidMount&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three: basic updating&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;part four: setState &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-four-setState&quot;&gt;part four: setState&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -363,30 +723,30 @@ In React, if you render again with the same component type, it will get updated.
 &lt;h2 id=&quot;first-fix-createclass&quot;&gt;First, fix createClass&lt;/h2&gt;
 &lt;p&gt;&lt;code&gt;createClass&lt;/code&gt; back in part one only supported &lt;code&gt;render&lt;/code&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
-    createClass(config) {
-        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentClass&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
+    createClass(spec) {
+        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Constructor&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
             &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props = props;
         }
 
-        &lt;span class=&quot;comment&quot;&gt;// we pluck render off and ignore the rest of config&lt;/span&gt;
-        ComponentClass.prototype.render = config.render;
+        &lt;span class=&quot;comment&quot;&gt;// we pluck render off and ignore the rest of spec&lt;/span&gt;
+        Constructor.prototype.render = spec.render;
 
-        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; ComponentClass;
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Constructor;
     }
     ...
 }
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This is a simple fix, let’s add the entire config to the component’s prototype. That allows methods like &lt;code&gt;componentWillMount&lt;/code&gt;, but it also allows any arbitrary methods the user defined to be used.&lt;/p&gt;
+&lt;p&gt;This is a simple fix, let’s add the entire spec to the component’s prototype. That allows methods like &lt;code&gt;componentWillMount&lt;/code&gt;, but it also allows any arbitrary methods the user defined to be used.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
-    createClass(config) {
-        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentClass&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
+    createClass(spec) {
+        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Constructor&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
             &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props = props;
         }
 
-        ComponentClass.prototype =
-            &lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.assign(ComponentClass.prototype, config);
+        Constructor.prototype =
+            &lt;span class=&quot;built_in&quot;&gt;Object&lt;/span&gt;.assign(Constructor.prototype, spec);
 
-        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; ComponentClass;
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Constructor;
     }
     ...
 }
@@ -505,7 +865,7 @@ Remember the tight coupling that was called out in part one? It’s gone now, &l
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id=&quot;concluding-part-two&quot;&gt;Concluding part two&lt;/h2&gt;
 &lt;p&gt;That wraps up part two. Here is a fiddle encompassing all we’ve done&lt;/p&gt;
-&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/L5u2z592/2/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/L5u2z592/3/&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;In &lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three&lt;/a&gt;, we’ll add support for updates.&lt;/p&gt;
 </description>
     </item>
@@ -522,7 +882,7 @@ Remember the tight coupling that was called out in part one? It’s gone now, &l
     &lt;li&gt;&lt;strong&gt;part one: basic rendering&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount/&quot;&gt;part two: componentWillMount and componentDidMount&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three: basic updating&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;part four: setState &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-four-setState&quot;&gt;part four: setState&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -631,14 +991,14 @@ The truth is the components we create are incomplete. React will take our compon
 &lt;/div&gt;
 
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Feact = {
-    createClass(config) {
-        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ComponentClass&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
+    createClass(spec) {
+        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Constructor&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;props&lt;/span&gt;) &lt;/span&gt;{
             &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props = props;
         }
 
-        ComponentClass.prototype.render = config.render;
+        Constructor.prototype.render = spec.render;
 
-        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; ComponentClass;
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; Constructor;
     }, 
 
     render(element, container) {
@@ -763,7 +1123,7 @@ TopLevelWrapper.prototype.render = &lt;span class=&quot;function&quot;&gt;&lt;sp
 &lt;h2 id=&quot;conclusion-to-part-one&quot;&gt;Conclusion to part one&lt;/h2&gt;
 &lt;p&gt;With that, Feact can render simple components. As far as basic rendering is concerned, we’ve hit most of the major considerations. In real React, rendering is much more complicated as there are many other things to consider such as events, focus, scroll position of the window, performance, and much more.&lt;/p&gt;
 &lt;p&gt;Here’s a final fiddle that wraps up all we’ve built so far:&lt;/p&gt;
-&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/7x2zgevj/16&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&quot;fiddle&quot; target=&quot;_blank&quot; href=&quot;https://jsfiddle.net/city41/7x2zgevj/17&quot;&gt;fiddle&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount&quot;&gt;on to part two!&lt;/a&gt;&lt;/p&gt;
 </description>
     </item>
@@ -788,7 +1148,7 @@ TopLevelWrapper.prototype.render = &lt;span class=&quot;function&quot;&gt;&lt;sp
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; Action;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;So far I’m not using &lt;code&gt;error&lt;/code&gt; or &lt;code&gt;meta&lt;/code&gt;, but that’s what redux-actions calls for so going with it. With this we get statically typed Actions&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action from &lt;span class=&quot;string&quot;&gt;&quot;./action&quot;&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;./action&quot;&lt;/span&gt;;
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; MY_ACTION = &lt;span class=&quot;string&quot;&gt;&quot;MY_ACTION&quot;&lt;/span&gt;;
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;type&lt;/span&gt; MY_ACTION = { foo: &lt;span class=&quot;built_in&quot;&gt;number&lt;/span&gt;, message: &lt;span class=&quot;built_in&quot;&gt;string&lt;/span&gt; }
 
@@ -805,9 +1165,9 @@ TopLevelWrapper.prototype.render = &lt;span class=&quot;function&quot;&gt;&lt;sp
 &lt;p&gt;Exporting both a string and a type named &lt;code&gt;MY_ACTION&lt;/code&gt; felt a little weird. But since TypeScript can distinguish them by their type, it works. It reduces the cognitive load a bit when working with actions.&lt;/p&gt;
 &lt;h2 id=&quot;and-the-reducer&quot;&gt;And The Reducer&lt;/h2&gt;
 &lt;p&gt;And now with the action set up, the reducer can consume it&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action from &lt;span class=&quot;string&quot;&gt;&quot;../actions/action&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { MY_ACTION } from &lt;span class=&quot;string&quot;&gt;&quot;../actions/myAction&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { handleActions } from &lt;span class=&quot;string&quot;&gt;&quot;redux-actions&quot;&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Action &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;../actions/action&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { MY_ACTION } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;../actions/myAction&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { handleActions } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;redux-actions&quot;&lt;/span&gt;;
 
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; reducer = handleActions({
   [MY_ACTION]: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;state, action: Action&amp;lt;MY_ACTION&amp;gt;&lt;/span&gt;) &lt;/span&gt;{
@@ -900,9 +1260,9 @@ ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;
 &lt;h2 id=&quot;cheating-a-little-bit&quot;&gt;Cheating A Little Bit&lt;/h2&gt;
 &lt;p&gt;Redux itself is getting along just fine with TypeScript. The problem is only in react-redux’s &lt;code&gt;Provider&lt;/code&gt;. react-redux is a tiny library, gluing a Redux store to a React component. Even better, react-redux is almost entirely inside &lt;code&gt;connect&lt;/code&gt;, if you look at &lt;a href=&quot;https://github.com/reactjs/react-redux/blob/master/src/components/Provider.js&quot;&gt;Provider’s source&lt;/a&gt;, it’s nice and simple!&lt;/p&gt;
 &lt;p&gt;All Provider is doing is placing the Redux store on the child context, so that the component that &lt;code&gt;connect()&lt;/code&gt; generated can find it. So I just wrote my own Provider that does the same thing, in a way that skirts around TypeScript&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; React &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
 
-&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider extends React.Component&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
+&lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; React.Component&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
   &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; childContextTypes = {
     store: React.PropTypes.object.isRequired
   }
@@ -917,8 +1277,8 @@ ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;This is enough to make everyone happy. But it’s a little irksome that the Provider is completely relying on &lt;code&gt;any&lt;/code&gt;. By using generics, you can fix that&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { Store } from &lt;span class=&quot;string&quot;&gt;&quot;redux&quot;&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; React &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; { Store } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;redux&quot;&lt;/span&gt;;
 
 &lt;span class=&quot;keyword&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;createProvider&lt;/span&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;P&lt;/span&gt;&amp;gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
   &lt;span class=&quot;keyword&quot;&gt;interface&lt;/span&gt; ProviderProps&amp;lt;P&amp;gt; {
@@ -926,7 +1286,7 @@ ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;
     target: React.ComponentClass&amp;lt;P&amp;gt;
   }
 
-  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider extends React.Component&amp;lt;ProviderProps&amp;lt;P&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; Provider &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; React.Component&amp;lt;ProviderProps&amp;lt;P&amp;gt;, &lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; {
     &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; childContextTypes = {
       store: React.PropTypes.object.isRequired
     }
@@ -942,16 +1302,16 @@ ReactDOM.render(&lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;then over in index.tsx&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as React from &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * as ReactDOM from &lt;span class=&quot;string&quot;&gt;&quot;react-dom&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; createProvider from &lt;span class=&quot;string&quot;&gt;&quot;./createProvider&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Home, { HomeProps } from &lt;span class=&quot;string&quot;&gt;&quot;./components/Home&quot;&lt;/span&gt;;
-&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; configureStore from &lt;span class=&quot;string&quot;&gt;&quot;./store/configureStore&quot;&lt;/span&gt;;
+&lt;pre&gt;&lt;code class=&quot;lang-typescript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; React &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; * &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; ReactDOM &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;react-dom&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; createProvider &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;./createProvider&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Home, { HomeProps } &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;./components/Home&quot;&lt;/span&gt;;
+&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; configureStore &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;./store/configureStore&quot;&lt;/span&gt;;
 
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = configureStore();
 &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; Provider = createProvider&amp;lt;HomeProps&amp;gt;();
 
-&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; App: React.StatelessComponent&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; = () =&amp;gt; (
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; App: React.StatelessComponent&amp;lt;&lt;span class=&quot;built_in&quot;&gt;any&lt;/span&gt;&amp;gt; = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; =&amp;gt;&lt;/span&gt; (
   &amp;lt;Provider store={store} target={Home} /&amp;gt;
 );
 
