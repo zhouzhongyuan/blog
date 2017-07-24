@@ -294,7 +294,7 @@ FeactComponent.prototype.setState = function(partialState) {
     internalInstance._pendingPartialState =
         internalInstance._pendingPartialState || [];
 
-    internalInstance.push(partialState);
+    internalInstance._pendingPartialState.push(partialState);
     ...
 }
 ```
