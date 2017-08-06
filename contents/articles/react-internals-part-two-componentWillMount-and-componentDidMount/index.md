@@ -15,7 +15,7 @@ In [part one](/articles/react-internals-part-one-basic-rendering) we established
     <li>**part two: componentWillMount and componentDidMount** <- you are here</li>
     <li>[part three: basic updating](/articles/react-internals-part-three-basic-updating)</li>
     <li>[part four: setState](/articles/react-internals-part-four-setState)</li>
-    <li>part five: transactions *coming soon!*</li>
+    <li>[part five: transactions](/articles/react-internals-part-five-transactions)</li>
 </ul>
 
 
