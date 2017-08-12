@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>React Internals, Part Five: transactions - Matt Greer
+    </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="alternate" href="http://mattgreer.org/feed.xml" type="application/rss+xml" title="Me talking about software and programming">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,400,700|">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/media/img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/media/img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/media/img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/media/img/apple-touch-icon-144x144-precomposed.png">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="title clearfix"><a href="/">
+          <h1 class="pull-left">Matt Greer</h1></a>
+        <div class="links pull-right"><a href="/things.html">things I've made</a></div>
+      </div>
+      <div class="banner-bg">
+        <div class="banner"></div>
+      </div>
+    </header>
+    <div id="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-10">
+            <h1>React Internals, Part Five: transactions</h1>
+            <div class="date"><span>12 August 2017</span></div>
+            <article class="article">
+              <section class="content"><p>In this part, we’ll talk about React’s transactions.
+<span class="more"></span></p>
+<h2 id="the-series">The series</h2>
+<ul>
+    <li><a href="/articles/react-internals-part-one-basic-rendering">part one: basic rendering</a></li>
+    <li><a href="/articles/react-internals-part-two-componentWillMount-and-componentDidMount/">part two: componentWillMount and componentDidMount</a></li>
+    <li><a href="/articles/react-internals-part-three-basic-updating">part three: basic updating</a></li>
+    <li><a href="/articles/react-internals-part-four-setState">part four: setState</a></li>
+    <li><strong>part five: transactions</strong> &lt;- you are here</li>
+</ul>
+
+<h2 id="transactions-everywhere">transactions everywhere</h2>
+<p>At this point, the little React clone we built, Feact, is complete. You can see the final version of it <a href="https://jsfiddle.net/city41/fbw81p5e/5">here</a>.</p>
+<p>But if you decide to dive into React’s source, you’ll quickly notice all these “transactions” everywhere. They obscure the intent of the code, and make it harder to get a sense of what is going on. Rest assured, Feact is following React pretty closely (well, React 15.3 at least), but it purposely doesn’t have transactions to make the actual “meat” of the code more apparent.</p>
+<h2 id="what-is-a-transaction-">what is a transaction?</h2>
+<p>The good news is transactions are simple. They are just a pattern React team has adopted to make the framework more robust and easier to maintain.</p>
+<p>Whenever React decides it needs to do something, that “something” usually needs to do a little bit of prep work before, do its main logic, then some clean up work afterwards. This diagram showing how transactions work is taken straight from the React source code</p>
+<pre style="min-width: 800px">
+ *                       wrappers (injected at creation time)
+ *                                      +        +
+ *                                      |        |
+ *                    +-----------------|--------|--------------+
+ *                    |                 v        |              |
+ *                    |      +---------------+   |              |
+ *                    |   +--|    wrapper1   |---|----+         |
+ *                    |   |  +---------------+   v    |         |
+ *                    |   |          +-------------+  |         |
+ *                    |   |     +----|   wrapper2  |--------+   |
+ *                    |   |     |    +-------------+  |     |   |
+ *                    |   |     |                     |     |   |
+ *                    |   v     v                     v     v   | wrapper
+ *                    | +---+ +---+   +---------+   +---+ +---+ | invariants
+ * perform(anyMethod) | |   | |   |   |         |   |   | |   | | maintained
+ * +----------------->|-|---|-|---|-->|anyMethod|---|---|-|---|-|-------->
+ *                    | |   | |   |   |         |   |   | |   | |
+ *                    | |   | |   |   |         |   |   | |   | |
+ *                    | |   | |   |   |         |   |   | |   | |
+ *                    | +---+ +---+   +---------+   +---+ +---+ |
+ *                    |  initialize                    close    |
+ *                    +-----------------------------------------+
+</pre>
+
+<p>If Feact was to add transactions, its (very) simple take would be something like this:</p>
+<pre><code class="lang-javascript"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> </span>{
+    <span class="keyword">constructor</span>(wrapper) {
+        <span class="keyword">this</span>._wrapper = wrapper;
+    }
+
+    perform(method) {
+        <span class="keyword">const</span> wrapperValue = <span class="keyword">this</span>._wrapper.initialize();
+
+        method();
+
+        <span class="keyword">this</span>._wrapper.close(wrapperValue);
+    }
+}
+</code></pre>
+<h2 id="a-use-case-for-transactions">A use case for transactions</h2>
+<p>Why all the fuss? Mostly transactions enable React to do what it needs to do while keeping the browser happy.</p>
+<p>For example, consider this dumb little React app, it swaps a button and a text input every 5 seconds</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> MyComp = React.createClass({
+    getInitialState() {
+        <span class="keyword">return</span> {
+            <span class="attr">textFirst</span>: <span class="literal">true</span>
+        };
+    },
+
+    componentDidMount() {
+        setInterval(<span class="function"><span class="params">()</span> =&gt;</span> {
+            <span class="keyword">this</span>.setState({
+                <span class="attr">textFirst</span>: !<span class="keyword">this</span>.state.textFirst
+            });
+        }, <span class="number">5000</span>);
+    },
+
+    render() {
+        <span class="keyword">let</span> children;
+
+        <span class="keyword">if</span> (<span class="keyword">this</span>.state.textFirst) {
+            children = [
+                &lt;input key="text" type="text" /&gt;,
+                &lt;button key="button" /&gt;
+            ];
+        } else {
+            children = [
+                &lt;button key="button" /&gt;,
+                &lt;input key="text" type="text" /&gt;
+            ];
+        }
+
+        return (
+            &lt;div&gt;{children}&lt;/div&gt;
+        );
+    }
+});
+
+ReactDOM.render(&lt;MyComp /&gt;, document.body);
+</code></pre>
+<p>The trouble with this app is the input element. Whenever you move an input element in the DOM (for example, <code>parentElement.insertBefore(myInputElement, someOtherChild)</code>), the browser clears out its selection. So if the user has highlighted some text in the input, then something about how your app renders causes React to move the input in the DOM, that selection gets cleared, frustrating your user. To solve this problem, React component updates are done in a transaction. During the initialize phase of the transaction, React grabs the current selection state of the browser and stores it. Then in the close phase, it takes that previous value and makes sure it gets restored. The transactions that happen during a React render handle many other things such as disabling events, maintaining the window’s scroll position, and more. Another benefit of the transaction pattern is it becomes easy to store the selection, do a whole bunch of work, then restore the selection at the very end.</p>
+<h3 id="feact-transactions">Feact transactions</h3>
+<p>If Feact managed selection using transactions, it’d look something like</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> SELECTION_RESTORATION = {
+    initialize() {
+        <span class="keyword">const</span> focusedElem = <span class="built_in">document</span>.activeElement;
+
+        <span class="keyword">return</span> {
+            focusedElem,
+            <span class="attr">selection</span>: {
+                <span class="attr">start</span>: focusedElem.selectionStart,
+                <span class="attr">end</span>: focusedElem.selectionEnd
+            }
+        };
+    },
+
+    close(priorSelectionInformation) { 
+        <span class="keyword">const</span> focusedElem = priorSelectionInformation.focusedElem; 
+        focusedElem.selectionStart = 
+            priorSelectionInformation.selection.start;
+
+        focusedElem.selectionEnd =
+            priorSelectionInformation.selection.end;
+    }
+};
+
+<span class="keyword">const</span> updateTransaction = <span class="keyword">new</span> Transaction(SELECTION_RESTORATION);
+
+FeactReconciler = {
+    ...
+    receiveComponent(internalinstance, nextElement) {
+        updateTransaction.perform(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+            internalInstance.receiveComponent(nextElement);
+        });
+    }
+    ...
+}
+</code></pre>
+<div class="callout pitfall">
+Again trying to keep the code as straightforward as possible. This silly little transaction doesn’t even check if the element is capable of having a selection, amongst many other problems.
+</div>
+
+<p>Over in React, transactions are more complicated. For starters, they allow more than one wrapper. They also deal with exceptions being thrown, and also ensure transactions don’t call back into themselves.</p>
+<h2 id="series-conclusion">Series Conclusion</h2>
+<p>And with that, this series has covered the basics of how React works. Whenever you’re debugging your React applications, the large portion of the call stack that is React code should feel a little less alien now. That’s a primary reason I decided to write this series out.</p>
+<p>If you spotted any errors or have any feedkback, feel free to <a href="mailto:matt.e.greer@gmail.com">email me</a>.</p>
+</section>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-offset-1 col-md-1">
+            <div class="wave hidden-xs hidden-sm"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="about"><p>Hi, I’m Matt Greer, thanks for stopping by. I’m a developer in the San Jose area. I am mostly interested in web related technology, but also dabble in games, Clojure(Script), visualization and sometimes devops-ish stuff. All opinions expressed here are my own.</p>
+<p>This site was created with <a href="http://wintersmith.io/">Wintersmith</a>. It is hosted by GitHub, and its source is <a href="https://github.com/city41/blog">here</a>.</p>
+
+            </div>
+          </div>
+          <div class="col-md-4"><ul>
+<li><i class="fa fa-envelope"></i> <a href="mailto:matt.e.greer@gmail.com">matt.e.greer@gmail.com</a></li>
+<li><i class="fa fa-twitter"></i> <a href="http://twitter.com/mattegreer">@mattegreer</a></li>
+<li><i class="fa fa-stack-overflow"></i> <a href="http://stackoverflow.com/users/194940/matt-greer">StackOverflow</a></li>
+<li><i class="fa fa-github"></i> <a href="https://github.com/city41">GitHub</a></li>
+<li><i class="fa fa-rss"></i> <a href="/feed.xml">rss</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      
+      ga('create', 'UA-47850394-1', 'mattgreer.org');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>

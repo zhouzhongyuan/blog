@@ -5,23 +5,176 @@
     <atom:link href="http://mattgreer.org/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://mattgreer.org</link>
     <description>Me talking about software and programming</description>
-    <pubDate>Sat, 22 Jul 2017 17:00:00 -0700</pubDate>
+    <pubDate>Fri, 11  Aug 2017 17:00:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>React Internals, Part Five: transactions</title>
+      <link>http://mattgreer.org/articles/react-internals-part-five-transactions/</link>
+      <pubDate>Fri, 11  Aug 2017 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://mattgreer.org/articles/react-internals-part-five-transactions/</guid>
+      <author></author>
+      <description>&lt;p&gt;In this part, we’ll talk about React’s transactions.
+&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&quot;the-series&quot;&gt;The series&lt;/h2&gt;
+&lt;ul&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-one-basic-rendering&quot;&gt;part one: basic rendering&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount/&quot;&gt;part two: componentWillMount and componentDidMount&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three: basic updating&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-four-setState&quot;&gt;part four: setState&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;part five: transactions&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;transactions-everywhere&quot;&gt;transactions everywhere&lt;/h2&gt;
+&lt;p&gt;At this point, the little React clone we built, Feact, is complete. You can see the final version of it &lt;a href=&quot;https://jsfiddle.net/city41/fbw81p5e/5&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;But if you decide to dive into React’s source, you’ll quickly notice all these “transactions” everywhere. They obscure the intent of the code, and make it harder to get a sense of what is going on. Rest assured, Feact is following React pretty closely (well, React 15.3 at least), but it purposely doesn’t have transactions to make the actual “meat” of the code more apparent.&lt;/p&gt;
+&lt;h2 id=&quot;what-is-a-transaction-&quot;&gt;what is a transaction?&lt;/h2&gt;
+&lt;p&gt;The good news is transactions are simple. They are just a pattern React team has adopted to make the framework more robust and easier to maintain.&lt;/p&gt;
+&lt;p&gt;Whenever React decides it needs to do something, that “something” usually needs to do a little bit of prep work before, do its main logic, then some clean up work afterwards. This diagram showing how transactions work is taken straight from the React source code&lt;/p&gt;
+&lt;pre style=&quot;min-width: 800px&quot;&gt;
+ *                       wrappers (injected at creation time)
+ *                                      +        +
+ *                                      |        |
+ *                    +-----------------|--------|--------------+
+ *                    |                 v        |              |
+ *                    |      +---------------+   |              |
+ *                    |   +--|    wrapper1   |---|----+         |
+ *                    |   |  +---------------+   v    |         |
+ *                    |   |          +-------------+  |         |
+ *                    |   |     +----|   wrapper2  |--------+   |
+ *                    |   |     |    +-------------+  |     |   |
+ *                    |   |     |                     |     |   |
+ *                    |   v     v                     v     v   | wrapper
+ *                    | +---+ +---+   +---------+   +---+ +---+ | invariants
+ * perform(anyMethod) | |   | |   |   |         |   |   | |   | | maintained
+ * +-----------------&gt;|-|---|-|---|--&gt;|anyMethod|---|---|-|---|-|--------&gt;
+ *                    | |   | |   |   |         |   |   | |   | |
+ *                    | |   | |   |   |         |   |   | |   | |
+ *                    | |   | |   |   |         |   |   | |   | |
+ *                    | +---+ +---+   +---------+   +---+ +---+ |
+ *                    |  initialize                    close    |
+ *                    +-----------------------------------------+
+&lt;/pre&gt;
+
+&lt;p&gt;If Feact was to add transactions, its (very) simple take would be something like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Transaction&lt;/span&gt; &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;constructor&lt;/span&gt;(wrapper) {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._wrapper = wrapper;
+    }
+
+    perform(method) {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; wrapperValue = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._wrapper.initialize();
+
+        method();
+
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._wrapper.close(wrapperValue);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;a-use-case-for-transactions&quot;&gt;A use case for transactions&lt;/h2&gt;
+&lt;p&gt;Why all the fuss? Mostly transactions enable React to do what it needs to do while keeping the browser happy.&lt;/p&gt;
+&lt;p&gt;For example, consider this dumb little React app, it swaps a button and a text input every 5 seconds&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; MyComp = React.createClass({
+    getInitialState() {
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
+            &lt;span class=&quot;attr&quot;&gt;textFirst&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;
+        };
+    },
+
+    componentDidMount() {
+        setInterval(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; =&amp;gt;&lt;/span&gt; {
+            &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.setState({
+                &lt;span class=&quot;attr&quot;&gt;textFirst&lt;/span&gt;: !&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.state.textFirst
+            });
+        }, &lt;span class=&quot;number&quot;&gt;5000&lt;/span&gt;);
+    },
+
+    render() {
+        &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; children;
+
+        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.state.textFirst) {
+            children = [
+                &amp;lt;input key=&quot;text&quot; type=&quot;text&quot; /&amp;gt;,
+                &amp;lt;button key=&quot;button&quot; /&amp;gt;
+            ];
+        } else {
+            children = [
+                &amp;lt;button key=&quot;button&quot; /&amp;gt;,
+                &amp;lt;input key=&quot;text&quot; type=&quot;text&quot; /&amp;gt;
+            ];
+        }
+
+        return (
+            &amp;lt;div&amp;gt;{children}&amp;lt;/div&amp;gt;
+        );
+    }
+});
+
+ReactDOM.render(&amp;lt;MyComp /&amp;gt;, document.body);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The trouble with this app is the input element. Whenever you move an input element in the DOM (for example, &lt;code&gt;parentElement.insertBefore(myInputElement, someOtherChild)&lt;/code&gt;), the browser clears out its selection. So if the user has highlighted some text in the input, then something about how your app renders causes React to move the input in the DOM, that selection gets cleared, frustrating your user. To solve this problem, React component updates are done in a transaction. During the initialize phase of the transaction, React grabs the current selection state of the browser and stores it. Then in the close phase, it takes that previous value and makes sure it gets restored. The transactions that happen during a React render handle many other things such as disabling events, maintaining the window’s scroll position, and more. Another benefit of the transaction pattern is it becomes easy to store the selection, do a whole bunch of work, then restore the selection at the very end.&lt;/p&gt;
+&lt;h3 id=&quot;feact-transactions&quot;&gt;Feact transactions&lt;/h3&gt;
+&lt;p&gt;If Feact managed selection using transactions, it’d look something like&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; SELECTION_RESTORATION = {
+    initialize() {
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; focusedElem = &lt;span class=&quot;built_in&quot;&gt;document&lt;/span&gt;.activeElement;
+
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
+            focusedElem,
+            &lt;span class=&quot;attr&quot;&gt;selection&lt;/span&gt;: {
+                &lt;span class=&quot;attr&quot;&gt;start&lt;/span&gt;: focusedElem.selectionStart,
+                &lt;span class=&quot;attr&quot;&gt;end&lt;/span&gt;: focusedElem.selectionEnd
+            }
+        };
+    },
+
+    close(priorSelectionInformation) { 
+        &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; focusedElem = priorSelectionInformation.focusedElem; 
+        focusedElem.selectionStart = 
+            priorSelectionInformation.selection.start;
+
+        focusedElem.selectionEnd =
+            priorSelectionInformation.selection.end;
+    }
+};
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; updateTransaction = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Transaction(SELECTION_RESTORATION);
+
+FeactReconciler = {
+    ...
+    receiveComponent(internalinstance, nextElement) {
+        updateTransaction.perform(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+            internalInstance.receiveComponent(nextElement);
+        });
+    }
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;callout pitfall&quot;&gt;
+Again trying to keep the code as straightforward as possible. This silly little transaction doesn’t even check if the element is capable of having a selection, amongst many other problems.
+&lt;/div&gt;
+
+&lt;p&gt;Over in React, transactions are more complicated. For starters, they allow more than one wrapper. They also deal with exceptions being thrown, and also ensure transactions don’t call back into themselves.&lt;/p&gt;
+&lt;h2 id=&quot;series-conclusion&quot;&gt;Series Conclusion&lt;/h2&gt;
+&lt;p&gt;And with that, this series has covered the basics of how React works. Whenever you’re debugging your React applications, the large portion of the call stack that is React code should feel a little less alien now. That’s a primary reason I decided to write this series out.&lt;/p&gt;
+&lt;p&gt;If you spotted any errors or have any feedkback, feel free to &lt;a href=&quot;mailto:matt.e.greer@gmail.com&quot;&gt;email me&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>React Internals, Part Four: setState</title>
       <link>http://mattgreer.org/articles/react-internals-part-four-setState/</link>
       <pubDate>Sat, 22 Jul 2017 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://mattgreer.org/articles/react-internals-part-four-setState/</guid>
       <author></author>
-      <description>&lt;p&gt;In part four of this series we finally add &lt;code&gt;setState&lt;/code&gt; to our little React clone. &lt;code&gt;setState&lt;/code&gt; is a beast, so grab your favorite beverage and get comfortable!&lt;/p&gt;
+      <description>&lt;p&gt;In part four of this series we finally add &lt;code&gt;setState&lt;/code&gt; to our little React clone. &lt;code&gt;setState&lt;/code&gt; is a beast, so grab your favorite beverage and get comfortable!
+&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;h2 id=&quot;the-series&quot;&gt;The series&lt;/h2&gt;
 &lt;ul&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-one-basic-rendering&quot;&gt;part one: basic rendering&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount/&quot;&gt;part two: componentWillMount and componentDidMount&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three: basic updating&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;strong&gt;part four: setState&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
-    &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-five-transactions&quot;&gt;part five: transactions&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;adding-state-to-feact&quot;&gt;Adding state to Feact&lt;/h2&gt;
@@ -382,7 +535,7 @@ FeactComponent.prototype.setState = &lt;span class=&quot;function&quot;&gt;&lt;s
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount&quot;&gt;part two: componentWillMount and componentDidMount&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;strong&gt;part three: basic updating&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-four-setState&quot;&gt;part four: setState&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-five-transactions&quot;&gt;part five: transactions&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;simple-updating&quot;&gt;Simple updating&lt;/h2&gt;
@@ -716,7 +869,7 @@ In React, if you render again with the same component type, it will get updated.
     &lt;li&gt;&lt;strong&gt;part two: componentWillMount and componentDidMount&lt;/strong&gt; &amp;lt;- you are here&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three: basic updating&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-four-setState&quot;&gt;part four: setState&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-five-transactions&quot;&gt;part five: transactions&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 
@@ -883,7 +1036,7 @@ Remember the tight coupling that was called out in part one? It’s gone now, &l
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-two-componentWillMount-and-componentDidMount/&quot;&gt;part two: componentWillMount and componentDidMount&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-three-basic-updating&quot;&gt;part three: basic updating&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-four-setState&quot;&gt;part four: setState&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;part five: transactions &lt;em&gt;coming soon!&lt;/em&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;http://mattgreer.org/articles/react-internals-part-five-transactions&quot;&gt;part five: transactions&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;disclaimer&quot;&gt;disclaimer&lt;/h2&gt;

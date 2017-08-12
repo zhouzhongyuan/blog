@@ -5,6 +5,7 @@ date: 2017-07-23
 template: article.jade
 ---
 In part four of this series we finally add `setState` to our little React clone. `setState` is a beast, so grab your favorite beverage and get comfortable!
+<span class="more"></span>
 
 ## The series
 <ul>
@@ -12,7 +13,7 @@ In part four of this series we finally add `setState` to our little React clone.
     <li>[part two: componentWillMount and componentDidMount](/articles/react-internals-part-two-componentWillMount-and-componentDidMount/)</li>
     <li>[part three: basic updating](/articles/react-internals-part-three-basic-updating)</li>
     <li>**part four: setState** <- you are here</li>
-    <li>part five: transactions *coming soon!*</li>
+    <li>[part five: transactions](/articles/react-internals-part-five-transactions)</li>
 </ul>
 
 ## Adding state to Feact
