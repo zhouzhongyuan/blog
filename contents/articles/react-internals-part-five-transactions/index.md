@@ -169,5 +169,5 @@ Over in React, transactions are more complicated. For starters, they allow more 
 
 And with that, this series has covered the basics of how React works. Whenever you're debugging your React applications, the large portion of the call stack that is React code should feel a little less alien now. That's a primary reason I decided to write this series out.
 
-If you spotted any errors or have any feedkback, feel free to <a href="mailto:matt.e.greer@gmail.com">email me</a>.
+If you spotted any errors or have any feedback, feel free to <a href="mailto:matt.e.greer@gmail.com">email me</a>.
 
